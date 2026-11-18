@@ -505,11 +505,8 @@ def forgot_password_verify_otp(request):
 
     now = datetime.now(timezone.utc)
     exp = user.get('resetPasswordOtpExpires')
-    if exp:
-        if exp.tzinfo is None:
-            exp = exp.replace(tzinfo=timezone.utc)
-        if exp < now:
-            return JsonResponse({'success': False, 'message': 'Verification code has expired. Please request a new one.'}, status=400)
+    if is_expired(exp, now):
+        return JsonResponse({'success': False, 'message': 'Verification code has expired. Please request a new one.'}, status=400)
 
     return JsonResponse({'success': True, 'message': 'Verification code verified successfully.'})
 
@@ -550,11 +547,8 @@ def forgot_password_reset_password(request):
 
     now = datetime.now(timezone.utc)
     exp = user.get('resetPasswordOtpExpires')
-    if exp:
-        if exp.tzinfo is None:
-            exp = exp.replace(tzinfo=timezone.utc)
-        if exp < now:
-            return JsonResponse({'success': False, 'message': 'Verification code has expired. Please request a new one.'}, status=400)
+    if is_expired(exp, now):
+        return JsonResponse({'success': False, 'message': 'Verification code has expired. Please request a new one.'}, status=400)
 
     users.update_one(
         {'_id': user['_id']},
