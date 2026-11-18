@@ -92,7 +92,7 @@ def run_tests():
 
     print("\n--- 8. Testing Citizen Complaints List ---")
     res = client.get('/api/complaints/citizen/current', HTTP_AUTHORIZATION=f'Bearer {citizen_token}')
-    print("Status:", res.status_code, "Citizen complaints count:", len(res.json().get('data', [])))
+    print("Status:", res.status_code, "Response JSON:", res.json())
     assert res.status_code == 200
     assert len(res.json()['data']) >= 4
 

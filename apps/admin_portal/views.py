@@ -101,7 +101,8 @@ def compute_admin_stats():
         u = c.get('urgency', 'Medium')
         if u in urgency_counts:
             urgency_counts[u] += 1
-        loc = (c.get('location') or {}).get('address')
+        raw_loc = c.get('location')
+        loc = raw_loc.get('address') if isinstance(raw_loc, dict) else (raw_loc if isinstance(raw_loc, str) else None)
         if loc:
             dept_name = (c.get('department') or {}).get('name', 'General')
             location_counts[loc] = location_counts.get(loc, {'_id': loc, 'count': 0, 'latestDept': dept_name})

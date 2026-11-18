@@ -57,7 +57,7 @@ APPEND_SLASH = False
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'frontend' / 'dist'],
+        'DIRS': [BASE_DIR / 'templates', BASE_DIR / 'frontend' / 'dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -95,8 +95,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+static_dir = BASE_DIR / 'static'
 dist_assets = BASE_DIR / 'frontend' / 'dist' / 'assets'
-STATICFILES_DIRS = [dist_assets] if dist_assets.exists() else []
+STATICFILES_DIRS = [p for p in [static_dir, dist_assets] if p.exists()]
 
 MEDIA_URL = '/uploads/'
 MEDIA_ROOT = BASE_DIR / 'uploads'

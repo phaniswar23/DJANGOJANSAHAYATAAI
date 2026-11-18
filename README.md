@@ -2,7 +2,7 @@
 
 An AI-powered, multi-department Civic & Railway Grievance Redressal Platform built in alignment with Government of India digital governance standards (CPGRAMS / JanSahayata). Connecting citizens directly with government departments (Railways, Municipal Corporation, Water Supply & Sewerage, PWD, Electricity Board) through multi-modal grievance reporting, automated LLM categorization, YOLOv8 computer vision detection, and transparent officer resolution workflows.
 
-Built from scratch using **Django (Python)**, **MongoDB**, and **React 18**.
+Built from scratch using **Django (Python)**, **SQLite (`db.sqlite3`)**, and **React 18 / Django Templates**.
 
 ---
 
@@ -40,12 +40,13 @@ Built from scratch using **Django (Python)**, **MongoDB**, and **React 18**.
          ┌─────────────────────────────┼─────────────────────────────┐
          ▼                             ▼                             ▼
 ┌─────────────────┐           ┌──────────────────┐          ┌──────────────────┐
-│ MongoDB Database│           │ AI Orchestration │          │ Communications   │
-│ • Users & Roles │           │ • Gemini 1.5 API │          │ • Python SMTP    │
-│ • Complaints    │           │ • OpenRouter API │          │   (Gmail SSL)    │
-│ • Audit Logs    │           │ • YOLOv8 Vision  │          │ • OTP Dispatch   │
-│ • Email Requests│           │ • Rule Fallback  │          │   (Email/SMS/WA) │
-└─────────────────┘           └──────────────────┘          └──────────────────┘
+│ SQLite Database │           │ AI Orchestration │          │ Communications   │
+│  (db.sqlite3)   │           │ • Gemini 1.5 API │          │ • Python SMTP    │
+│ • Users & Roles │           │ • OpenRouter API │          │   (Gmail SSL)    │
+│ • Complaints    │           │ • YOLOv8 Vision  │          │ • OTP Dispatch   │
+│ • Audit Logs    │           │ • Rule Fallback  │          │   (Email/SMS/WA) │
+│ • Email Requests│           └──────────────────┘          └──────────────────┘
+└─────────────────┘
 ```
 
 ---
@@ -190,26 +191,24 @@ JanSahayata-AI/
 
 ### 1. Prerequisites
 - **Python 3.11+** installed
-- **MongoDB** running locally on port `27017` (e.g., `mongodb://127.0.0.1:27017`)
-- **Node.js 18+** (for frontend development if running Vite dev server)
+- **SQLite 3** (included automatically with Python — zero external database installation required!)
+- **Node.js 18+** (only if rebuilding or developing frontend components)
 
-### 2. Backend Setup (Django)
+### 2. Quick Run (Django Monolith with SQLite)
 
 1. **Install Python Dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Run Django Database Migrations** (for internal sessions & admin):
+2. **Run Django Database Migrations (SQLite)**:
    ```bash
    python manage.py migrate
    ```
 
-3. **Seed MongoDB with Official Government Accounts & Sample Complaints**:
+3. **Seed Database with Official Government Accounts & Sample Complaints**:
    ```bash
    python seed.py
-   # or
-   python manage.py seed
    ```
 
 4. **Start the Django Server**:
@@ -217,7 +216,7 @@ JanSahayata-AI/
    python manage.py runserver
    ```
    The platform will be live at `http://127.0.0.1:8000/`.
-   Because Django serves the built React frontend directly, you can open `http://127.0.0.1:8000/` immediately in your browser to access the complete UI!
+   Django directly serves the complete UI, so you can open `http://127.0.0.1:8000/` immediately in any browser! All citizen, staff, and admin portals are fully functional with zero setup.
 
 ---
 

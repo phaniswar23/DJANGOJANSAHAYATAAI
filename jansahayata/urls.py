@@ -19,7 +19,7 @@ def health_check(request):
         'status': 'online',
         'service': 'JanSahayata Grievance Intelligence Platform Backend (Django)',
         'version': '2.0.0-django',
-        'database': 'MongoDB',
+        'database': 'SQLite (db.sqlite3)',
         'timestamp': datetime.now(timezone.utc).isoformat()
     })
 

@@ -23,7 +23,7 @@ def get_authenticated_user(request):
             return None, "Invalid token payload."
 
         users = get_users_collection()
-        user = users.find_one({'_id': ObjectId(user_id)})
+        user = users.find_one({'_id': user_id})
         if not user:
             return None, "User account not found or session expired."
 

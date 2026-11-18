@@ -4,10 +4,13 @@ Seeds Super Admin, Department Grievance Officers, Citizens, and realistic Grieva
 """
 
 import os
+import django
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
 load_dotenv()
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jansahayata.settings')
+django.setup()
 
 from jansahayata.db import (
     get_users_collection,

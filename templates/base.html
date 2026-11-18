@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}JanSahayata AI — Citizen–Government Grievance Mediation Platform{% endblock %}</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            govNavy: '#0b2545',
+            govSaffron: '#e86100',
+            govGreen: '#138808',
+            govBlueLight: '#eef4ff'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .gov-tricolor { background: linear-gradient(90deg, #FF9933 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #138808 66.6%); height: 3px; }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- Tri-color National Top Bar -->
+  <div class="gov-tricolor"></div>
+
+  <!-- Accessibility & Government Portal Header -->
+  <div class="bg-[#081a30] text-slate-300 text-xs py-1.5 px-4 border-b border-slate-700/60">
+    <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-2">
+        <span class="font-semibold text-white">भारत सरकार</span>
+        <span class="text-slate-500">•</span>
+        <span class="text-slate-300">Government of India</span>
+        <span class="text-slate-500">•</span>
+        <span class="hidden md:inline text-slate-400">Ministry of Personnel, Public Grievances & Pensions</span>
+      </div>
+
+      <div class="flex items-center gap-4 text-[11px]">
+        <div class="flex items-center gap-1.5">
+          <span class="text-slate-400">Toll Free:</span>
+          <a href="tel:1800114000" class="font-bold text-amber-300 hover:underline">1800-11-4000</a>
+        </div>
+        <div class="hidden sm:flex items-center gap-1.5">
+          <span class="text-slate-400">Railway Help:</span>
+          <a href="tel:139" class="font-bold text-amber-300 hover:underline">139</a>
+        </div>
+        <div class="flex items-center gap-1 pl-2 border-l border-slate-700">
+          <button onclick="changeFontSize(-1)" class="px-1 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold" title="Decrease Font">A-</button>
+          <button onclick="changeFontSize(0)" class="px-1 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold" title="Reset Font">A</button>
+          <button onclick="changeFontSize(1)" class="px-1 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold" title="Increase Font">A+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Portal Navigation Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
+      
+      <!-- Brand Logo & Identity -->
+      <a href="/" class="flex items-center gap-3">
+        <div class="w-10 h-10 flex items-center justify-center">
+          <img src="/emblem.jpg" alt="Emblem of India" class="h-10 w-auto object-contain" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg'">
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-lg font-extrabold text-[#0b2545] tracking-tight">JanSahayata</span>
+            <span class="text-sm font-semibold text-[#e86100]">जनसहायता</span>
+            <span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">Gov Portal</span>
+          </div>
+          <p class="text-[10px] text-slate-500 font-medium">Department of Administrative Reforms & Public Grievances</p>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center gap-1 text-xs font-semibold">
+        <a href="/" class="px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-[#0b2545] transition">Home</a>
+        <a href="/report-problem" class="px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-[#0b2545] transition">File a Complaint</a>
+        <a href="/track-complaint" class="px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-[#0b2545] transition">Track Status</a>
+        <a href="/my-complaints" class="px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-[#0b2545] transition">My Complaints</a>
+      </nav>
+
+      <!-- Right User Actions -->
+      <div class="flex items-center gap-3">
+        <div class="hidden lg:flex items-center gap-2 pr-3 border-r border-slate-200">
+          <div class="w-6 h-6 rounded-full bg-[#0b2545] text-white flex items-center justify-center text-[10px] font-bold">GOV</div>
+          <div class="text-left text-[11px] leading-tight">
+            <span class="font-bold text-[#0b2545] block">Digital India</span>
+            <span class="text-slate-500 text-[10px]">24x7 Citizen Service</span>
+          </div>
+        </div>
+
+        <!-- Auth state buttons or profile -->
+        <div id="authActions" class="flex items-center gap-2">
+          <a href="/login" class="px-3.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition">Citizen Login</a>
+          <a href="/staff/login" class="px-3.5 py-1.5 rounded-lg bg-[#0b2545] hover:bg-[#123663] text-amber-300 text-xs font-bold transition shadow-xs">Official Portal</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Block -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Government Portal Footer -->
+  <footer class="bg-[#081a30] text-slate-400 text-xs pt-10 pb-6 border-t-4 border-[#0b2545] mt-auto">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <div class="flex items-center gap-2 text-white font-bold text-sm mb-3">
+          <span class="text-[#e86100]">CPGRAMS</span>
+          <span>JanSahayata AI</span>
+        </div>
+        <p class="text-slate-400 text-xs leading-relaxed">
+          National Public Grievance Redressal and Monitoring System empowering citizens with real-time AI classification and transparent officer resolution.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Participating Portals</h4>
+        <ul class="space-y-1.5 text-slate-300">
+          <li><a href="https://pgportal.gov.in" target="_blank" class="hover:text-amber-400">CPGRAMS Portal</a></li>
+          <li><a href="https://railmadad.indianrailways.gov.in" target="_blank" class="hover:text-amber-400">RailMadad Helpline 139</a></li>
+          <li><a href="https://digitalindia.gov.in" target="_blank" class="hover:text-amber-400">Digital India Initiative</a></li>
+          <li><a href="https://data.gov.in" target="_blank" class="hover:text-amber-400">Open Government Data (OGD)</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Helpline & Support</h4>
+        <ul class="space-y-1.5 text-slate-300">
+          <li>National Toll-Free: <strong class="text-white font-mono">1800-11-4000</strong></li>
+          <li>Indian Railways Redressal: <strong class="text-white font-mono">139</strong></li>
+          <li>Emergency Civic Response: <strong class="text-white font-mono">112</strong></li>
+          <li>Citizen Email: <span class="text-amber-300">support@jansahayata.gov.in</span></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Platform Assurance</h4>
+        <p class="text-slate-400 text-xs leading-relaxed">
+          Designed and hosted in accordance with Government of India Digital Service Standards (GIGW) with 256-bit SSL encryption.
+        </p>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 pt-4 border-t border-slate-700/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500">
+      <p>© 2026 Government of India • Department of Administrative Reforms & Public Grievances. All rights reserved.</p>
+      <p class="font-mono text-slate-400">JanSahayata v2.0 • Pure Django & SQLite Edition</p>
+    </div>
+  </footer>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Font size switcher
+    let currentFontSize = 100;
+    function changeFontSize(delta) {
+      if (delta === 0) currentFontSize = 100;
+      else currentFontSize = Math.min(125, Math.max(85, currentFontSize + delta * 5));
+      document.documentElement.style.fontSize = currentFontSize + '%';
+    }
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
