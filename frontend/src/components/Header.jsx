@@ -270,24 +270,20 @@ export default function Header() {
               </span>
             </a>
 
-            {/* Portal Role Link (Shown only for authenticated Staff/Admin) */}
-            {isSuperAdmin ? (
+            {/* Official Portal Access Link (Displayed strictly when no one is logged in) */}
+            {!isAuthenticated && (
               <>
                 <span className="text-slate-600 hidden sm:inline">|</span>
-                <Link to="/admin/dashboard" className="text-amber-400 font-semibold hover:underline flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" /> 
-                  <span>{t('adminPortal')}</span>
-                </Link>
-              </>
-            ) : isEmployee ? (
-              <>
-                <span className="text-slate-600 hidden sm:inline">|</span>
-                <Link to="/staff/dashboard" className="text-sky-300 font-semibold hover:underline flex items-center gap-1">
-                  <Building2 className="w-3.5 h-3.5" /> 
+                <Link
+                  to="/staff/login"
+                  className="text-sky-300 hover:text-amber-300 font-semibold flex items-center gap-1 transition-all duration-150 hover:underline cursor-pointer select-none text-xs"
+                  title="Official Government Personnel & Admin Portal"
+                >
+                  <Building2 className="w-3.5 h-3.5 text-sky-400" />
                   <span>{t('officialPortal')}</span>
                 </Link>
               </>
-            ) : null}
+            )}
 
           </div>
 
