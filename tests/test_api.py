@@ -23,7 +23,7 @@ def run_tests():
     print("Status:", res.status_code, "Data:", res.json())
     assert res.status_code == 200
     assert res.json()['status'] == 'online'
-    assert res.json()['database'] == 'MongoDB'
+    assert 'SQLite' in res.json()['database']
 
     print("\n--- 2. Testing AI Departments Endpoint ---")
     res = client.get('/api/ai/departments')
