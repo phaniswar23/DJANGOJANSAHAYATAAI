@@ -7,7 +7,7 @@ Zero external database dependencies (no MongoDB required).
 
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime, date, timezone
 import bcrypt
 import jwt
 from django.utils import timezone as dj_timezone
@@ -125,7 +125,7 @@ class MongoCursor:
 
 
 def sanitize_json_val(val):
-    if isinstance(val, datetime):
+    if isinstance(val, (datetime, date)):
         return val.isoformat()
     if isinstance(val, dict):
         return {k: sanitize_json_val(v) for k, v in val.items()}
@@ -262,10 +262,10 @@ class SQLiteCollectionAdapter:
             if k in model_fields:
                 known_data[k] = v
             else:
-                extra_data[k] = v
+                extra_data[k] = sanitize_json_val(v)
 
         if 'extraData' in model_fields and extra_data:
-            known_data['extraData'] = extra_data
+            known_data['extraData'] = sanitize_json_val(extra_data)
 
         obj = self.model(**known_data)
         obj.save()
@@ -279,12 +279,24 @@ class SQLiteCollectionAdapter:
             results.append(self.insert_one(d))
         return results
 
-    def update_one(self, query, update_dict):
+    def update_one(self, query, update_dict, upsert=False, *args, **kwargs):
         target = self.find_one(query)
         if not target:
+            if upsert:
+                new_doc = dict(query)
+                # Remove query operator keys if any
+                new_doc = {k: v for k, v in new_doc.items() if not k.startswith('$')}
+                sets = update_dict.get('$set', {})
+                new_doc.update(sets)
+                set_on_insert = update_dict.get('$setOnInsert', {})
+                new_doc.update(set_on_insert)
+                self.insert_one(new_doc)
+                return UpdateResult(1)
             return UpdateResult(0)
 
         obj = self.model.objects.get(id=int(target['_id']))
+        model_fields = {f.name for f in self.model._meta.get_fields()}
+
         sets = update_dict.get('$set', {})
         for k, v in sets.items():
             if isinstance(v, (dict, list)):
@@ -296,10 +308,24 @@ class SQLiteCollectionAdapter:
                 if isinstance(curr_parent, dict):
                     curr_parent[child] = v
                     setattr(obj, parent, curr_parent)
-            elif hasattr(obj, k):
+            elif k in model_fields:
                 if isinstance(v, datetime) and not hasattr(v, 'tzinfo'):
                     v = dj_timezone.make_aware(v)
                 setattr(obj, k, v)
+            elif hasattr(obj, 'extraData'):
+                extra = getattr(obj, 'extraData', {}) or {}
+                if isinstance(v, datetime):
+                    v = v.isoformat()
+                extra[k] = v
+                obj.extraData = extra
+
+        # Handle $unset
+        unsets = update_dict.get('$unset', {})
+        for k in unsets.keys():
+            if hasattr(obj, 'extraData') and k in (obj.extraData or {}):
+                obj.extraData.pop(k, None)
+            elif hasattr(obj, k):
+                setattr(obj, k, None)
 
         # Handle $push
         pushes = update_dict.get('$push', {})

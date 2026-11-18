@@ -39,6 +39,22 @@ def parse_body(request):
     except Exception:
         return {}
 
+def is_expired(exp, now=None):
+    if not exp:
+        return True
+    if now is None:
+        now = datetime.now(timezone.utc)
+    if isinstance(exp, str):
+        try:
+            exp_dt = datetime.fromisoformat(exp.replace('Z', '+00:00'))
+        except Exception:
+            return True
+    else:
+        exp_dt = exp
+    if not hasattr(exp_dt, 'tzinfo') or exp_dt.tzinfo is None:
+        exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+    return exp_dt < now
+
 @csrf_exempt
 def register_citizen(request):
     if request.method != 'POST':
@@ -173,7 +189,7 @@ def register_verify_otp(request):
 
     now = datetime.now(timezone.utc)
     exp = user.get('emailVerificationOtpExpires')
-    if exp and exp.replace(tzinfo=timezone.utc) < now:
+    if is_expired(exp, now):
         return JsonResponse({'success': False, 'message': 'Verification code has expired. Please request a new one.'}, status=400)
 
     # Finalize registration
@@ -368,7 +384,7 @@ def change_password_with_otp(request):
 
     now = datetime.now(timezone.utc)
     exp = user.get('resetPasswordOtpExpires')
-    if exp and exp.replace(tzinfo=timezone.utc) < now:
+    if is_expired(exp, now):
         return JsonResponse({'success': False, 'message': 'OTP has expired. Please request a new one.'}, status=400)
 
     users = get_users_collection()
@@ -604,7 +620,7 @@ def verify_citizen_current_email_otp(request):
 
     now = datetime.now(timezone.utc)
     exp = user.get('currentEmailOtpExpires')
-    if exp and exp.replace(tzinfo=timezone.utc) < now:
+    if is_expired(exp, now):
         return JsonResponse({'success': False, 'message': 'OTP has expired.'}, status=400)
 
     users = get_users_collection()
@@ -654,7 +670,7 @@ def confirm_citizen_new_email(request):
 
     now = datetime.now(timezone.utc)
     exp = user.get('newEmailOtpExpires')
-    if exp and exp.replace(tzinfo=timezone.utc) < now:
+    if is_expired(exp, now):
         return JsonResponse({'success': False, 'message': 'OTP has expired.'}, status=400)
 
     old_email = user.get('email')

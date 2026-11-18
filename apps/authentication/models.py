@@ -23,6 +23,7 @@ class User(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Active')
     mustResetPassword = models.BooleanField(default=False)
     department = models.JSONField(blank=True, null=True, default=dict)
+    extraData = models.JSONField(blank=True, default=dict)
     createdAt = models.DateTimeField(default=timezone.now)
     updatedAt = models.DateTimeField(auto_now=True)
 
@@ -34,7 +35,7 @@ class User(models.Model):
         return f"{self.name} ({self.email}) - {self.role}"
 
     def to_dict(self):
-        return {
+        res = {
             '_id': str(self.id),
             'id': str(self.id),
             'name': self.name,
@@ -50,6 +51,11 @@ class User(models.Model):
             'createdAt': self.createdAt.isoformat() if self.createdAt else None,
             'updatedAt': self.updatedAt.isoformat() if self.updatedAt else None,
         }
+        if self.extraData and isinstance(self.extraData, dict):
+            for k, v in self.extraData.items():
+                if k not in res:
+                    res[k] = v
+        return res
 
 
 class EmailChangeRequest(models.Model):
