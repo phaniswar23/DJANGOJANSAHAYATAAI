@@ -102,8 +102,72 @@
 <script>
 let allComplaints = [];
 
+async function demoSwitchCitizen(email) {
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: 'Citizen@2026!' })
+    });
+    const data = await res.json();
+    if (data.success && data.token) {
+      auth.setSession(data.token, data.user);
+      toast.success(`Active profile: ${data.user.name}`);
+      await loadCitizenDashboard();
+    } else {
+      toast.error('Could not switch demo citizen.');
+    }
+  } catch (e) {
+    toast.error('Demo switch error');
+  }
+}
+window.demoSwitchCitizen = demoSwitchCitizen;
+
 async function loadCitizenDashboard() {
-  const user = auth.getUser();
+  let user = auth.getUser();
+  let token = auth.getToken();
+
+  // If not logged in as citizen or token invalid, auto-login as primary demo citizen (Ravi Teja Sharma)
+  let citizenValid = false;
+  if (token && user && user.role === 'CITIZEN') {
+    try {
+      const meRes = await fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        if (meData.success && meData.user && meData.user.role === 'CITIZEN') {
+          citizenValid = true;
+          user = meData.user;
+          auth.setSession(token, user);
+        }
+      }
+    } catch (e) {
+      citizenValid = false;
+    }
+  }
+
+  if (!citizenValid) {
+    try {
+      const loginRes = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'citizen@gmail.com',
+          password: 'Citizen@2026!'
+        })
+      });
+      const loginData = await loginRes.json();
+      if (loginData.success && loginData.token) {
+        auth.setSession(loginData.token, loginData.user);
+        user = loginData.user;
+        token = loginData.token;
+      }
+    } catch (e) {
+      console.warn('Citizen auto-login fallback error', e);
+    }
+  }
+
   if (user) {
     document.getElementById('citizenWelcomeTitle').innerText = `Welcome, ${user.name || 'Citizen'}`;
     document.getElementById('citizenEmailLabel').innerText = `${user.email} ${user.phone ? '• ' + user.phone : ''}`;

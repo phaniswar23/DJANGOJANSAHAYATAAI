@@ -67,96 +67,93 @@
       </div>
 
       <!-- Hero Content -->
-      <div class="p-4 sm:p-10 lg:p-12 relative overflow-hidden">
+      <div class="p-4 sm:p-8 lg:p-10 space-y-6">
         
-        <!-- Authentic JanSahayata State Emblem (Clean reference image) -->
-        <div class="absolute right-6 sm:right-10 top-1/2 -translate-y-1/2 pointer-events-none hidden lg:block select-none">
-          <img
-            src="{% static 'images/hero_emblem.png' %}?v=3"
-            alt="State Emblem of India • JanSahayata"
-            class="w-48 h-52 object-contain select-none rounded-lg"
-          />
-        </div>
-
-        <div class="max-w-3xl relative z-10">
+        <!-- Top Half: Content & Emblem Flex (Left: Actions & Tracking, Right: State Emblem) -->
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 lg:gap-8">
           
-          <!-- Simple Clean Title -->
-          <div class="space-y-2 mb-4">
-            <span class="text-xs font-bold text-[#e86100] uppercase tracking-wider block">
-              GOVERNMENT OF INDIA CITIZEN PORTAL
-            </span>
-            <h1 class="text-2xl sm:text-4xl font-extrabold text-[#0b2545] tracking-tight leading-tight">
-              Public Grievance Redressal Portal
-            </h1>
-          </div>
+          <!-- Left Content -->
+          <div class="flex-1 space-y-4 max-w-2xl">
+            
+            <!-- Simple Clean Title -->
+            <div class="space-y-1.5">
+              <span class="text-xs font-bold text-[#e86100] uppercase tracking-wider block">
+                GOVERNMENT OF INDIA CITIZEN PORTAL
+              </span>
+              <h1 class="text-2xl sm:text-4xl font-extrabold text-[#0b2545] tracking-tight leading-tight">
+                Public Grievance Redressal Portal
+              </h1>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Report problems in your area directly to government departments. Track your complaint step-by-step and verify the fix before it gets closed.
+              </p>
+            </div>
 
-          <p class="text-sm sm:text-base text-slate-700 leading-relaxed mb-6 font-normal">
-            Report problems in your area directly to government departments. Track your complaint step-by-step and verify the fix before it gets closed.
-          </p>
-
-          <!-- Clean Action Buttons (Simple English, No Hindi Brackets) -->
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-8">
-            <a
-              href="/report"
-              id="hero-file-complaint-btn"
-              class="gov-btn-saffron px-6 py-3 text-sm shadow-md flex items-center justify-center gap-2 font-semibold"
-            >
-              <i data-lucide="plus-circle" class="w-4 h-4"></i>
-              <span>File a Complaint</span>
-            </a>
-
-            <a
-              href="/track"
-              class="gov-btn-primary px-5 py-3 text-sm flex items-center justify-center gap-2 font-semibold"
-            >
-              <i data-lucide="search" class="w-4 h-4"></i>
-              <span>Track Status</span>
-            </a>
-
-            <a
-              href="/help"
-              class="gov-btn-secondary px-4 py-3 text-sm flex items-center justify-center gap-2 font-medium"
-            >
-              <i data-lucide="file-text" class="w-4 h-4 text-slate-600"></i>
-              <span>Citizen Guide</span>
-            </a>
-          </div>
-
-          <!-- Quick Status Lookup Box -->
-          <div class="p-4 bg-slate-50 rounded-lg border border-slate-300 max-w-2xl">
-            <form onsubmit="handleQuickTrack(event)">
-              <label 
-                for="quickTrackInput" 
-                class="block text-xs font-bold text-[#0b2545] uppercase tracking-wider mb-2 flex items-center justify-between"
+            <!-- Primary Action Buttons (Matching reference image) -->
+            <div class="flex items-center gap-3 flex-wrap pt-1">
+              <a
+                href="/report"
+                id="hero-file-complaint-btn"
+                class="gov-btn-saffron text-xs py-2.5 px-5 shadow-xs font-semibold flex items-center gap-2"
               >
-                <span>CHECK COMPLAINT STATUS</span>
-                <span class="text-slate-500 font-normal normal-case text-[11px]">Format: JNS-2026-XXXXXX</span>
-              </label>
-              <div class="flex flex-col sm:flex-row gap-2">
-                <div class="relative flex-1">
-                  <i data-lucide="search" class="absolute left-3.5 top-3 w-4 h-4 text-slate-400"></i>
-                  <input
-                    id="quickTrackInput"
-                    type="text"
-                    placeholder="Enter Complaint ID (e.g., JNS-2026-000001)"
-                    class="gov-input pl-10 text-xs py-2.5 font-mono"
-                  />
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>File a Complaint</span>
+              </a>
+
+              <a
+                href="/track"
+                class="gov-btn-primary text-xs py-2.5 px-5 shadow-xs font-semibold flex items-center gap-2"
+              >
+                <i data-lucide="search" class="w-4 h-4"></i>
+                <span>Track Status</span>
+              </a>
+
+              <a
+                href="/help"
+                class="gov-btn-secondary text-xs py-2.5 px-4 font-semibold flex items-center gap-2"
+              >
+                <i data-lucide="file-text" class="w-4 h-4 text-slate-600"></i>
+                <span>Citizen Guide</span>
+              </a>
+            </div>
+
+            <!-- Single-Line Track Status Search Box (Exact match to screenshot) -->
+            <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2 max-w-xl">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-[#0b2545] uppercase tracking-wider text-[11px]">
+                  CHECK COMPLAINT STATUS
+                </span>
+                <span class="text-[10px] text-slate-400 font-mono">Format: JNS-2026-XXXXXX</span>
+              </div>
+              <form onsubmit="handleQuickTrack(event)">
+                <div class="flex items-center gap-2">
+                  <div class="relative flex-1">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+                    <input
+                      id="quickTrackInput"
+                      type="text"
+                      placeholder="Enter Complaint ID (e.g., JNS-2026-000001)"
+                      class="gov-input pl-9 text-xs py-2 bg-white font-mono"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    class="gov-btn-primary text-xs py-2 px-4 whitespace-nowrap font-semibold shrink-0"
+                  >
+                    Check Status
+                  </button>
                 </div>
-                <button
-                  type="submit"
-                  class="gov-btn-primary text-xs py-2.5 px-6 whitespace-nowrap active:scale-[0.98] transition-transform"
-                >
-                  Check Status
-                </button>
-              </div>
-              <div class="mt-2.5 flex items-center gap-1.5 flex-wrap text-[11px] text-slate-500">
-                <span class="font-medium text-slate-600">Sample Tracking IDs:</span>
-                <button type="button" onclick="fillHomeTrack('RLY-2026-000009')" class="px-2 py-0.5 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-mono font-bold transition-colors">RLY-2026-000009</button>
-                <button type="button" onclick="fillHomeTrack('ELE-2026-000005')" class="px-2 py-0.5 rounded bg-purple-100 hover:bg-purple-200 text-purple-800 font-mono font-bold transition-colors">ELE-2026-000005</button>
-                <button type="button" onclick="fillHomeTrack('WTR-2026-000002')" class="px-2 py-0.5 rounded bg-sky-100 hover:bg-sky-200 text-sky-800 font-mono font-bold transition-colors">WTR-2026-000002</button>
-                <button type="button" onclick="fillHomeTrack('RDS-2026-000004')" class="px-2 py-0.5 rounded bg-red-100 hover:bg-red-200 text-red-800 font-mono font-bold transition-colors">RDS-2026-000004</button>
-              </div>
-            </form>
+              </form>
+            </div>
+
+          </div>
+
+          <!-- Right Column: State Emblem matching exact reference image -->
+          <div class="hidden sm:flex shrink-0 items-center justify-center pr-2 lg:pr-6">
+            <img
+              src="{% static 'images/hero_emblem.png' %}?v=7"
+              alt="State Emblem of India • JanSahayata"
+              class="w-36 sm:w-44 h-auto object-contain select-none rounded-lg"
+            />
           </div>
 
         </div>
@@ -618,10 +615,8 @@
 <script>
 function fillHomeTrack(id) {
   const input = document.getElementById('quickTrackInput');
-  if (input) {
-    input.value = id;
-    input.focus();
-  }
+  if (input) input.value = id;
+  window.location.href = `/complaint/${id}`;
 }
 
 function handleQuickTrack(e) {

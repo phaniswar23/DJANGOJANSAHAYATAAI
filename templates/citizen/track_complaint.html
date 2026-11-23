@@ -202,10 +202,8 @@
 <script>
 function fillAndTrack(id) {
   const input = document.getElementById('trackInput');
-  if (input) {
-    input.value = id;
-    input.focus();
-  }
+  if (input) input.value = id;
+  window.location.href = `/complaint/${id}`;
 }
 
 function handleTrack(e) {
