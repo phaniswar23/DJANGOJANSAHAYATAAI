@@ -188,7 +188,16 @@ def create_complaint(request):
             import threading
             def _dispatch_email():
                 try:
-                    send_complaint_confirmation_email(citizen_email, complaint_id, category, dept_config['name'], formal_statement)
+                    send_complaint_confirmation_email(
+                        citizen_email,
+                        complaint_id,
+                        category,
+                        dept_config['name'],
+                        formal_statement,
+                        citizen_name=citizen_name,
+                        urgency=urgency,
+                        location=location_context
+                    )
                 except Exception as e:
                     print(f"[Email Notification Warning] Failed to dispatch email: {e}")
             threading.Thread(target=_dispatch_email, daemon=True).start()
@@ -416,7 +425,10 @@ def send_complaint_tracking_email(request, id):
             doc.get('complaintId'),
             doc.get('category'),
             doc.get('department', {}).get('name', 'Public Department'),
-            doc.get('generatedProblemStatement') or doc.get('description')
+            doc.get('generatedProblemStatement') or doc.get('description'),
+            citizen_name=doc.get('citizenDetails', {}).get('name') or doc.get('citizenName', 'Citizen'),
+            urgency=doc.get('urgency', 'Medium'),
+            location=doc.get('location', '')
         )
     except Exception as e:
         print(f"[Email Error] Could not send tracking email: {e}")

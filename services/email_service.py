@@ -217,19 +217,198 @@ def send_citizen_welcome_email(name, email):
     """
     return send_email(email, subject, html)
 
-def send_complaint_confirmation_email(email, complaint_id, category, department_name, problem_statement):
+def send_complaint_confirmation_email(
+    email,
+    complaint_id,
+    category,
+    department_name,
+    problem_statement,
+    citizen_name=None,
+    urgency="Medium",
+    location=None,
+    tracking_url=None,
+    **kwargs
+):
+    client_base = os.getenv('CLIENT_URL', 'http://127.0.0.1:8000').rstrip('/')
+    if not tracking_url:
+        tracking_url = f"{client_base}/complaint/{complaint_id}"
+
+    c_name = citizen_name or "Citizen"
+    timestamp_display = datetime.now().strftime('%d %b %Y, %I:%M %p')
+
+    # Location parsing
+    if isinstance(location, dict):
+        loc_display = location.get('address') or str(location)
+    elif isinstance(location, str) and location.strip():
+        loc_display = location.strip()
+    else:
+        loc_display = "Recorded via GPS / Field Submission"
+
+    # Urgency pill styling
+    urgency_styles = {
+        'Critical': 'background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171;',
+        'High': 'background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d;',
+        'Medium': 'background-color: #e0f2fe; color: #075985; border: 1px solid #7dd3fc;',
+        'Low': 'background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;'
+    }
+    urgency_badge_style = urgency_styles.get(urgency, urgency_styles['Medium'])
+
     subject = f"Grievance Registered Successfully — Reference ID: {complaint_id}"
-    html = f"""
-    <div style="font-family: Arial, sans-serif; padding: 20px;">
-      <h2>JanSahayata Grievance Acknowledgment</h2>
-      <p>Your grievance has been successfully submitted and forwarded to <strong>{department_name}</strong>.</p>
-      <div style="background: #f1f5f9; padding: 12px; border-radius: 6px; margin: 12px 0;">
-        <p><strong>Grievance ID:</strong> {complaint_id}</p>
-        <p><strong>Category:</strong> {category}</p>
-        <p><strong>Summary:</strong> {problem_statement}</p>
-      </div>
-      <p>You can track the live status anytime on the citizen portal using your reference ID.</p>
-    </div>
+    
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grievance Acknowledgment — {complaint_id}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f1f5f9; padding: 24px 0;">
+    <tr>
+      <td align="center">
+        <!-- Main Container -->
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 620px; background-color: #ffffff; border-radius: 8px; border: 1px solid #cbd5e1; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+          
+          <!-- Tri-color National Ribbon -->
+          <tr>
+            <td style="height: 5px; background: linear-gradient(90deg, #ff9933 0%, #ffffff 50%, #138808 100%);"></td>
+          </tr>
+
+          <!-- Official Masthead Header -->
+          <tr>
+            <td style="background-color: #0b2545; padding: 24px 30px; text-align: left;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td>
+                    <div style="color: #f59e0b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">
+                      GOVERNMENT OF INDIA • CPGRAMS
+                    </div>
+                    <h1 style="color: #ffffff; font-size: 20px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">
+                      JanSahayata Grievance Redressal Portal
+                    </h1>
+                    <div style="color: #94a3b8; font-size: 12px;">
+                      Department of Administrative Reforms & Public Grievances (DARPG)
+                    </div>
+                  </td>
+                  <td align="right" valign="middle" style="width: 110px;">
+                    <span style="display: inline-block; background-color: rgba(255, 255, 255, 0.15); color: #ffffff; padding: 6px 12px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid rgba(255, 255, 255, 0.25); text-transform: uppercase; letter-spacing: 0.5px;">
+                      Official Receipt
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Body Content -->
+          <tr>
+            <td style="padding: 28px 30px;">
+              
+              <!-- Greeting & Official Acknowledgment -->
+              <p style="font-size: 15px; margin: 0 0 14px 0; color: #0f172a;">
+                Dear <strong>{c_name}</strong>,
+              </p>
+              <p style="font-size: 14px; line-height: 1.6; color: #334155; margin: 0 0 20px 0;">
+                Your public grievance has been formally registered under official CPGRAMS service guidelines and directly forwarded to <strong>{department_name}</strong> for field inspection and technical redressal.
+              </p>
+
+              <!-- Reference ID Card -->
+              <div style="background-color: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 18px 20px; margin: 0 0 24px 0; text-align: center;">
+                <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px;">
+                  Official Grievance Reference Number
+                </div>
+                <div style="font-family: 'Courier New', Courier, monospace; font-size: 24px; font-weight: 800; color: #0b2545; letter-spacing: 2px;">
+                  {complaint_id}
+                </div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 6px;">
+                  Quote this unique reference ID in all official communications and tracking inquiries.
+                </div>
+              </div>
+
+              <!-- Structured Case Metadata Table -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; margin: 0 0 24px 0; font-size: 13px;">
+                <tr>
+                  <td style="padding: 10px 14px; width: 35%; font-weight: 700; color: #475569; background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;">Assigned Authority</td>
+                  <td style="padding: 10px 14px; color: #0b2545; font-weight: 700; border-bottom: 1px solid #e2e8f0;">{department_name}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 14px; font-weight: 700; color: #475569; background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;">Grievance Category</td>
+                  <td style="padding: 10px 14px; color: #1e293b; border-bottom: 1px solid #e2e8f0;">{category}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 14px; font-weight: 700; color: #475569; background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;">Urgency Assessment</td>
+                  <td style="padding: 10px 14px; border-bottom: 1px solid #e2e8f0;">
+                    <span style="{urgency_badge_style} font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; display: inline-block;">
+                      {urgency} Priority
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 14px; font-weight: 700; color: #475569; background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;">Incident Location</td>
+                  <td style="padding: 10px 14px; color: #334155; border-bottom: 1px solid #e2e8f0;">{loc_display}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 14px; font-weight: 700; color: #475569; background-color: #f8fafc;">Registration Timestamp</td>
+                  <td style="padding: 10px 14px; color: #334155; font-family: 'Courier New', Courier, monospace;">{timestamp_display}</td>
+                </tr>
+              </table>
+
+              <!-- Problem Statement Section -->
+              <div style="margin: 0 0 26px 0;">
+                <div style="font-size: 12px; font-weight: 700; color: #0b2545; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                  Structured Problem Statement
+                </div>
+                <div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 14px 16px; border-radius: 4px; font-size: 13px; color: #1e293b; line-height: 1.6;">
+                  {problem_statement}
+                </div>
+              </div>
+
+              <!-- Direct Track Status CTA Button -->
+              <div style="text-align: center; margin: 28px 0 24px 0;">
+                <a href="{tracking_url}" style="background-color: #0b2545; color: #ffffff; padding: 14px 32px; font-size: 14px; font-weight: 700; text-decoration: none; border-radius: 6px; display: inline-block; box-shadow: 0 3px 6px rgba(11, 37, 69, 0.25);">
+                  🔍 Track Live Grievance Progress & Status →
+                </a>
+                <div style="font-size: 12px; color: #64748b; margin-top: 10px;">
+                  Direct tracking link: <a href="{tracking_url}" style="color: #2563eb; text-decoration: underline; word-break: break-all;">{tracking_url}</a>
+                </div>
+              </div>
+
+              <!-- 4-Step Citizen Protection Notice -->
+              <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 16px; margin: 24px 0 0 0;">
+                <div style="font-size: 12px; font-weight: 700; color: #1e40af; margin-bottom: 8px;">
+                  ✓ How JanSahayata Protects Your Grievance:
+                </div>
+                <ul style="margin: 0; padding-left: 18px; font-size: 12px; color: #1e3a8a; line-height: 1.6;">
+                  <li><strong>Direct Officer Assignment:</strong> Forwarded straight to the local nodal engineer without intermediaries.</li>
+                  <li><strong>Mandatory Photo Proof:</strong> Field crews must upload before-and-after work photos before resolution is accepted.</li>
+                  <li><strong>Citizen Sign-Off:</strong> No grievance is permanently closed without your verification. You may dispute or reopen if unsatisfied.</li>
+                </ul>
+              </div>
+
+            </td>
+          </tr>
+
+          <!-- Official Government Footer -->
+          <tr>
+            <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 30px; text-align: center; font-size: 11px; color: #64748b; line-height: 1.6;">
+              <p style="margin: 0 0 6px 0; font-weight: 700; color: #0b2545;">
+                Centralized Public Grievance Redress and Monitoring System (CPGRAMS) • JanSahayata AI
+              </p>
+              <p style="margin: 0 0 8px 0;">
+                National Toll-Free Helpline: <strong>1800-11-4000</strong> &nbsp;|&nbsp; Railway RailMadad: <strong>139</strong> &nbsp;|&nbsp; Cyber Helpline: <strong>1930</strong>
+              </p>
+              <p style="margin: 0; font-size: 10px; color: #94a3b8;">
+                Government of India • Ministry of Personnel, Public Grievances & Pensions. This is an official automated dispatch. Please do not reply directly to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
     """
     return send_email(email, subject, html)
 
