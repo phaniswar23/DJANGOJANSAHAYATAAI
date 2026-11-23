@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Citizen Charter & Help — JanSahayata (CPGRAMS){% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6 pb-16">
+  
+  <div class="gov-card p-6 bg-gradient-to-r from-[#0b2545] to-[#163b6b] text-white">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+        <i data-lucide="help-circle" class="w-6 h-6 text-amber-400"></i>
+      </div>
+      <div>
+        <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">Citizen Assistance</span>
+        <h1 class="text-xl sm:text-2xl font-bold">Citizen Charter & Help Center</h1>
+        <p class="text-xs text-slate-300 mt-0.5">Guidelines, Department Service Level Agreements (SLAs), and Grievance Redressal FAQs.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="gov-card p-6 border border-slate-200 space-y-6">
+    <div class="space-y-3">
+      <h2 class="text-base font-bold text-[#0b2545]">Department Service Level Standards (SLAs)</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <strong class="text-slate-900 block mb-1">Electricity (DISCOM):</strong>
+          <p class="text-slate-600">Power interruptions resolved within 4–12 hours. High-voltage shock hazards secured under 4 hours.</p>
+        </div>
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <strong class="text-slate-900 block mb-1">Water Supply & Sewerage:</strong>
+          <p class="text-slate-600">Contamination and burst pipelines attended within 12–24 hours.</p>
+        </div>
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <strong class="text-slate-900 block mb-1">Roads & PWD:</strong>
+          <p class="text-slate-600">Critical road cave-ins barricaded under 6 hours; permanent pothole repair within 48–72 hours.</p>
+        </div>
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <strong class="text-slate-900 block mb-1">Railways (RailMadad):</strong>
+          <p class="text-slate-600">Running coach sanitation attended at next major station; infrastructure repairs within 24 hours.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-3 pt-4 border-t border-slate-100">
+      <h2 class="text-base font-bold text-[#0b2545]">Frequently Asked Questions</h2>
+      <div class="space-y-3 text-xs">
+        <div>
+          <strong class="text-slate-900 block font-semibold">Q: Can I file a complaint without creating an account?</strong>
+          <p class="text-slate-600 mt-0.5">Yes! You can lodge a public grievance directly from the "File a Complaint" page. A reference number will be generated immediately for tracking.</p>
+        </div>
+        <div>
+          <strong class="text-slate-900 block font-semibold">Q: What should I do if an officer marks my problem resolved without fixing it?</strong>
+          <p class="text-slate-600 mt-0.5">Simply open your complaint details using the reference number and click "Reopen / File Dispute". This triggers an executive escalations workflow.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

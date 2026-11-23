@@ -2,7 +2,10 @@ from django.urls import path
 from apps.staff import views
 
 urlpatterns = [
+    path('stats', views.get_staff_dashboard_stats, name='staff_stats'),
+    path('stats/', views.get_staff_dashboard_stats, name='staff_stats_slash'),
     path('dashboard/stats', views.get_staff_dashboard_stats, name='staff_dashboard_stats'),
+    path('dashboard/stats/', views.get_staff_dashboard_stats, name='staff_dashboard_stats_slash'),
     path('complaints', views.get_staff_complaints, name='staff_complaints'),
     path('complaints/<str:id>', views.get_staff_complaint_by_id, name='staff_complaint_detail'),
     path('complaints/<str:id>/status', views.update_staff_status, name='staff_update_status'),

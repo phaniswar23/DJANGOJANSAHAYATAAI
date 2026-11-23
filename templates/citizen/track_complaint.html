@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Track Grievance Status — JanSahayata (CPGRAMS){% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6 pb-16">
+  
+  <!-- Masthead -->
+  <div class="gov-card p-6 bg-gradient-to-r from-[#0b2545] to-[#163b6b] text-white">
+    <div class="flex items-center gap-3.5">
+      <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
+        <i data-lucide="search" class="w-6 h-6 text-amber-400"></i>
+      </div>
+      <div>
+        <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">Real-time Redressal Monitoring</span>
+        <h1 class="text-xl sm:text-2xl font-bold">Track Public Grievance</h1>
+        <p class="text-xs text-slate-300 mt-0.5">Check official inspection notes, assigned department engineer, and resolution evidence.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Tracking Card -->
+  <div class="gov-card p-6 border border-slate-200 space-y-4">
+    <form onsubmit="handleTrack(event)" class="space-y-4">
+      <div>
+        <label for="trackInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+          Grievance Reference Number / Tracking ID <span class="text-red-500">*</span>
+        </label>
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+          <input
+            id="trackInput"
+            type="text"
+            required
+            placeholder="e.g. JNS-2026-000001 or RLY-2026-000009"
+            class="gov-input pl-9 text-xs py-2.5 font-mono font-bold"
+          />
+        </div>
+        <p class="text-[11px] text-slate-400 mt-1">This reference ID was provided upon registration and dispatched to your registered email.</p>
+      </div>
+
+      <!-- Quick Fill Sample Chips -->
+      <div class="pt-1">
+        <span class="text-xs font-bold text-slate-700 block mb-2">Sample Registered Reference Numbers (Click to Fill & Track):</span>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button type="button" onclick="fillAndTrack('RLY-2026-000009')" class="px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-xs">
+            <span>RLY-2026-000009</span>
+            <span class="text-[10px] font-sans px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-900 font-semibold">Resolved</span>
+          </button>
+          <button type="button" onclick="fillAndTrack('ELE-2026-000005')" class="px-2.5 py-1 rounded bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-xs">
+            <span>ELE-2026-000005</span>
+            <span class="text-[10px] font-sans px-1.5 py-0.2 rounded bg-purple-200 text-purple-900 font-semibold">Escalated</span>
+          </button>
+          <button type="button" onclick="fillAndTrack('RDS-2026-000004')" class="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-xs">
+            <span>RDS-2026-000004</span>
+            <span class="text-[10px] font-sans px-1.5 py-0.2 rounded bg-red-200 text-red-900 font-semibold">Disputed</span>
+          </button>
+          <button type="button" onclick="fillAndTrack('WTR-2026-000002')" class="px-2.5 py-1 rounded bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-xs">
+            <span>WTR-2026-000002</span>
+            <span class="text-[10px] font-sans px-1.5 py-0.2 rounded bg-sky-200 text-sky-900 font-semibold">Under Review</span>
+          </button>
+          <button type="button" onclick="fillAndTrack('MUN-2026-000003')" class="px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-xs">
+            <span>MUN-2026-000003</span>
+            <span class="text-[10px] font-sans px-1.5 py-0.2 rounded bg-amber-200 text-amber-900 font-semibold">Resolved</span>
+          </button>
+          <button type="button" onclick="fillAndTrack('TRN-2026-000008')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-xs">
+            <span>TRN-2026-000008</span>
+            <span class="text-[10px] font-sans px-1.5 py-0.2 rounded bg-slate-300 text-slate-900 font-semibold">Submitted</span>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="gov-btn-primary w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2">
+        <i data-lucide="search" class="w-4 h-4"></i>
+        <span>Track Grievance Status</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Live Registered Grievances Directory for Instant Demonstration -->
+  <div class="gov-card p-6 border border-slate-200 space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+      <div>
+        <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide">Registered Grievance Cases in Database</h2>
+        <p class="text-xs text-slate-500">Click any reference ID or "Track Now" to view full multi-stage audit progress, officer notes & proof photos.</p>
+      </div>
+      <span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900 text-xs font-bold font-mono">10 Cases Available</span>
+    </div>
+
+    <div class="divide-y divide-slate-100">
+      
+      <!-- Case 1 -->
+      <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/60 p-2 rounded-lg transition-colors">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2">
+            <span class="font-mono font-bold text-blue-700 text-xs">RLY-2026-000009</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-blue-100 text-blue-900">Railway Department</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800">Resolved (Proof Uploaded)</span>
+          </div>
+          <p class="text-xs font-medium text-slate-800">Coach Cleanliness & Bio-Toilet Malfunction</p>
+          <p class="text-[11px] text-slate-500">Location: Platform 2, Phagwara Junction • Cleaned with photo verification proof.</p>
+        </div>
+        <a href="/complaint/RLY-2026-000009" class="gov-btn-primary text-xs py-1.5 px-3 self-start sm:self-center font-semibold shrink-0">
+          Track Now →
+        </a>
+      </div>
+
+      <!-- Case 2 -->
+      <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/60 p-2 rounded-lg transition-colors">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2">
+            <span class="font-mono font-bold text-blue-700 text-xs">ELE-2026-000005</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-purple-100 text-purple-900">Electricity Board (DISCOM)</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-purple-100 text-purple-800">Escalated (Critical)</span>
+          </div>
+          <p class="text-xs font-medium text-slate-800">Hanging Live Wire / High Shock Hazard</p>
+          <p class="text-[11px] text-slate-500">Location: Near Market Road, Phagwara • Critical safety issue routed to line inspector.</p>
+        </div>
+        <a href="/complaint/ELE-2026-000005" class="gov-btn-primary text-xs py-1.5 px-3 self-start sm:self-center font-semibold shrink-0">
+          Track Now →
+        </a>
+      </div>
+
+      <!-- Case 3 -->
+      <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/60 p-2 rounded-lg transition-colors">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2">
+            <span class="font-mono font-bold text-blue-700 text-xs">RDS-2026-000004</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-900">Roads & Infrastructure (PWD)</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-red-100 text-red-800">Disputed by Citizen</span>
+          </div>
+          <p class="text-xs font-medium text-slate-800">Deep Dangerous Pothole / Road Cave-In</p>
+          <p class="text-[11px] text-slate-500">Location: Chheru-Khanaur Link Road • Citizen reopened case requesting asphalt recarpeting.</p>
+        </div>
+        <a href="/complaint/RDS-2026-000004" class="gov-btn-primary text-xs py-1.5 px-3 self-start sm:self-center font-semibold shrink-0">
+          Track Now →
+        </a>
+      </div>
+
+      <!-- Case 4 -->
+      <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/60 p-2 rounded-lg transition-colors">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2">
+            <span class="font-mono font-bold text-blue-700 text-xs">WTR-2026-000002</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-sky-100 text-sky-900">Water Supply Board</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-blue-100 text-blue-800">Under Review</span>
+          </div>
+          <p class="text-xs font-medium text-slate-800">Muddy Contaminated Water Pipeline Leakage</p>
+          <p class="text-[11px] text-slate-500">Location: Ward 12, Phagwara • Water quality laboratory test ordered by nodal engineer.</p>
+        </div>
+        <a href="/complaint/WTR-2026-000002" class="gov-btn-primary text-xs py-1.5 px-3 self-start sm:self-center font-semibold shrink-0">
+          Track Now →
+        </a>
+      </div>
+
+      <!-- Case 5 -->
+      <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/60 p-2 rounded-lg transition-colors">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2">
+            <span class="font-mono font-bold text-blue-700 text-xs">MUN-2026-000003</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-900">Municipal Corporation</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800">Resolved</span>
+          </div>
+          <p class="text-xs font-medium text-slate-800">Commercial Garbage Dumping & Drainage Block</p>
+          <p class="text-[11px] text-slate-500">Location: Gandhi Nagar Central • Cleared by sanitation truck crew.</p>
+        </div>
+        <a href="/complaint/MUN-2026-000003" class="gov-btn-primary text-xs py-1.5 px-3 self-start sm:self-center font-semibold shrink-0">
+          Track Now →
+        </a>
+      </div>
+
+      <!-- Case 6 -->
+      <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/60 p-2 rounded-lg transition-colors">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2">
+            <span class="font-mono font-bold text-blue-700 text-xs">TRN-2026-000008</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-slate-200 text-slate-900">State Public Transport</span>
+            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-slate-100 text-slate-800 border">Submitted</span>
+          </div>
+          <p class="text-xs font-medium text-slate-800">Damaged Bus Shelter Roof & Missing Timetable</p>
+          <p class="text-[11px] text-slate-500">Location: Highway Bus Stop • Assigned to civil depot supervisor.</p>
+        </div>
+        <a href="/complaint/TRN-2026-000008" class="gov-btn-primary text-xs py-1.5 px-3 self-start sm:self-center font-semibold shrink-0">
+          Track Now →
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Recent Grievances of Logged In Citizen (Dynamic) -->
+  <div id="citizenRecentSection" class="hidden gov-card p-6 border border-slate-200 space-y-3">
+    <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide">Your Personally Lodged Grievances</h2>
+    <div id="recentGrievancesList" class="divide-y divide-slate-100"></div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function fillAndTrack(id) {
+  const input = document.getElementById('trackInput');
+  if (input) {
+    input.value = id;
+    input.focus();
+  }
+}
+
+function handleTrack(e) {
+  e.preventDefault();
+  const id = document.getElementById('trackInput').value.trim();
+  if (id) {
+    window.location.href = `/complaint/${id}`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const token = auth.getToken();
+  if (!token) return;
+
+  try {
+    const res = await apiRequest('/api/complaints/citizen');
+    if (res && res.data && res.data.length > 0) {
+      document.getElementById('citizenRecentSection').classList.remove('hidden');
+      const list = document.getElementById('recentGrievancesList');
+      list.innerHTML = '';
+      res.data.slice(0, 5).forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'py-2.5 flex items-center justify-between gap-3 text-xs';
+        item.innerHTML = `
+          <div>
+            <span class="font-mono font-bold text-blue-700 block">${c.complaintId}</span>
+            <span class="text-slate-600 line-clamp-1">${c.description || 'Grievance record'}</span>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}">${c.status}</span>
+            <a href="/complaint/${c.complaintId}" class="gov-btn-secondary text-[11px] py-1 px-2.5 font-semibold">View</a>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+      if (window.lucide) lucide.createIcons({ root: list });
+    }
+  } catch (e) {
+    // optional helper
+  }
+});
+</script>
+{% endblock %}

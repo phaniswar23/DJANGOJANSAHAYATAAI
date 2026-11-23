@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Government Official Access — JanSahayata (CPGRAMS){% endblock %}
+
+{% block content %}
+<div class="py-8 sm:py-12 flex items-center justify-center">
+  <div class="w-full max-w-md">
+    
+    <div class="gov-card p-6 sm:p-8 space-y-6 shadow-sm border border-slate-200">
+      
+      <!-- Top Brand & Header -->
+      <div class="text-center space-y-2">
+        <div class="flex justify-center mb-1">
+          <img src="{% static 'images/emblem.jpg' %}" alt="Emblem of India" class="w-10 h-14 object-contain emblem-image-enhanced" onerror="this.src='/emblem.jpg'">
+        </div>
+        <span class="text-[11px] font-bold text-sky-700 uppercase tracking-wider block">
+          Government Personnel Access
+        </span>
+        <h1 class="text-xl font-bold text-[#0b2545]">
+          Official Portal Login
+        </h1>
+        <p class="text-xs text-slate-500">
+          Secure restricted access for Authorized Department Officers and Central Administrators.
+        </p>
+      </div>
+
+      <!-- Error Message Banner -->
+      <div id="staffLoginError" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-start gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+        <span id="staffLoginErrorMsg">Invalid credentials. Access denied.</span>
+      </div>
+
+      <!-- Login Form -->
+      <form id="staffLoginForm" class="space-y-4" onsubmit="handleStaffLogin(event)">
+        <div>
+          <label for="identifier" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            Official Email or Employee ID
+          </label>
+          <div class="relative">
+            <i data-lucide="building-2" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+            <input
+              id="identifier"
+              type="text"
+              required
+              placeholder="officer.railway@jansahayata.gov.in"
+              class="gov-input pl-9 text-xs py-2.5"
+            />
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="staffPassword" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              Password
+            </label>
+            <a
+              href="/forgot-password"
+              class="text-xs font-semibold text-blue-700 hover:text-blue-800 hover:underline transition-colors focus:outline-none"
+            >
+              Forgot password?
+            </a>
+          </div>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3 text-slate-400 pointer-events-none"></i>
+            <input
+              id="staffPassword"
+              type="password"
+              required
+              placeholder="••••••••"
+              class="gov-input pl-9 pr-10 text-xs py-2.5"
+            />
+            <button
+              type="button"
+              onclick="togglePasswordVisibility('staffPassword', this)"
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:scale-90 transition-all duration-200 focus:outline-none"
+              aria-label="Show password"
+              title="Show password"
+              tabIndex="-1"
+            >
+              <i data-lucide="eye" class="w-4 h-4 transition-transform duration-200 hover:scale-110 text-slate-400"></i>
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          id="staffSubmitBtn"
+          class="w-full gov-btn-primary bg-slate-900 hover:bg-slate-800 text-white py-2.5 text-xs font-semibold shadow-sm flex items-center justify-center gap-2"
+        >
+          <span>Sign in to Official Workspace</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Capstone Test Accounts (Click to Fill) -->
+        <div class="pt-4 border-t border-slate-100 space-y-2.5">
+          <div class="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+            <i data-lucide="key-round" class="w-3.5 h-3.5 text-amber-500"></i>
+            <span>Capstone Test Accounts (Click to Fill):</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-left">
+            <!-- 1. Super Admin -->
+            <button
+              type="button"
+              onclick="fillStaffCredentials('admin@jansahayata.gov.in', 'Admin@JanSahayata2026!', 'Super Admin')"
+              class="p-2.5 rounded-lg border border-slate-200 hover:border-blue-400 bg-slate-50/70 hover:bg-blue-50/60 transition-all text-left group"
+            >
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-bold text-[#0b2545] group-hover:text-blue-700">1. Super Admin</span>
+                <span class="text-[9px] px-1 py-0.2 rounded bg-amber-100 text-amber-800 font-bold">Admin</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate font-mono">admin@jansahayata.gov.in</div>
+              <div class="text-[9px] text-slate-400 mt-0.5">All Controls & Logs</div>
+            </button>
+
+            <!-- 2. Railway Officer -->
+            <button
+              type="button"
+              onclick="fillStaffCredentials('officer.railway@jansahayata.gov.in', 'Officer@2026!', 'Railway Officer')"
+              class="p-2.5 rounded-lg border border-slate-200 hover:border-blue-400 bg-slate-50/70 hover:bg-blue-50/60 transition-all text-left group"
+            >
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-bold text-[#0b2545] group-hover:text-blue-700">2. Railway Officer</span>
+                <span class="text-[9px] px-1 py-0.2 rounded bg-blue-100 text-blue-800 font-bold">RLY</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate font-mono">officer.railway@jansahayata.gov.in</div>
+              <div class="text-[9px] text-slate-400 mt-0.5">RailMadad Redressal</div>
+            </button>
+
+            <!-- 3. Municipal Officer -->
+            <button
+              type="button"
+              onclick="fillStaffCredentials('officer.muni@jansahayata.gov.in', 'Officer@2026!', 'Municipal Officer')"
+              class="p-2.5 rounded-lg border border-slate-200 hover:border-blue-400 bg-slate-50/70 hover:bg-blue-50/60 transition-all text-left group"
+            >
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-bold text-[#0b2545] group-hover:text-blue-700">3. Municipal Officer</span>
+                <span class="text-[9px] px-1 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold">MUN</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate font-mono">officer.muni@jansahayata.gov.in</div>
+              <div class="text-[9px] text-slate-400 mt-0.5">Sanitation & Civic</div>
+            </button>
+
+            <!-- 4. Demo Citizen -->
+            <button
+              type="button"
+              onclick="fillStaffCredentials('citizen@gmail.com', 'Citizen@2026!', 'Demo Citizen')"
+              class="p-2.5 rounded-lg border border-slate-200 hover:border-blue-400 bg-slate-50/70 hover:bg-blue-50/60 transition-all text-left group"
+            >
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-bold text-[#0b2545] group-hover:text-blue-700">4. Demo Citizen (Ravi)</span>
+                <span class="text-[9px] px-1 py-0.2 rounded bg-purple-100 text-purple-800 font-bold">Citizen</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate font-mono">citizen@gmail.com</div>
+              <div class="text-[9px] text-slate-400 mt-0.5">Report & Verify</div>
+            </button>
+
+            <!-- 5. Citizen 2: Pooja Verma -->
+            <button
+              type="button"
+              onclick="fillStaffCredentials('citizen.pooja@gmail.com', 'Citizen@2026!', 'Citizen Pooja')"
+              class="p-2.5 rounded-lg border border-slate-200 hover:border-blue-400 bg-slate-50/70 hover:bg-blue-50/60 transition-all text-left group"
+            >
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-bold text-[#0b2545] group-hover:text-blue-700">5. Citizen (Pooja)</span>
+                <span class="text-[9px] px-1 py-0.2 rounded bg-purple-100 text-purple-800 font-bold">Citizen</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate font-mono">citizen.pooja@gmail.com</div>
+              <div class="text-[9px] text-slate-400 mt-0.5">Water & Electric Case</div>
+            </button>
+
+            <!-- 6. Citizen 3: Amit Kumar -->
+            <button
+              type="button"
+              onclick="fillStaffCredentials('citizen.amit@gmail.com', 'Citizen@2026!', 'Citizen Amit')"
+              class="p-2.5 rounded-lg border border-slate-200 hover:border-blue-400 bg-slate-50/70 hover:bg-blue-50/60 transition-all text-left group"
+            >
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-bold text-[#0b2545] group-hover:text-blue-700">6. Citizen (Amit)</span>
+                <span class="text-[9px] px-1 py-0.2 rounded bg-purple-100 text-purple-800 font-bold">Citizen</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate font-mono">citizen.amit@gmail.com</div>
+              <div class="text-[9px] text-slate-400 mt-0.5">Disputed Highway Case</div>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Bottom Links -->
+      <div class="pt-2 text-center space-y-3 border-t border-slate-100 text-xs">
+        <p class="text-slate-600">
+          Are you a citizen lodging or tracking a grievance?
+          <a href="/login" class="font-bold text-blue-700 hover:underline ml-1">
+            Citizen Portal Login →
+          </a>
+        </p>
+        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded text-[11px] text-slate-500 text-left space-y-1">
+          <p class="font-bold text-slate-700">Notice for Public Servants:</p>
+          <p>Unauthorised access to this government operational database is prohibited and monitored under Section 43/66 of the Information Technology Act, 2000.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function fillStaffCredentials(email, password, roleName) {
+  const emailInput = document.getElementById('identifier');
+  const passwordInput = document.getElementById('staffPassword');
+  if (emailInput && passwordInput) {
+    emailInput.value = email;
+    passwordInput.value = password;
+    toast.success(`Loaded ${roleName} test credentials`);
+  }
+}
+
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+  btn.setAttribute('title', isPassword ? 'Hide password' : 'Show password');
+  btn.innerHTML = isPassword 
+    ? `<i data-lucide="eye-off" class="w-4 h-4 transition-transform duration-200 hover:scale-110 text-slate-600"></i>`
+    : `<i data-lucide="eye" class="w-4 h-4 transition-transform duration-200 hover:scale-110 text-slate-400"></i>`;
+  if (window.lucide) lucide.createIcons({ root: btn });
+}
+
+async function handleStaffLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('identifier').value.trim();
+  const password = document.getElementById('staffPassword').value;
+  const btn = document.getElementById('staffSubmitBtn');
+  const errBox = document.getElementById('staffLoginError');
+  const errMsg = document.getElementById('staffLoginErrorMsg');
+
+  errBox.classList.add('hidden');
+  btn.disabled = true;
+  btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Validating Official Role...</span>`;
+  if (window.lucide) lucide.createIcons({ root: btn });
+
+  try {
+    const isCitizen = email.toLowerCase().includes('citizen') || (email.toLowerCase().endsWith('@gmail.com') && !email.toLowerCase().includes('admin'));
+    const endpoint = isCitizen ? '/api/auth/login' : '/api/auth/staff-login';
+    const data = await apiRequest(endpoint, {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    });
+
+    if (data.success && data.token && data.user) {
+      auth.setSession(data.token, data.user);
+      toast.success(`Welcome, ${data.user.name || 'Officer'}!`);
+      setTimeout(() => {
+        if (data.user.role === 'SUPER_ADMIN') {
+          window.location.href = '/admin/dashboard';
+        } else if (data.user.role === 'EMPLOYEE') {
+          window.location.href = '/staff/dashboard';
+        } else {
+          window.location.href = '/citizen/dashboard';
+        }
+      }, 500);
+    } else {
+      throw new Error(data.message || 'Access denied.');
+    }
+  } catch (err) {
+    errMsg.innerText = err.message || 'Invalid official email or password.';
+    errBox.classList.remove('hidden');
+    btn.disabled = false;
+    btn.innerHTML = `<span>Validate Official Credentials</span><i data-lucide="shield-check" class="w-4 h-4"></i>`;
+    if (window.lucide) lucide.createIcons({ root: btn });
+  }
+}
+</script>
+{% endblock %}

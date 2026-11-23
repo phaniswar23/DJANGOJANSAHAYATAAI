@@ -39,6 +39,16 @@ def Date_suffix():
 @csrf_exempt
 @optional_jwt
 def create_complaint(request):
+    if request.method == 'GET':
+        complaints_col = get_complaints_collection()
+        docs = list(complaints_col.find().sort('createdAt', -1))
+        return JsonResponse({
+            'success': True,
+            'count': len(docs),
+            'total': len(docs),
+            'data': [serialize_doc(d) for d in docs]
+        })
+
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
 
@@ -73,12 +83,12 @@ def create_complaint(request):
         videos = []
         audio = []
 
-        for f in request.FILES.getlist('images'):
+        for f in request.FILES.getlist('images') + request.FILES.getlist('photos'):
             images.append(save_uploaded_file(f, 'images'))
-        if 'video' in request.FILES:
-            videos.append(save_uploaded_file(request.FILES['video'], 'videos'))
-        if 'audio' in request.FILES:
-            audio.append(save_uploaded_file(request.FILES['audio'], 'audio'))
+        for f in request.FILES.getlist('video') + request.FILES.getlist('videos'):
+            videos.append(save_uploaded_file(f, 'videos'))
+        for f in request.FILES.getlist('audio'):
+            audio.append(save_uploaded_file(f, 'audio'))
 
         # AI Analysis
         ai_result = analyze_complaint_text(description, category=category, location=address)
@@ -108,12 +118,16 @@ def create_complaint(request):
         new_complaint = {
             'complaintId': complaint_id,
             'citizenId': citizen_id,
+            'citizenName': citizen_name,
+            'citizenEmail': citizen_email,
+            'citizenPhone': citizen_phone,
             'citizenDetails': {
                 'name': citizen_name,
                 'email': citizen_email,
                 'phone': citizen_phone
             },
             'description': description,
+            'originalText': description,
             'generatedProblemStatement': formal_statement,
             'aiGeneratedDescription': formal_statement,
             'category': category,
@@ -123,8 +137,12 @@ def create_complaint(request):
                 'name': dept_config['name']
             },
             'urgency': urgency or predicted_urgency,
-            'location': {
+            'location': address,
+            'landmark': data.get('landmark', ''),
+            'coordinates': {'lat': lat, 'lng': lng},
+            'locationDetails': {
                 'address': address,
+                'landmark': data.get('landmark', ''),
                 'latitude': lat,
                 'longitude': lng
             },
@@ -175,10 +193,13 @@ def create_complaint(request):
                     print(f"[Email Notification Warning] Failed to dispatch email: {e}")
             threading.Thread(target=_dispatch_email, daemon=True).start()
 
+        serialized_complaint = serialize_doc(new_complaint)
         return JsonResponse({
             'success': True,
             'message': f"Grievance successfully registered with ID {complaint_id}",
-            'data': serialize_doc(new_complaint)
+            'complaintId': complaint_id,
+            'complaint': serialized_complaint,
+            'data': serialized_complaint
         }, status=201)
 
     except Exception as e:
@@ -235,7 +256,12 @@ def get_complaint_by_id(request, id):
     if not doc:
         return JsonResponse({'success': False, 'message': 'Complaint not found.'}, status=404)
 
-    return JsonResponse({'success': True, 'data': serialize_doc(doc)})
+    serialized = serialize_doc(doc)
+    return JsonResponse({
+        'success': True,
+        'complaint': serialized,
+        'data': serialized
+    })
 
 @csrf_exempt
 @optional_jwt

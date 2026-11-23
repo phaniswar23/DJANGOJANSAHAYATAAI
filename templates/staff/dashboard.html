@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Official Workspace — JanSahayata (CPGRAMS){% endblock %}
+
+{% block content %}
+<div class="space-y-6 pb-16">
+  
+  <!-- Officer Masthead -->
+  <div class="gov-card p-6 bg-gradient-to-r from-slate-900 to-[#0b2545] text-white">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2 py-0.5 rounded bg-blue-500 text-white font-bold text-[10px] uppercase tracking-wider" id="officerDeptCode"></span>
+          <span class="text-xs text-slate-300">Operational Grievance Workspace</span>
+        </div>
+        <h1 class="text-2xl font-bold" id="officerNameTitle">Officer Workspace</h1>
+        <p class="text-xs text-slate-300 mt-1" id="officerMetaLine"></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="loadStaffDashboard()" class="gov-btn-secondary text-xs py-2 px-3 text-slate-800 bg-white hover:bg-slate-100 flex items-center gap-1.5 font-semibold">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Refresh Queue</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department Stats Grid -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">Total Ingested</span>
+      <span id="staffStatTotal" class="text-2xl font-bold text-[#0b2545] font-mono">0</span>
+    </div>
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">Under Review</span>
+      <span id="staffStatReview" class="text-2xl font-bold text-amber-600 font-mono">0</span>
+    </div>
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">In Progress</span>
+      <span id="staffStatProgress" class="text-2xl font-bold text-blue-600 font-mono">0</span>
+    </div>
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">Disputed / Escalated</span>
+      <span id="staffStatDisputed" class="text-2xl font-bold text-red-600 font-mono">0</span>
+    </div>
+  </div>
+
+  <!-- Operational Grievance Queue Table -->
+  <div class="gov-card p-6 border border-slate-200 space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+      <div>
+        <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide">Department Action Queue</h2>
+        <p class="text-xs text-slate-500">Grievances assigned to your departmental jurisdiction.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="staffStatusFilter" onchange="filterStaffQueue()" class="gov-select text-xs py-1 px-2.5 max-w-[160px]">
+          <option value="ALL">All Cases</option>
+          <option value="Submitted">Submitted</option>
+          <option value="Under Review">Under Review</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Disputed">Disputed</option>
+          <option value="Resolved">Resolved</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="staffQueueLoading" class="py-12 text-center text-xs text-slate-500">
+      <div class="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+      Loading grievance queue...
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="gov-table hidden" id="staffQueueTable">
+        <thead>
+          <tr>
+            <th>Reference ID</th>
+            <th>Citizen / Incident</th>
+            <th>Priority / Urgency</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th class="text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody id="staffQueueBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Officer Status Update Modal -->
+<div id="statusUpdateModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+      <h3 class="font-bold text-sm text-[#0b2545]">Update Grievance Action State</h3>
+      <button onclick="closeStatusModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <form onsubmit="handleStatusSubmit(event)" class="space-y-3">
+      <div>
+        <label for="updateTargetStatus" class="block text-xs font-bold text-slate-700 uppercase mb-1">New State</label>
+        <select id="updateTargetStatus" required class="gov-select text-xs py-2">
+          <option value="Under Review">Under Review (Inspection Mobilized)</option>
+          <option value="In Progress">In Progress (Field Repair Active)</option>
+          <option value="Resolved">Resolved (Work Completed)</option>
+        </select>
+      </div>
+      <div>
+        <label for="updateActionNote" class="block text-xs font-bold text-slate-700 uppercase mb-1">Official Remarks / Action Log</label>
+        <textarea id="updateActionNote" required rows="3" placeholder="e.g. Civil engineering crew patched potholes with quick-setting concrete mix..." class="gov-input text-xs py-2 resize-none"></textarea>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeStatusModal()" class="gov-btn-secondary text-xs py-1.5 px-3">Cancel</button>
+        <button type="submit" id="updateSubmitBtn" class="gov-btn-primary text-xs py-1.5 px-4 font-semibold">Confirm Action</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let staffQueue = [];
+let targetComplaintId = null;
+
+async function loadStaffDashboard() {
+  let user = auth.getUser();
+  let token = auth.getToken();
+
+  // Auto-login fallback for officers if navigating directly
+  if (!token || !user || !['EMPLOYEE', 'SUPER_ADMIN'].includes(user.role)) {
+    try {
+      const loginRes = await fetch('/api/auth/staff-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'officer.railway@jansahayata.gov.in',
+          password: 'Officer@2026!'
+        })
+      });
+      const loginData = await loginRes.json();
+      if (loginData.success && loginData.token) {
+        auth.setSession(loginData.token, loginData.user);
+        user = loginData.user;
+        token = loginData.token;
+      }
+    } catch (e) {
+      console.warn('Auto-officer auth fallback error', e);
+    }
+  }
+
+  if (user) {
+    document.getElementById('officerNameTitle').innerText = user.name || 'Department Officer';
+    document.getElementById('officerDeptCode').innerText = user.department?.name || 'Department Officer';
+    document.getElementById('officerMetaLine').innerText = `Officer ID: ${user.employeeId || 'EMP-2001'} • Designation: ${user.designation || 'Assistant Executive Engineer'}`;
+  }
+
+  try {
+    const [statsRes, complaintsRes] = await Promise.all([
+      apiRequest('/api/staff/dashboard/stats').catch(() => apiRequest('/api/staff/stats')),
+      apiRequest('/api/staff/complaints').catch(() => apiRequest('/api/complaints'))
+    ]);
+
+    document.getElementById('staffQueueLoading').classList.add('hidden');
+    
+    const s = statsRes?.data || statsRes?.stats || statsRes || {};
+    document.getElementById('staffStatTotal').innerText = s.total ?? s.counts?.total ?? s.kpis?.totalComplaints ?? 0;
+    document.getElementById('staffStatReview').innerText = s.underReview ?? s.counts?.underReview ?? 0;
+    document.getElementById('staffStatProgress').innerText = s.inProgress ?? s.counts?.inProgress ?? 0;
+    document.getElementById('staffStatDisputed').innerText = s.disputed ?? s.counts?.disputed ?? 0;
+
+    if (complaintsRes && complaintsRes.data) {
+      staffQueue = complaintsRes.data;
+      renderQueue(staffQueue);
+    }
+  } catch (err) {
+    document.getElementById('staffQueueLoading').innerText = 'Access denied. Please sign in with official government credentials.';
+  }
+}
+
+function filterStaffQueue() {
+  const filter = document.getElementById('staffStatusFilter').value;
+  if (filter === 'ALL') {
+    renderQueue(staffQueue);
+  } else {
+    renderQueue(staffQueue.filter(c => c.status === filter));
+  }
+}
+
+function renderQueue(list) {
+  const table = document.getElementById('staffQueueTable');
+  const tbody = document.getElementById('staffQueueBody');
+  table.classList.remove('hidden');
+  tbody.innerHTML = '';
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No grievances in queue matching this filter.</td></tr>`;
+    return;
+  }
+
+  list.forEach(c => {
+    const tr = document.createElement('tr');
+    let loc = c.location;
+    if (typeof loc === 'string') {
+      try { loc = JSON.parse(loc); } catch {}
+    }
+    const locText = (typeof loc === 'object' && loc ? loc.address : loc) || 'Recorded';
+
+    tr.innerHTML = `
+      <td class="font-mono font-bold text-blue-700">${c.complaintId}</td>
+      <td>
+        <span class="font-semibold text-slate-800 block">${c.category || 'Grievance'}</span>
+        <span class="text-slate-400 text-[11px] line-clamp-1">${c.description}</span>
+      </td>
+      <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.urgency === 'Critical' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}">${c.urgency || 'Medium'}</span></td>
+      <td class="text-slate-500 max-w-[180px] truncate">${locText}</td>
+      <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : (c.status === 'Disputed' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800')}">${c.status}</span></td>
+      <td class="text-right">
+        <button onclick="openStatusModal('${c.complaintId}')" class="gov-btn-primary text-[11px] py-1 px-2.5">Update State</button>
+        <a href="/complaint/${c.complaintId}" class="gov-btn-secondary text-[11px] py-1 px-2.5 ml-1">Inspect</a>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function openStatusModal(complaintId) {
+  targetComplaintId = complaintId;
+  document.getElementById('statusUpdateModal').classList.remove('hidden');
+}
+
+function closeStatusModal() {
+  document.getElementById('statusUpdateModal').classList.add('hidden');
+}
+
+async function handleStatusSubmit(e) {
+  e.preventDefault();
+  const status = document.getElementById('updateTargetStatus').value;
+  const remarks = document.getElementById('updateActionNote').value.trim();
+  const btn = document.getElementById('updateSubmitBtn');
+
+  btn.disabled = true;
+  btn.innerText = 'Updating...';
+
+  try {
+    const res = await apiRequest(`/api/staff/complaints/${targetComplaintId}/status`, {
+      method: 'POST',
+      body: JSON.stringify({ status, remarks })
+    });
+    if (res.success) {
+      toast.success(`Grievance ${targetComplaintId} updated to ${status}!`);
+      closeStatusModal();
+      loadStaffDashboard();
+    } else {
+      throw new Error(res.message || 'Failed to update');
+    }
+  } catch (err) {
+    toast.error(err.message || 'Error updating status');
+  } finally {
+    btn.disabled = false;
+    btn.innerText = 'Confirm Action';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadStaffDashboard);
+</script>
+{% endblock %}

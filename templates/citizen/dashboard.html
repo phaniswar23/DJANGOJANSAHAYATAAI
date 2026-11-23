@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Citizen Workspace — JanSahayata (CPGRAMS){% endblock %}
+
+{% block content %}
+<div class="space-y-6 pb-16">
+  
+  <!-- Citizen Welcome Masthead -->
+  <div class="gov-card p-6 bg-gradient-to-r from-[#0b2545] to-[#163b6b] text-white">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">Citizen Redressal Dashboard</span>
+        <h1 class="text-2xl font-bold" id="citizenWelcomeTitle">Welcome, Citizen</h1>
+        <p class="text-xs text-slate-300 mt-1" id="citizenEmailLabel"></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="/report" class="gov-btn-saffron text-xs py-2 px-4 shadow-sm font-semibold flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Lodge New Grievance</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Statistics Grid -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">Total Lodged</span>
+      <span id="statTotal" class="text-2xl font-bold text-[#0b2545] font-mono">0</span>
+    </div>
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">In Progress</span>
+      <span id="statPending" class="text-2xl font-bold text-amber-600 font-mono">0</span>
+    </div>
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">Resolved</span>
+      <span id="statResolved" class="text-2xl font-bold text-emerald-600 font-mono">0</span>
+    </div>
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">Disputed Cases</span>
+      <span id="statDisputed" class="text-2xl font-bold text-red-600 font-mono">0</span>
+    </div>
+  </div>
+
+  <!-- Grievances Table / List Card -->
+  <div class="gov-card p-6 border border-slate-200 space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+      <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide">Your Registered Grievances</h2>
+      <div class="flex items-center gap-2">
+        <select id="statusFilter" onchange="filterGrievances()" class="gov-select text-xs py-1 px-2.5 max-w-[160px]">
+          <option value="ALL">All Statuses</option>
+          <option value="Submitted">Submitted</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Resolved">Resolved</option>
+          <option value="Disputed">Disputed</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Grievances Container -->
+    <div id="grievancesLoading" class="py-12 text-center text-xs text-slate-500">
+      <div class="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+      Loading your grievances...
+    </div>
+
+    <div id="grievancesEmpty" class="hidden py-12 text-center space-y-2">
+      <p class="text-sm font-bold text-slate-700">No grievances recorded yet</p>
+      <p class="text-xs text-slate-500">When you report an issue, it will appear here with live officer tracking.</p>
+      <a href="/report" class="gov-btn-saffron inline-flex text-xs py-1.5 px-3 mt-2">Lodge First Grievance</a>
+    </div>
+
+    <div id="grievancesList" class="hidden divide-y divide-slate-100"></div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let allComplaints = [];
+
+async function loadCitizenDashboard() {
+  const user = auth.getUser();
+  if (user) {
+    document.getElementById('citizenWelcomeTitle').innerText = `Welcome, ${user.name || 'Citizen'}`;
+    document.getElementById('citizenEmailLabel').innerText = `${user.email} ${user.phone ? '• ' + user.phone : ''}`;
+  }
+
+  try {
+    const res = await apiRequest('/api/complaints/citizen');
+    document.getElementById('grievancesLoading').classList.add('hidden');
+    if (res && res.data) {
+      allComplaints = res.data;
+      updateStats(allComplaints);
+      renderGrievancesList(allComplaints);
+    }
+  } catch (err) {
+    document.getElementById('grievancesLoading').innerText = 'Failed to load grievances. Please log in.';
+  }
+}
+
+function updateStats(list) {
+  document.getElementById('statTotal').innerText = list.length;
+  document.getElementById('statPending').innerText = list.filter(c => ['Submitted', 'Under Review', 'In Progress'].includes(c.status)).length;
+  document.getElementById('statResolved').innerText = list.filter(c => c.status === 'Resolved').length;
+  document.getElementById('statDisputed').innerText = list.filter(c => c.status === 'Disputed').length;
+}
+
+function filterGrievances() {
+  const filter = document.getElementById('statusFilter').value;
+  if (filter === 'ALL') {
+    renderGrievancesList(allComplaints);
+  } else {
+    renderGrievancesList(allComplaints.filter(c => c.status === filter));
+  }
+}
+
+function renderGrievancesList(list) {
+  const container = document.getElementById('grievancesList');
+  const emptyBox = document.getElementById('grievancesEmpty');
+
+  if (list.length === 0) {
+    container.classList.add('hidden');
+    emptyBox.classList.remove('hidden');
+    return;
+  }
+
+  emptyBox.classList.add('hidden');
+  container.classList.remove('hidden');
+  container.innerHTML = '';
+
+  list.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+    
+    let badgeClass = 'bg-blue-100 text-blue-800';
+    if (c.status === 'Resolved') badgeClass = 'bg-emerald-100 text-emerald-800';
+    if (c.status === 'Disputed') badgeClass = 'bg-red-100 text-red-800';
+    if (c.status === 'In Progress') badgeClass = 'bg-amber-100 text-amber-800';
+
+    row.innerHTML = `
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="font-mono font-bold text-xs text-blue-700">${c.complaintId}</span>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${c.status}</span>
+          <span class="text-[10px] text-slate-400 font-mono">${new Date(c.createdAt).toLocaleDateString()}</span>
+        </div>
+        <p class="text-xs text-slate-800 font-semibold line-clamp-1">${c.category || 'Grievance'}</p>
+        <p class="text-xs text-slate-500 line-clamp-1">${c.description}</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="/complaint/${c.complaintId}" class="gov-btn-primary text-xs py-1.5 px-3">View Progress →</a>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+
+  if (window.lucide) lucide.createIcons();
+}
+
+document.addEventListener('DOMContentLoaded', loadCitizenDashboard);
+</script>
+{% endblock %}

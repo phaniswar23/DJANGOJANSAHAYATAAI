@@ -1,0 +1,614 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Grievance Details — JanSahayata (CPGRAMS){% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6 pb-16">
+  
+  <!-- Back Button -->
+  <div>
+    <a href="/track" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+      <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+      <span>Back to Grievance Tracking</span>
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div id="detailsLoading" class="py-16 text-center space-y-3">
+    <div class="w-8 h-8 border-3 border-[#0b2545] border-t-amber-500 rounded-full animate-spin mx-auto"></div>
+    <p class="text-xs font-semibold text-[#0b2545] uppercase tracking-wider">Fetching Grievance Redressal Records...</p>
+  </div>
+
+  <!-- Error State -->
+  <div id="detailsError" class="hidden gov-card p-8 text-center space-y-3">
+    <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+      <i data-lucide="alert-circle" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-lg font-bold text-slate-800">Grievance Record Not Found</h2>
+    <p class="text-xs text-slate-500" id="detailsErrorMsg">No grievance record matches this reference number.</p>
+    <a href="/track" class="gov-btn-primary inline-flex text-xs py-2 px-4 mt-2">Search Another Reference ID</a>
+  </div>
+
+  <!-- Content Container -->
+  <div id="detailsContainer" class="hidden space-y-6">
+    
+    <!-- Top Reference Card -->
+    <div class="gov-card p-6 space-y-5 border border-slate-200">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-mono font-bold text-slate-400 uppercase tracking-wide">Complaint ID:</span>
+            <span class="text-xl font-mono font-black text-[#0b2545]" id="cComplaintId"></span>
+          </div>
+          <p class="text-xs text-slate-500">
+            Assigned Department: <strong class="text-slate-900 font-semibold" id="cDepartmentName"></strong>
+            <span class="text-[10px] text-slate-400 font-mono ml-1" id="cDeptCode"></span>
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <span id="cUrgencyBadge" class="px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wide"></span>
+          <span id="cStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-xs"></span>
+        </div>
+      </div>
+
+      <!-- Horizontal Multi-Stage Progression Bar -->
+      <div class="py-2">
+        <div class="flex items-center justify-between relative" id="progressionBarContainer">
+          <!-- Connecting Line -->
+          <div class="absolute left-4 right-4 top-3.5 h-0.5 bg-slate-200 -z-0"></div>
+          <div id="progressBarFill" class="absolute left-4 top-3.5 h-0.5 bg-blue-600 transition-all -z-0" style="width: 0%;"></div>
+
+          <!-- 7 Progression Nodes -->
+          <div class="relative z-10 flex flex-col items-center text-center stage-node" data-stage="0">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-white border-slate-300 text-slate-400">1</div>
+            <span class="text-[11px] mt-1 font-medium hidden sm:block text-slate-400">Submitted</span>
+          </div>
+          <div class="relative z-10 flex flex-col items-center text-center stage-node" data-stage="1">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-white border-slate-300 text-slate-400">2</div>
+            <span class="text-[11px] mt-1 font-medium hidden sm:block text-slate-400">Under Review</span>
+          </div>
+          <div class="relative z-10 flex flex-col items-center text-center stage-node" data-stage="2">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-white border-slate-300 text-slate-400">3</div>
+            <span class="text-[11px] mt-1 font-medium hidden sm:block text-slate-400">Accepted</span>
+          </div>
+          <div class="relative z-10 flex flex-col items-center text-center stage-node" data-stage="3">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-white border-slate-300 text-slate-400">4</div>
+            <span class="text-[11px] mt-1 font-medium hidden sm:block text-slate-400">In Progress</span>
+          </div>
+          <div class="relative z-10 flex flex-col items-center text-center stage-node" data-stage="4">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-white border-slate-300 text-slate-400">5</div>
+            <span class="text-[11px] mt-1 font-medium hidden sm:block text-slate-400">Resolved</span>
+          </div>
+          <div class="relative z-10 flex flex-col items-center text-center stage-node" data-stage="5">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-white border-slate-300 text-slate-400">6</div>
+            <span class="text-[11px] mt-1 font-medium hidden sm:block text-slate-400">Verification</span>
+          </div>
+          <div class="relative z-10 flex flex-col items-center text-center stage-node" data-stage="6">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-white border-slate-300 text-slate-400">7</div>
+            <span class="text-[11px] mt-1 font-medium hidden sm:block text-slate-400" id="finalStageLabel">Closed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Banner: When RESOLVED -->
+      <div id="bannerResolved" class="hidden p-4 bg-emerald-50 border border-emerald-300 rounded-xl space-y-3">
+        <div class="flex items-start gap-3">
+          <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5"></i>
+          <div class="space-y-1">
+            <h3 class="text-sm font-bold text-emerald-900">Resolution Reported by Department Officer</h3>
+            <p class="text-xs text-emerald-800 leading-relaxed">
+              The assigned department has completed remedial work. Please inspect the resolution notes and evidence below to confirm satisfaction or dispute the outcome.
+            </p>
+            <p id="resolvedNotesText" class="text-xs bg-white p-2.5 rounded-lg border border-emerald-200 text-slate-800 mt-2 font-medium italic"></p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2 pt-2 border-t border-emerald-200 justify-end">
+          <button type="button" onclick="openDisputeModal()" class="gov-btn-secondary text-red-700 border-red-300 hover:bg-red-50 text-xs py-2 px-3.5 flex items-center gap-1 font-semibold">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-600"></i>
+            <span>Dispute Resolution</span>
+          </button>
+          <button type="button" onclick="openVerifyModal()" class="gov-btn-primary text-xs py-2 px-4 flex items-center gap-1.5 font-semibold bg-emerald-600 hover:bg-emerald-700">
+            <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+            <span>Confirm & Close Grievance</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Notice Banner: When DISPUTED -->
+      <div id="bannerDisputed" class="hidden p-4 bg-red-50 border border-red-300 rounded-xl flex items-start gap-3 text-red-900 text-xs">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+        <div>
+          <strong class="block font-bold">Grievance Reopened Under Citizen Dispute</strong>
+          <p class="mt-0.5 leading-relaxed" id="disputedReasonText"></p>
+        </div>
+      </div>
+
+      <!-- Notice Banner: When ESCALATED -->
+      <div id="bannerEscalated" class="hidden p-4 bg-purple-50 border border-purple-300 rounded-xl flex items-start gap-3 text-purple-900 text-xs">
+        <i data-lucide="shield" class="w-5 h-5 text-purple-700 shrink-0 mt-0.5"></i>
+        <div>
+          <strong class="block font-bold" id="escalatedTitleText">Escalated to Higher Authority</strong>
+          <p class="mt-0.5 leading-relaxed" id="escalatedDirectiveText"></p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2-Column Grievance Details Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Left 2 Columns: Statement, Evidence, and Timeline -->
+      <div class="md:col-span-2 space-y-6">
+        
+        <!-- Structured Grievance Statement -->
+        <div class="gov-card p-5 space-y-3 border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-blue-700"></i>
+            <span>Problem Description & Statement</span>
+          </h3>
+          
+          <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium" id="cProblemStatement"></p>
+          </div>
+
+          <div id="rawInputSection" class="hidden">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Citizen Raw Input:</span>
+            <p class="text-xs text-slate-600 italic bg-white p-2.5 rounded-md border border-slate-100" id="cRawDescription"></p>
+          </div>
+        </div>
+
+        <!-- Citizen Attached Evidence -->
+        <div class="gov-card p-5 space-y-3 border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="camera" class="w-3.5 h-3.5 text-blue-700"></i>
+              <span>Attached Evidence</span>
+            </span>
+            <span class="text-slate-400 font-normal text-[11px]" id="evidenceCount"></span>
+          </h3>
+
+          <div id="evidenceImagesGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+          <div id="noEvidenceNotice" class="hidden text-xs text-slate-400 bg-slate-50 p-4 rounded-lg text-center">No photographic attachments provided.</div>
+        </div>
+
+        <!-- Official Department Resolution Evidence (if present) -->
+        <div id="deptProofCard" class="hidden gov-card p-5 space-y-3 border border-emerald-300 bg-emerald-50/20">
+          <h3 class="text-xs font-bold text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700"></i>
+            <span>Department Work Completion Proof</span>
+          </h3>
+          <p class="text-xs text-slate-700" id="deptProofNotes"></p>
+          <div id="deptProofGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1"></div>
+        </div>
+
+        <!-- Official Redressal Timeline -->
+        <div class="gov-card p-5 space-y-4 border border-slate-200">
+          <h3 class="text-xs font-bold text-[#0b2545] uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i>
+            <span>Official Redressal Timeline & Progress Updates</span>
+          </h3>
+          <div id="cTimeline" class="space-y-0 pt-2"></div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Grievance Metadata & Actions -->
+      <div class="space-y-6">
+        
+        <div class="gov-card p-5 space-y-4 border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider pb-2 border-b border-slate-100">
+            Grievance Metadata
+          </h3>
+
+          <div class="space-y-3 text-xs">
+            <div>
+              <span class="text-slate-400 block text-[11px]">Department Authority</span>
+              <p class="font-bold text-slate-900" id="metaDeptName"></p>
+              <span class="text-[10px] text-slate-500 font-mono" id="metaDeptCode"></span>
+            </div>
+
+            <div>
+              <span class="text-slate-400 block text-[11px]">Category</span>
+              <p class="font-bold text-slate-900" id="metaCategory"></p>
+            </div>
+
+            <div>
+              <span class="text-slate-400 block text-[11px]">Incident Location</span>
+              <p class="font-bold text-slate-900 leading-snug" id="metaLocation"></p>
+            </div>
+
+            <div id="metaCoordinatesSection">
+              <span class="text-slate-400 block text-[11px]">GPS Coordinates</span>
+              <p class="font-mono text-slate-700 font-semibold" id="metaCoordinates"></p>
+            </div>
+
+            <div>
+              <span class="text-slate-400 block text-[11px]">Date Registered</span>
+              <p class="font-medium text-slate-800 font-mono" id="metaDate"></p>
+            </div>
+
+            <div>
+              <span class="text-slate-400 block text-[11px]">Submitted By</span>
+              <p class="font-bold text-slate-800 flex items-center gap-1">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span id="metaCitizenName"></span>
+              </p>
+              <p class="text-[11px] text-slate-500 font-mono" id="metaCitizenContact"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Help & Information Card -->
+        <div class="gov-card p-4 bg-slate-50 border border-slate-200 text-xs space-y-2">
+          <span class="font-bold text-slate-800 flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-blue-700"></i>
+            <span>Citizen Protection SLA</span>
+          </span>
+          <p class="text-slate-600 leading-relaxed text-[11px]">
+            Every grievance is tracked under CPGRAMS guidelines. If the response exceeds statutory SLA timelines, the case automatically escalates to the Departmental Nodal Director.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Confirm Resolution Modal -->
+<div id="verifyModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+      <h3 class="font-bold text-sm text-[#0b2545] flex items-center gap-1.5">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+        <span>Confirm Satisfactory Resolution</span>
+      </h3>
+      <button onclick="closeVerifyModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <form onsubmit="handleVerifySubmit(event)" class="space-y-3">
+      <p class="text-xs text-slate-600">Confirming this resolution will mark the grievance as <strong>Closed</strong> in official government records.</p>
+      <div>
+        <label for="verifyFeedback" class="block text-xs font-semibold text-slate-700 mb-1">Feedback / Rating Note (Optional)</label>
+        <textarea id="verifyFeedback" rows="3" placeholder="e.g. Work inspected and verified. Repaired thoroughly." class="gov-input text-xs py-2 resize-none"></textarea>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeVerifyModal()" class="gov-btn-secondary text-xs py-1.5 px-3">Cancel</button>
+        <button type="submit" id="verifySubmitBtn" class="gov-btn-primary text-xs py-1.5 px-4 font-semibold bg-emerald-600 hover:bg-emerald-700">Confirm & Close</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Dispute Modal -->
+<div id="disputeModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+      <h3 class="font-bold text-sm text-red-700 flex items-center gap-1.5">
+        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+        <span>File Grievance Dispute</span>
+      </h3>
+      <button onclick="closeDisputeModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <form onsubmit="handleDisputeSubmit(event)" class="space-y-3">
+      <p class="text-xs text-slate-600">Please provide the exact reason why the work completed does not resolve the issue. Your grievance will be reopened for higher supervisor reinspection.</p>
+      <div>
+        <label for="disputeReason" class="block text-xs font-semibold text-slate-700 mb-1">Dispute Reason <span class="text-red-500">*</span></label>
+        <textarea id="disputeReason" required rows="4" placeholder="e.g. Repair was incomplete; leak is still occurring; debris was left behind..." class="gov-input text-xs py-2 resize-none"></textarea>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeDisputeModal()" class="gov-btn-secondary text-xs py-1.5 px-3">Cancel</button>
+        <button type="submit" id="disputeSubmitBtn" class="gov-btn-danger text-xs py-1.5 px-4 font-semibold">Submit Official Dispute</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const complaintRef = window.location.pathname.split('/').filter(Boolean).pop();
+let activeComplaint = null;
+
+async function loadComplaintDetails() {
+  try {
+    const res = await apiRequest(`/api/complaints/${complaintRef}`);
+    const c = res?.complaint || res?.data;
+    if (res && res.success && c) {
+      activeComplaint = c;
+      renderComplaint(c);
+    } else {
+      throw new Error(res?.message || 'Grievance record not found');
+    }
+  } catch (err) {
+    document.getElementById('detailsLoading').classList.add('hidden');
+    document.getElementById('detailsError').classList.remove('hidden');
+    document.getElementById('detailsErrorMsg').innerText = err.message || 'No grievance record found with this reference number.';
+  }
+}
+
+function renderComplaint(c) {
+  document.getElementById('detailsLoading').classList.add('hidden');
+  document.getElementById('detailsContainer').classList.remove('hidden');
+
+  // Header
+  document.getElementById('cComplaintId').innerText = c.complaintId;
+  const deptName = c.department?.name || 'Department Service';
+  const deptCode = c.department?.code || 'GOV';
+  document.getElementById('cDepartmentName').innerText = deptName;
+  document.getElementById('cDeptCode').innerText = `(${deptCode})`;
+
+  // Status Badge
+  const sBadge = document.getElementById('cStatusBadge');
+  sBadge.innerText = c.status;
+  const statusStyles = {
+    'Resolved': 'background-color: #10b981; color: #ffffff;',
+    'Disputed': 'background-color: #ef4444; color: #ffffff;',
+    'In Progress': 'background-color: #f59e0b; color: #0f172a;',
+    'Under Review': 'background-color: #3b82f6; color: #ffffff;',
+    'Accepted': 'background-color: #0284c7; color: #ffffff;',
+    'Escalated': 'background-color: #8b5cf6; color: #ffffff;',
+    'Closed': 'background-color: #475569; color: #ffffff;',
+    'Submitted': 'background-color: #64748b; color: #ffffff;'
+  };
+  sBadge.style.cssText = statusStyles[c.status] || 'background-color: #3b82f6; color: #ffffff;';
+
+  // Urgency Badge
+  const uBadge = document.getElementById('cUrgencyBadge');
+  const urgency = c.urgency || 'Medium';
+  uBadge.innerText = `${urgency} Urgency`;
+  const urgencyStyles = {
+    'Critical': 'background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171;',
+    'High': 'background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d;',
+    'Medium': 'background-color: #e0f2fe; color: #075985; border: 1px solid #7dd3fc;',
+    'Low': 'background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;'
+  };
+  uBadge.style.cssText = urgencyStyles[urgency] || urgencyStyles['Medium'];
+
+  // Multi-Stage Progress Bar (7 Stages)
+  const stages = ['Submitted', 'Under Review', 'Accepted', 'In Progress', 'Resolved', 'Verification', (c.status === 'Disputed' ? 'Disputed' : 'Closed')];
+  let stageIdx = 0;
+  switch (c.status) {
+    case 'Submitted': stageIdx = 0; break;
+    case 'Under Review': stageIdx = 1; break;
+    case 'Accepted': stageIdx = 2; break;
+    case 'In Progress': stageIdx = 3; break;
+    case 'Resolved': stageIdx = 4; break;
+    case 'Verification': stageIdx = 5; break;
+    case 'Closed': case 'Disputed': stageIdx = 6; break;
+    case 'Escalated': stageIdx = 3; break;
+    default: stageIdx = 1;
+  }
+
+  const fillPct = (Math.min(stageIdx, 6) / 6) * 100;
+  document.getElementById('progressBarFill').style.width = `${fillPct}%`;
+  document.getElementById('finalStageLabel').innerText = c.status === 'Disputed' ? 'Disputed' : 'Closed';
+
+  document.querySelectorAll('.stage-node').forEach(node => {
+    const s = parseInt(node.getAttribute('data-stage'));
+    const circle = node.querySelector('div');
+    const label = node.querySelector('span');
+
+    if (s < stageIdx) {
+      circle.className = 'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-blue-600 border-blue-600 text-white';
+      circle.innerHTML = '✓';
+      if (label) label.className = 'text-[11px] mt-1 font-semibold text-slate-700 hidden sm:block';
+    } else if (s === stageIdx) {
+      if (c.status === 'Disputed') {
+        circle.className = 'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-red-600 border-red-600 text-white shadow-md ring-4 ring-red-100';
+      } else {
+        circle.className = 'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-blue-700 border-blue-700 text-white shadow-md ring-4 ring-blue-100';
+      }
+      circle.innerText = s + 1;
+      if (label) label.className = 'text-[11px] mt-1 font-bold text-blue-900 hidden sm:block';
+    } else {
+      circle.className = 'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 bg-white border-slate-300 text-slate-400';
+      circle.innerText = s + 1;
+      if (label) label.className = 'text-[11px] mt-1 font-medium text-slate-400 hidden sm:block';
+    }
+  });
+
+  // Action Banners
+  document.getElementById('bannerResolved').classList.add('hidden');
+  document.getElementById('bannerDisputed').classList.add('hidden');
+  document.getElementById('bannerEscalated').classList.add('hidden');
+
+  if (c.status === 'Resolved') {
+    document.getElementById('bannerResolved').classList.remove('hidden');
+    const resNotes = c.resolutionDetails?.notes || c.resolution?.notes || 'Ground inspection and rectification completed in accordance with citizen complaint specs.';
+    document.getElementById('resolvedNotesText').innerText = `"${resNotes}"`;
+  } else if (c.status === 'Disputed') {
+    document.getElementById('bannerDisputed').classList.remove('hidden');
+    document.getElementById('disputedReasonText').innerText = `Dispute Reason: "${c.dispute?.reason || 'Work rejected by citizen'}" — Department nodal officer alerted for re-inspection.`;
+  } else if (c.status === 'Escalated') {
+    document.getElementById('bannerEscalated').classList.remove('hidden');
+    document.getElementById('escalatedTitleText').innerText = `Escalated to Higher Authority: ${c.escalation?.escalatedTo || 'Departmental Nodal Director'}`;
+    document.getElementById('escalatedDirectiveText').innerText = `Directive: "${c.escalation?.escalationReason || 'Automatic priority escalation under CPGRAMS Section 4 SLA breach'}"`;
+  }
+
+  // Problem Statement
+  document.getElementById('cProblemStatement').innerText = c.generatedProblemStatement || c.description;
+  if (c.description && c.generatedProblemStatement && c.description !== c.generatedProblemStatement) {
+    document.getElementById('rawInputSection').classList.remove('hidden');
+    document.getElementById('cRawDescription').innerText = `"${c.description}"`;
+  } else {
+    document.getElementById('rawInputSection').classList.add('hidden');
+  }
+
+  // Attached Evidence Images
+  const citizenImgs = c.attachments?.images || c.images || [];
+  const evGrid = document.getElementById('evidenceImagesGrid');
+  const noEvNotice = document.getElementById('noEvidenceNotice');
+  const evCount = document.getElementById('evidenceCount');
+  evGrid.innerHTML = '';
+  evCount.innerText = `${citizenImgs.length} attachment(s)`;
+
+  if (citizenImgs.length > 0) {
+    noEvNotice.classList.add('hidden');
+    citizenImgs.forEach(imgUrl => {
+      const a = document.createElement('a');
+      a.href = imgUrl;
+      a.target = '_blank';
+      a.className = 'h-24 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 block group hover:shadow-md transition-shadow';
+      a.innerHTML = `<img src="${imgUrl}" alt="Evidence" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />`;
+      evGrid.appendChild(a);
+    });
+  } else {
+    noEvNotice.classList.remove('hidden');
+  }
+
+  // Department Work Completion Proof
+  const deptProofBox = document.getElementById('deptProofCard');
+  const resMedia = c.resolutionDetails?.images || c.resolution?.media || [];
+  if (c.status === 'Resolved' && (resMedia.length > 0 || c.resolutionDetails?.notes)) {
+    deptProofBox.classList.remove('hidden');
+    document.getElementById('deptProofNotes').innerText = c.resolutionDetails?.notes || c.resolution?.notes || 'Field team photo verification attached.';
+    const dpGrid = document.getElementById('deptProofGrid');
+    dpGrid.innerHTML = '';
+    resMedia.forEach(imgUrl => {
+      const a = document.createElement('a');
+      a.href = imgUrl;
+      a.target = '_blank';
+      a.className = 'h-24 rounded-lg overflow-hidden border border-emerald-300 bg-emerald-50 block group hover:shadow-md transition-shadow';
+      a.innerHTML = `<img src="${imgUrl}" alt="Proof" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />`;
+      dpGrid.appendChild(a);
+    });
+  } else {
+    deptProofBox.classList.add('hidden');
+  }
+
+  // Vertical Timeline
+  const tBox = document.getElementById('cTimeline');
+  tBox.innerHTML = '';
+  const updates = (c.progressUpdates && c.progressUpdates.length > 0)
+    ? c.progressUpdates
+    : [{ status: 'Submitted', message: 'Grievance submitted by citizen.', timestamp: c.createdAt, officer: { name: 'Automated Redressal Ingestion' } }];
+
+  updates.forEach(u => {
+    const item = document.createElement('div');
+    item.className = 'relative pl-7 pb-6 border-l-2 border-blue-500 last:border-l-0 last:pb-1';
+    item.innerHTML = `
+      <div class="absolute -left-[9px] top-0.5 w-4 h-4 rounded-full border-2 border-white shadow-xs" style="background-color: #2563eb;"></div>
+      <div class="space-y-1">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase shadow-2xs" style="${statusStyles[u.status] || 'background-color: #3b82f6; color: #ffffff;'}">${u.status}</span>
+          <span class="text-[11px] text-slate-400 font-mono">${new Date(u.timestamp).toLocaleString()}</span>
+        </div>
+        <p class="text-xs text-slate-700 font-medium leading-relaxed">${u.message}</p>
+        ${u.officer?.name ? `<p class="text-[11px] text-slate-500">Official: <strong class="text-slate-800">${u.officer.name}</strong> <span class="text-slate-400">(${u.officer.department || deptName})</span></p>` : ''}
+      </div>
+    `;
+    tBox.appendChild(item);
+  });
+
+  // Right Metadata Column
+  document.getElementById('metaDeptName').innerText = deptName;
+  document.getElementById('metaDeptCode').innerText = `Department Code: ${deptCode}`;
+  document.getElementById('metaCategory').innerText = c.category || 'General Civic Issue';
+
+  let loc = c.location;
+  if (typeof loc === 'string') {
+    try { loc = JSON.parse(loc); } catch {}
+  }
+  const locAddr = (typeof loc === 'object' && loc ? loc.address : loc) || 'Location Recorded';
+  document.getElementById('metaLocation').innerText = locAddr;
+
+  const lat = c.coordinates?.lat || c.locationDetails?.latitude;
+  const lng = c.coordinates?.lng || c.locationDetails?.longitude;
+  if (lat && lng) {
+    document.getElementById('metaCoordinatesSection').classList.remove('hidden');
+    document.getElementById('metaCoordinates').innerText = `${Number(lat).toFixed(4)}° N, ${Number(lng).toFixed(4)}° E`;
+  } else {
+    document.getElementById('metaCoordinatesSection').classList.add('hidden');
+  }
+
+  document.getElementById('metaDate').innerText = new Date(c.createdAt).toLocaleString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  document.getElementById('metaCitizenName').innerText = c.citizenDetails?.name || c.citizenName || 'Citizen User';
+  const cContact = [c.citizenDetails?.email || c.citizenEmail, c.citizenDetails?.phone || c.citizenPhone].filter(Boolean).join(' • ');
+  document.getElementById('metaCitizenContact').innerText = cContact || 'Verified Citizen';
+
+  if (window.lucide) lucide.createIcons();
+}
+
+// Modal Handlers
+function openVerifyModal() {
+  document.getElementById('verifyModal').classList.remove('hidden');
+}
+function closeVerifyModal() {
+  document.getElementById('verifyModal').classList.add('hidden');
+}
+
+function openDisputeModal() {
+  document.getElementById('disputeModal').classList.remove('hidden');
+}
+function closeDisputeModal() {
+  document.getElementById('disputeModal').classList.add('hidden');
+}
+
+async function handleVerifySubmit(e) {
+  e.preventDefault();
+  const feedback = document.getElementById('verifyFeedback').value.trim() || 'Work verified and approved by citizen.';
+  const btn = document.getElementById('verifySubmitBtn');
+  btn.disabled = true;
+  btn.innerText = 'Submitting...';
+
+  try {
+    const res = await apiRequest(`/api/complaints/${complaintRef}/verify-resolution`, {
+      method: 'POST',
+      body: JSON.stringify({ feedback })
+    });
+    if (res.success) {
+      toast.success('Resolution confirmed! Grievance officially closed.');
+      closeVerifyModal();
+      loadComplaintDetails();
+    } else {
+      throw new Error(res.message || 'Verification failed');
+    }
+  } catch (err) {
+    toast.error(err.message || 'Error confirming resolution');
+  } finally {
+    btn.disabled = false;
+    btn.innerText = 'Confirm & Close';
+  }
+}
+
+async function handleDisputeSubmit(e) {
+  e.preventDefault();
+  const reason = document.getElementById('disputeReason').value.trim();
+  const btn = document.getElementById('disputeSubmitBtn');
+  btn.disabled = true;
+  btn.innerText = 'Filing dispute...';
+
+  try {
+    const res = await apiRequest(`/api/complaints/${complaintRef}/dispute`, {
+      method: 'POST',
+      body: JSON.stringify({ reason })
+    });
+    if (res.success) {
+      toast.success('Dispute filed successfully! Reopened for supervisor reinspection.');
+      closeDisputeModal();
+      loadComplaintDetails();
+    } else {
+      throw new Error(res.message || 'Failed to file dispute');
+    }
+  } catch (err) {
+    toast.error(err.message || 'Error submitting dispute');
+  } finally {
+    btn.disabled = false;
+    btn.innerText = 'Submit Official Dispute';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadComplaintDetails);
+</script>
+{% endblock %}

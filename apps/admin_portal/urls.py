@@ -2,7 +2,10 @@ from django.urls import path
 from apps.admin_portal import views
 
 urlpatterns = [
+    path('stats', views.get_admin_dashboard_stats, name='admin_stats'),
+    path('stats/', views.get_admin_dashboard_stats, name='admin_stats_slash'),
     path('dashboard/stats', views.get_admin_dashboard_stats, name='admin_dashboard_stats'),
+    path('dashboard/stats/', views.get_admin_dashboard_stats, name='admin_dashboard_stats_slash'),
     path('sync-data', views.sync_platform_data, name='admin_sync_data'),
     path('employees', views.employees_list_create, name='admin_employees'),
     path('employees/<str:id>', views.update_employee, name='admin_update_employee'),

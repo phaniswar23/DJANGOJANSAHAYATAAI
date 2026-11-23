@@ -4,188 +4,300 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}JanSahayata AI — Citizen–Government Grievance Mediation Platform{% endblock %}</title>
+  <title>{% block title %}JanSahayata (CPGRAMS) — Department of Administrative Reforms & Public Grievances{% endblock %}</title>
 
-  <!-- Tailwind CSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            govNavy: '#0b2545',
-            govSaffron: '#e86100',
-            govGreen: '#138808',
-            govBlueLight: '#eef4ff'
-          }
-        }
-      }
-    }
-  </script>
+  <!-- Favicon / Official Emblem Logo -->
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon.png' %}?v=3">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}?v=3">
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}?v=3">
+  <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}?v=3">
 
-  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <!-- Google Fonts: Inter & Noto Sans Devanagari -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Production Compiled Tailwind CSS matching pixel-for-pixel the React App -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Leaflet Map CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
-    .gov-tricolor { background: linear-gradient(90deg, #FF9933 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #138808 66.6%); height: 3px; }
+    /* Prevent flash of unstyled content */
+    html {
+      font-family: 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+      background-color: #0b2545;
+    }
+    body {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col font-sans antialiased">
 
-  <!-- Tri-color National Top Bar -->
-  <div class="gov-tricolor"></div>
-
-  <!-- Accessibility & Government Portal Header -->
-  <div class="bg-[#081a30] text-slate-300 text-xs py-1.5 px-4 border-b border-slate-700/60">
-    <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
-      <div class="flex items-center gap-2">
-        <span class="font-semibold text-white">भारत सरकार</span>
-        <span class="text-slate-500">•</span>
-        <span class="text-slate-300">Government of India</span>
-        <span class="text-slate-500">•</span>
-        <span class="hidden md:inline text-slate-400">Ministry of Personnel, Public Grievances & Pensions</span>
+  <!-- 1. Master Header -->
+  <header class="sticky top-0 z-50 bg-[#0b2545] shadow-md border-b border-slate-300 m-0 p-0 w-full">
+    
+    <!-- Smooth Overlay Tricolor Scroll Line -->
+    <div id="scrollProgressBar" class="absolute top-0 left-0 right-0 h-[3.5px] z-50 overflow-hidden pointer-events-none opacity-0 transition-opacity duration-300 ease-out" aria-hidden="true">
+      <div class="h-full w-full bg-transparent relative">
+        <div id="scrollProgressFill" class="h-full transition-all duration-150 ease-out" style="width: 4%; background: linear-gradient(90deg, #e86100 0%, #ff9933 30%, #ffffff 50%, #138808 70%, #138808 100%); box-shadow: 0 1px 8px rgba(232, 97, 0, 0.8), 0 0 4px rgba(19, 136, 8, 0.8);"></div>
       </div>
+    </div>
 
-      <div class="flex items-center gap-4 text-[11px]">
-        <div class="flex items-center gap-1.5">
-          <span class="text-slate-400">Toll Free:</span>
-          <a href="tel:1800114000" class="font-bold text-amber-300 hover:underline">1800-11-4000</a>
+    <!-- 2. National Accessibility & Utility Bar -->
+    <div class="bg-[#0b2545] text-slate-200 text-xs py-1.5 px-3 sm:px-6 border-b border-[#163b6b]">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+        
+        <div class="flex items-center gap-2 truncate">
+          <span class="font-bold text-white tracking-wide">भारत सरकार</span>
+          <span class="text-slate-400">|</span>
+          <span class="text-amber-300 font-semibold truncate hidden sm:inline">कार्मिक, लोक शिकायत और पेंशन मंत्रालय</span>
+          <span class="text-slate-400 hidden lg:inline">•</span>
+          <span class="text-slate-200 truncate hidden lg:inline">Government of India</span>
+          <span class="text-slate-400 hidden xl:inline">|</span>
+          <span class="text-slate-300 truncate hidden xl:inline">Ministry of Personnel, Public Grievances & Pensions</span>
         </div>
-        <div class="hidden sm:flex items-center gap-1.5">
-          <span class="text-slate-400">Railway Help:</span>
-          <a href="tel:139" class="font-bold text-amber-300 hover:underline">139</a>
-        </div>
-        <div class="flex items-center gap-1 pl-2 border-l border-slate-700">
-          <button onclick="changeFontSize(-1)" class="px-1 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold" title="Decrease Font">A-</button>
-          <button onclick="changeFontSize(0)" class="px-1 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold" title="Reset Font">A</button>
-          <button onclick="changeFontSize(1)" class="px-1 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold" title="Increase Font">A+</button>
+
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0 text-[11px]">
+          <!-- Font Resizing Controls -->
+          <div class="hidden sm:flex items-center gap-1 bg-[#07172b] px-2 py-0.5 rounded border border-[#1e4f8b]">
+            <span class="text-slate-400 mr-1 text-[10px]">Text Size:</span>
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="handleFontSize('small')" class="px-1 py-0.5 rounded font-mono font-bold text-slate-300 hover:text-white" id="fontBtnSmall">A-</button>
+              <button type="button" onclick="handleFontSize('normal')" class="px-1 py-0.5 rounded font-mono font-bold bg-amber-500 text-slate-900" id="fontBtnNormal">A</button>
+              <button type="button" onclick="handleFontSize('large')" class="px-1 py-0.5 rounded font-mono font-bold text-slate-300 hover:text-white" id="fontBtnLarge">A+</button>
+            </div>
+          </div>
+
+          <!-- Language Selector -->
+          <div class="inline-block relative">
+            <button type="button" onclick="toggleLangMenu()" class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#07172b] hover:bg-[#123663] text-slate-200 text-[11px] font-medium border border-[#1e4f8b]">
+              <i data-lucide="globe" class="w-3 h-3 text-amber-400"></i>
+              <span id="currentLangLabel">English</span>
+              <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+            </button>
+            <div id="langDropdown" class="hidden absolute right-0 mt-1 w-36 bg-white text-slate-800 rounded-md shadow-lg border border-slate-200 py-1 z-50 text-xs">
+              <button type="button" onclick="setLanguage('en', 'English')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between font-semibold"><span>English</span><span class="text-[10px] text-slate-400">EN</span></button>
+              <button type="button" onclick="setLanguage('hi', 'हिंदी (Hindi)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>हिंदी</span><span class="text-[10px] text-slate-400">HI</span></button>
+              <button type="button" onclick="setLanguage('te', 'తెలుగు (Telugu)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>తెలుగు</span><span class="text-[10px] text-slate-400">TE</span></button>
+              <button type="button" onclick="setLanguage('ta', 'தமிழ் (Tamil)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>தமிழ்</span><span class="text-[10px] text-slate-400">TA</span></button>
+            </div>
+          </div>
+
+          <!-- Toll Free -->
+          <a href="tel:1800114000" class="hidden lg:flex items-center gap-1 text-slate-200 hover:text-amber-300 font-medium transition-colors" title="Toll Free National Helpline">
+            <i data-lucide="phone" class="w-3 h-3 text-amber-400"></i>
+            <span>Toll Free: <span class="font-semibold">1800-11-4000</span></span>
+          </a>
+
+          <!-- Official Portal Button (strictly when logged out) -->
+          <div id="topOfficialPortalBtn" class="flex items-center">
+            <span class="text-slate-600 hidden sm:inline mr-2">|</span>
+            <a href="/staff/login" class="text-sky-300 hover:text-amber-300 font-semibold flex items-center gap-1 transition-all duration-150 hover:underline cursor-pointer select-none text-xs">
+              <i data-lucide="building-2" class="w-3.5 h-3.5 text-sky-400"></i>
+              <span>Official Portal</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Main Portal Navigation Header -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
-      
-      <!-- Brand Logo & Identity -->
-      <a href="/" class="flex items-center gap-3">
-        <div class="w-10 h-10 flex items-center justify-center">
-          <img src="/emblem.jpg" alt="Emblem of India" class="h-10 w-auto object-contain" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg'">
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-lg font-extrabold text-[#0b2545] tracking-tight">JanSahayata</span>
-            <span class="text-sm font-semibold text-[#e86100]">जनसहायता</span>
-            <span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">Gov Portal</span>
+    <!-- 3. Main Header Bar (Ashoka Emblem + Masthead Brand) -->
+    <div class="bg-white py-2.5 sm:py-3 px-3 sm:px-6 lg:px-8 border-b border-slate-200 max-w-full relative z-20">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+        
+        <a href="/" class="flex items-center gap-2 sm:gap-3 group min-w-0 flex-1 overflow-hidden" id="homeBrandLink">
+          <div class="group-hover:scale-105 transition-transform shrink-0">
+            <img src="{% static 'images/emblem.jpg' %}" alt="Emblem of India" class="w-9 h-12 sm:w-11 sm:h-14 object-contain emblem-image-enhanced" onerror="this.src='/emblem.jpg'">
           </div>
-          <p class="text-[10px] text-slate-500 font-medium">Department of Administrative Reforms & Public Grievances</p>
-        </div>
-      </a>
 
-      <!-- Navigation Links -->
-      <nav class="hidden md:flex items-center gap-1 text-xs font-semibold">
-        <a href="/" class="px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-[#0b2545] transition">Home</a>
-        <a href="/report-problem" class="px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-[#0b2545] transition">File a Complaint</a>
-        <a href="/track-complaint" class="px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-[#0b2545] transition">Track Status</a>
-        <a href="/my-complaints" class="px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-[#0b2545] transition">My Complaints</a>
-      </nav>
+          <div class="border-l border-slate-300 pl-2 sm:pl-3 min-w-0 truncate">
+            <div class="text-[10px] sm:text-xs font-bold text-slate-800 leading-tight truncate hidden xs:block">
+              प्रशासनिक सुधार और लोक शिकायत विभाग
+            </div>
+            <div class="text-[9px] sm:text-[11px] font-bold text-[#b91c1c] uppercase tracking-wide leading-tight mt-0.5 truncate hidden sm:block">
+              Department of Administrative Reforms & Public Grievances
+            </div>
+            <div class="flex items-baseline gap-1.5 sm:gap-2 truncate">
+              <span class="text-lg sm:text-2xl font-black text-[#0b2545] tracking-tight">JanSahayata</span>
+              <span class="text-xs sm:text-base font-bold text-slate-800 tracking-normal font-['Noto_Sans_Devanagari']">जनसहायता</span>
+              <span class="text-[10px] sm:text-xs font-semibold px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 border border-amber-300 hidden md:inline-block">Gov Portal</span>
+            </div>
+          </div>
+        </a>
 
-      <!-- Right User Actions -->
-      <div class="flex items-center gap-3">
-        <div class="hidden lg:flex items-center gap-2 pr-3 border-r border-slate-200">
-          <div class="w-6 h-6 rounded-full bg-[#0b2545] text-white flex items-center justify-center text-[10px] font-bold">GOV</div>
-          <div class="text-left text-[11px] leading-tight">
-            <span class="font-bold text-[#0b2545] block">Digital India</span>
-            <span class="text-slate-500 text-[10px]">24x7 Citizen Service</span>
+        <!-- Right Authority Seals & Profile / Login Button -->
+        <div class="flex items-center gap-3 sm:gap-4">
+          <div class="hidden xl:flex flex-col items-end text-right border-r border-slate-200 pr-3.5">
+            <span class="px-2.5 py-0.5 rounded bg-[#0b2545] text-white font-black text-xs tracking-widest font-mono shadow-sm">CPGRAMS</span>
+            <span class="text-[10px] text-slate-500 font-medium mt-0.5 max-w-[200px] leading-tight text-right">Centralized Public Grievance Redress And Monitoring System</span>
+          </div>
+
+          <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded border border-slate-200 bg-slate-50">
+            <div class="w-7 h-7 rounded-full bg-[#0b2545] text-amber-400 flex items-center justify-center font-bold text-[10px]">GOV</div>
+            <div class="text-left text-[11px] leading-tight">
+              <span class="font-bold text-[#0b2545] block">Digital India</span>
+              <span class="text-slate-500 text-[10px]">24x7 Citizen Service</span>
+            </div>
+          </div>
+
+          <!-- Auth Actions: Logged In vs Logged Out -->
+          <div id="headerAuthContainer">
+            <!-- Rendered dynamically by jansahayata.js based on session/JWT -->
+            <a href="/login" class="gov-btn-primary text-xs py-2 px-4 shadow-sm font-semibold flex items-center gap-1.5" id="citizenLoginBtn">
+              <i data-lucide="user" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Citizen Login</span>
+            </a>
+          </div>
+
+          <!-- Mobile Hamburger / Indian Flag Toggle -->
+          <div class="flex md:hidden items-center shrink-0">
+            <button type="button" onclick="toggleMobileMenu()" id="mobileMenuBtn" class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 shadow-xs flex items-center justify-center">
+              <div class="flex flex-col justify-center items-center gap-1 w-5 h-4.5 py-0.5">
+                <span class="w-5 h-[3px] rounded-full bg-[#FF671F] block"></span>
+                <span class="w-5 h-[3px] rounded-full bg-white border border-slate-300 block"></span>
+                <span class="w-5 h-[3px] rounded-full bg-[#046A38] block"></span>
+              </div>
+            </button>
           </div>
         </div>
 
-        <!-- Auth state buttons or profile -->
-        <div id="authActions" class="flex items-center gap-2">
-          <a href="/login" class="px-3.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition">Citizen Login</a>
-          <a href="/staff/login" class="px-3.5 py-1.5 rounded-lg bg-[#0b2545] hover:bg-[#123663] text-amber-300 text-xs font-bold transition shadow-xs">Official Portal</a>
+      </div>
+    </div>
+
+    <!-- 4. Primary Dark Blue Horizontal Nav Bar (Desktop) -->
+    <nav id="desktopNavBar" class="hidden md:block bg-[#0b2545] text-white border-t border-[#163b6b] transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-11">
+          <div class="flex items-center space-x-1" id="navLinksContainer">
+            <!-- Nav links injected dynamically based on citizen / staff / admin -->
+            <a href="/" class="nav-item px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200"><span>Home</span></a>
+            <a href="/report" class="nav-item px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200"><span>File a Complaint</span></a>
+            <a href="/track" class="nav-item px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200"><span>Track Status</span></a>
+            <a href="/help" class="nav-item px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200"><span>Citizen Charter</span></a>
+          </div>
+
+          <div class="flex items-center gap-2.5" id="navRightActions">
+            <a href="/report" class="bg-[#e86100] hover:bg-[#c2410c] text-white text-xs font-bold px-3.5 py-1 rounded flex items-center gap-1.5 shadow-sm transition-colors">
+              <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+              <span>File Complaint</span>
+            </a>
+            <a href="/track" class="flex items-center gap-1.5 text-xs text-slate-200 hover:text-white bg-[#07172b] px-3.5 py-1 rounded border border-[#1e4f8b] hover:border-amber-400 transition-colors">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Track Status</span>
+            </a>
+          </div>
         </div>
+      </div>
+    </nav>
+
+    <!-- 5. Mobile Drawer Menu -->
+    <div id="mobileDrawer" class="hidden md:hidden border-t-2 border-amber-400 bg-white px-4 pt-3 pb-6 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="w-5 h-3.5 inline-block bg-gradient-to-b from-[#ff671f] via-white to-[#046a38] rounded-xs border border-slate-300"></span>
+          <div class="text-[11px] font-bold text-[#0b2545] uppercase tracking-wider">Government of India • JanSahayata</div>
+        </div>
+        <button type="button" onclick="toggleMobileMenu()" class="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="mobileUserCard" class="hidden p-3 rounded-xl bg-blue-50/70 border border-blue-200 flex items-center justify-between"></div>
+
+      <div class="space-y-1" id="mobileNavLinks">
+        <a href="/" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 text-xs font-semibold">Home</a>
+        <a href="/report" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 text-xs font-semibold">File a Complaint</a>
+        <a href="/track" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 text-xs font-semibold">Track Status</a>
+        <a href="/help" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 text-xs font-semibold">Citizen Charter</a>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Block -->
-  <main class="flex-1">
+  <!-- Main View Block -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Government Portal Footer -->
-  <footer class="bg-[#081a30] text-slate-400 text-xs pt-10 pb-6 border-t-4 border-[#0b2545] mt-auto">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-      <div>
-        <div class="flex items-center gap-2 text-white font-bold text-sm mb-3">
-          <span class="text-[#e86100]">CPGRAMS</span>
-          <span>JanSahayata AI</span>
+  <!-- Government Footer -->
+  <footer class="bg-[#040c17] text-slate-300 text-xs border-t-4 border-[#e86100] mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+        
+        <!-- Brand & Authority Column -->
+        <div class="md:col-span-2 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="text-amber-400 bg-white/5 p-2 rounded border border-white/10 shrink-0">
+              <img src="{% static 'images/emblem.jpg' %}" alt="Emblem of India" class="w-8 h-10 object-contain" onerror="this.src='/emblem.jpg'">
+            </div>
+            <div>
+              <span class="text-[11px] font-semibold text-amber-400 block leading-tight">Government of India</span>
+              <span class="text-base font-bold text-white tracking-tight">JanSahayata <span class="text-[#e86100]">Portal</span></span>
+              <p class="text-[10px] text-slate-400 leading-tight">Centralized Public Grievance Redress & Monitoring System (CPGRAMS)</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed max-w-sm">
+            Official single-window portal by the Department of Administrative Reforms and Public Grievances (DARPG) for lodging, triaging, and time-bound monitoring of public grievances across government ministries and public service departments.
+          </p>
         </div>
-        <p class="text-slate-400 text-xs leading-relaxed">
-          National Public Grievance Redressal and Monitoring System empowering citizens with real-time AI classification and transparent officer resolution.
-        </p>
+
+        <!-- Citizen Services -->
+        <div>
+          <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-3.5 pb-1 border-b border-slate-700/60">Citizen Services</h4>
+          <ul class="space-y-2 text-slate-400">
+            <li><a href="/report" class="hover:text-amber-300 transition-colors flex items-center gap-1"><span>Lodge Public Grievance</span></a></li>
+            <li><a href="/track" class="hover:text-amber-300 transition-colors flex items-center gap-1"><span>Track Grievance Status</span></a></li>
+            <li><a href="/my-complaints" class="hover:text-amber-300 transition-colors flex items-center gap-1"><span>My Grievance History</span></a></li>
+            <li><a href="/help" class="hover:text-amber-300 transition-colors flex items-center gap-1"><span>Citizen Charter & FAQs</span></a></li>
+          </ul>
+        </div>
+
+        <!-- Official Portals -->
+        <div>
+          <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-3.5 pb-1 border-b border-slate-700/60">Related Portals</h4>
+          <ul class="space-y-2 text-slate-400">
+            <li><a href="https://pgportal.gov.in" target="_blank" rel="noopener noreferrer" class="hover:text-amber-300 transition-colors">CPGRAMS PG Portal</a></li>
+            <li><a href="https://railmadad.indianrailways.gov.in" target="_blank" rel="noopener noreferrer" class="hover:text-amber-300 transition-colors">RailMadad Helpline 139</a></li>
+            <li><a href="https://digitalindia.gov.in" target="_blank" rel="noopener noreferrer" class="hover:text-amber-300 transition-colors">Digital India Initiative</a></li>
+            <li><a href="https://data.gov.in" target="_blank" rel="noopener noreferrer" class="hover:text-amber-300 transition-colors">Open Gov Data (OGD)</a></li>
+          </ul>
+        </div>
+
+        <!-- Helpline & Emergency -->
+        <div>
+          <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-3.5 pb-1 border-b border-slate-700/60">National Helplines</h4>
+          <ul class="space-y-2 text-slate-400">
+            <li>National Toll Free: <strong class="text-white font-mono">1800-11-4000</strong></li>
+            <li>RailMadad Helpline: <strong class="text-white font-mono">139</strong></li>
+            <li>Emergency Police/Ambulance: <strong class="text-white font-mono">112</strong></li>
+            <li>Official Email: <span class="text-amber-300">support@jansahayata.gov.in</span></li>
+          </ul>
+        </div>
       </div>
 
-      <div>
-        <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Participating Portals</h4>
-        <ul class="space-y-1.5 text-slate-300">
-          <li><a href="https://pgportal.gov.in" target="_blank" class="hover:text-amber-400">CPGRAMS Portal</a></li>
-          <li><a href="https://railmadad.indianrailways.gov.in" target="_blank" class="hover:text-amber-400">RailMadad Helpline 139</a></li>
-          <li><a href="https://digitalindia.gov.in" target="_blank" class="hover:text-amber-400">Digital India Initiative</a></li>
-          <li><a href="https://data.gov.in" target="_blank" class="hover:text-amber-400">Open Government Data (OGD)</a></li>
-        </ul>
+      <div class="pt-6 mt-6 border-t border-slate-800 text-center text-slate-500 text-[11px] flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p>© 2026 Government of India • Department of Administrative Reforms & Public Grievances. All rights reserved.</p>
+        <p class="font-mono text-slate-400">JanSahayata v2.0 • 100% Pure Django Full-Stack Edition</p>
       </div>
-
-      <div>
-        <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Helpline & Support</h4>
-        <ul class="space-y-1.5 text-slate-300">
-          <li>National Toll-Free: <strong class="text-white font-mono">1800-11-4000</strong></li>
-          <li>Indian Railways Redressal: <strong class="text-white font-mono">139</strong></li>
-          <li>Emergency Civic Response: <strong class="text-white font-mono">112</strong></li>
-          <li>Citizen Email: <span class="text-amber-300">support@jansahayata.gov.in</span></li>
-        </ul>
-      </div>
-
-      <div>
-        <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Platform Assurance</h4>
-        <p class="text-slate-400 text-xs leading-relaxed">
-          Designed and hosted in accordance with Government of India Digital Service Standards (GIGW) with 256-bit SSL encryption.
-        </p>
-      </div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 pt-4 border-t border-slate-700/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500">
-      <p>© 2026 Government of India • Department of Administrative Reforms & Public Grievances. All rights reserved.</p>
-      <p class="font-mono text-slate-400">JanSahayata v2.0 • Pure Django & SQLite Edition</p>
     </div>
   </footer>
 
-  <script>
-    // Initialize Lucide icons
-    lucide.createIcons();
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
-    // Font size switcher
-    let currentFontSize = 100;
-    function changeFontSize(delta) {
-      if (delta === 0) currentFontSize = 100;
-      else currentFontSize = Math.min(125, Math.max(85, currentFontSize + delta * 5));
-      document.documentElement.style.fontSize = currentFontSize + '%';
-    }
-  </script>
+  <!-- Shared JanSahayata Client-Side Core Script -->
+  <script src="{% static 'js/jansahayata.js' %}"></script>
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>

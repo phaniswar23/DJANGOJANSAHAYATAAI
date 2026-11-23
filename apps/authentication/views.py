@@ -134,6 +134,8 @@ def register_send_otp(request):
     data = parse_body(request)
     email = data.get('email', '').strip().lower()
     name = data.get('name', 'Citizen').strip()
+    phone = data.get('phone', '').strip()
+    password = data.get('password', '')
 
     if not email:
         return JsonResponse({'success': False, 'message': 'Email address is required.'}, status=400)
@@ -146,11 +148,23 @@ def register_send_otp(request):
     otp = str(random.randint(100000, 999999))
     expires = datetime.now(timezone.utc) + timedelta(minutes=10)
 
-    # Save OTP to user record or staging
+    update_payload = {
+        'emailVerificationOtp': otp,
+        'emailVerificationOtpExpires': expires,
+        'name': name or (existing.get('name') if existing else 'Citizen'),
+        'role': 'CITIZEN',
+    }
+    if phone:
+        update_payload['phone'] = phone
+    if password:
+        update_payload['passwordHash'] = hash_password(password)
+
+    # Save OTP and credentials to user record or staging
     if existing:
-        users.update_one({'_id': existing['_id']}, {'$set': {'emailVerificationOtp': otp, 'emailVerificationOtpExpires': expires}})
+        users.update_one({'_id': existing['_id']}, {'$set': update_payload})
     else:
-        users.update_one({'email': email}, {'$set': {'emailVerificationOtp': otp, 'emailVerificationOtpExpires': expires, 'name': name, 'role': 'CITIZEN', 'status': 'Pending'}}, upsert=True)
+        update_payload['status'] = 'Pending'
+        users.update_one({'email': email}, {'$set': update_payload}, upsert=True)
 
     send_account_confirmation_otp_email(email, otp, name)
 
@@ -231,14 +245,28 @@ def login_citizen(request):
         return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
 
     data = parse_body(request)
-    email = data.get('email', '').strip().lower()
+    identifier = (data.get('email') or data.get('identifier', '')).strip()
+    clean_identifier = identifier.lower()
     password = data.get('password', '')
 
-    if not email or not password:
-        return JsonResponse({'success': False, 'message': 'Email and password are required.'}, status=400)
+    if not identifier or not password:
+        return JsonResponse({'success': False, 'message': 'Email or mobile number, and password are required.'}, status=400)
 
     users = get_users_collection()
-    user = users.find_one({'email': email})
+    if '@' in clean_identifier:
+        user = users.find_one({'email': clean_identifier})
+    else:
+        phone_digits = re.sub(r'\D', '', identifier)
+        phone_10 = phone_digits[-10:] if len(phone_digits) >= 10 else phone_digits
+        user = users.find_one({
+            '$or': [
+                {'phone': identifier},
+                {'phone': phone_digits},
+                {'phone': phone_10},
+                {'phone': f"+91 {phone_10}"},
+                {'phone': f"+91{phone_10}"}
+            ]
+        })
     if not user:
         return JsonResponse({'success': False, 'message': 'Invalid credentials. User not found.'}, status=401)
 

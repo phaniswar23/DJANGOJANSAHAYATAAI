@@ -1,0 +1,637 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}JanSahayata (जनसहायता) — Central Public Grievance Redressal Portal{% endblock %}
+
+{% block extra_head %}
+<style>
+  @keyframes tickerMarquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-ticker-marquee {
+    display: inline-flex;
+    white-space: nowrap;
+    animation: tickerMarquee 38s linear infinite;
+  }
+  .animate-ticker-marquee:hover {
+    animation-play-state: paused;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6 sm:space-y-8 pb-16 max-w-full overflow-hidden">
+  
+  <!-- 1. Floating Live Notice Ticker Banner -->
+  <div class="space-y-3 max-w-full overflow-hidden">
+    <div class="bg-amber-50 border border-amber-200 rounded-lg text-slate-800 text-xs overflow-hidden flex items-center shadow-xs max-w-full">
+      <div class="bg-[#e86100] text-white px-3 py-2 font-bold shrink-0 flex items-center gap-1.5 uppercase tracking-wider text-[11px] shadow-xs">
+        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+        <span>Notice</span>
+      </div>
+      <div class="overflow-hidden whitespace-nowrap min-w-0 flex-1 py-1.5 px-3">
+        <div class="animate-ticker-marquee text-xs font-medium text-slate-700">
+          <span class="mr-4">Notice: Every complaint gets a unique reference ID. Department officers must upload photo proof of work before any issue is closed. Track progress anytime 24x7.</span>
+          <span class="mx-3 text-amber-500 font-bold">•</span>
+          <span class="mr-4">All registered complaints are tracked under official service guidelines.</span>
+          <span class="mx-3 text-amber-500 font-bold">•</span>
+          <span class="mr-4">You can reopen any complaint if the work is not done to your satisfaction.</span>
+          <span class="mx-3 text-amber-500 font-bold">•</span>
+          <span class="mr-4">Notice: Every complaint gets a unique reference ID. Department officers must upload photo proof of work before any issue is closed. Track progress anytime 24x7.</span>
+          <span class="mx-3 text-amber-500 font-bold">•</span>
+          <span class="mr-4">All registered complaints are tracked under official service guidelines.</span>
+          <span class="mx-3 text-amber-500 font-bold">•</span>
+          <span class="mr-4">You can reopen any complaint if the work is not done to your satisfaction.</span>
+          <span class="mx-3 text-amber-500 font-bold">•</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Official Portal Hero Section (Pixel-perfect to user reference image) -->
+    <section class="bg-white rounded-lg border border-slate-300 shadow-sm overflow-hidden relative max-w-full">
+      
+      <!-- Top Ribbon -->
+      <div class="bg-[#0b2545] text-white px-3 sm:px-8 py-2 flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 border-b border-[#163b6b] max-w-full overflow-hidden">
+        <div class="flex items-center gap-2 min-w-0 truncate">
+          <span class="px-2 py-0.5 rounded bg-amber-500 text-slate-900 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider shrink-0">
+            OFFICIAL PORTAL
+          </span>
+          <span class="text-[11px] sm:text-xs text-slate-200 font-medium truncate">
+            Government of India • Citizen Redressal Service
+          </span>
+        </div>
+        <div class="text-[10px] sm:text-[11px] text-amber-300 font-medium shrink-0">
+          24×7 Public Assistance
+        </div>
+      </div>
+
+      <!-- Hero Content -->
+      <div class="p-4 sm:p-10 lg:p-12 relative overflow-hidden">
+        
+        <!-- Authentic JanSahayata State Emblem (Clean reference image) -->
+        <div class="absolute right-6 sm:right-10 top-1/2 -translate-y-1/2 pointer-events-none hidden lg:block select-none">
+          <img
+            src="{% static 'images/hero_emblem.png' %}?v=3"
+            alt="State Emblem of India • JanSahayata"
+            class="w-48 h-52 object-contain select-none rounded-lg"
+          />
+        </div>
+
+        <div class="max-w-3xl relative z-10">
+          
+          <!-- Simple Clean Title -->
+          <div class="space-y-2 mb-4">
+            <span class="text-xs font-bold text-[#e86100] uppercase tracking-wider block">
+              GOVERNMENT OF INDIA CITIZEN PORTAL
+            </span>
+            <h1 class="text-2xl sm:text-4xl font-extrabold text-[#0b2545] tracking-tight leading-tight">
+              Public Grievance Redressal Portal
+            </h1>
+          </div>
+
+          <p class="text-sm sm:text-base text-slate-700 leading-relaxed mb-6 font-normal">
+            Report problems in your area directly to government departments. Track your complaint step-by-step and verify the fix before it gets closed.
+          </p>
+
+          <!-- Clean Action Buttons (Simple English, No Hindi Brackets) -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-8">
+            <a
+              href="/report"
+              id="hero-file-complaint-btn"
+              class="gov-btn-saffron px-6 py-3 text-sm shadow-md flex items-center justify-center gap-2 font-semibold"
+            >
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>File a Complaint</span>
+            </a>
+
+            <a
+              href="/track"
+              class="gov-btn-primary px-5 py-3 text-sm flex items-center justify-center gap-2 font-semibold"
+            >
+              <i data-lucide="search" class="w-4 h-4"></i>
+              <span>Track Status</span>
+            </a>
+
+            <a
+              href="/help"
+              class="gov-btn-secondary px-4 py-3 text-sm flex items-center justify-center gap-2 font-medium"
+            >
+              <i data-lucide="file-text" class="w-4 h-4 text-slate-600"></i>
+              <span>Citizen Guide</span>
+            </a>
+          </div>
+
+          <!-- Quick Status Lookup Box -->
+          <div class="p-4 bg-slate-50 rounded-lg border border-slate-300 max-w-2xl">
+            <form onsubmit="handleQuickTrack(event)">
+              <label 
+                for="quickTrackInput" 
+                class="block text-xs font-bold text-[#0b2545] uppercase tracking-wider mb-2 flex items-center justify-between"
+              >
+                <span>CHECK COMPLAINT STATUS</span>
+                <span class="text-slate-500 font-normal normal-case text-[11px]">Format: JNS-2026-XXXXXX</span>
+              </label>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <div class="relative flex-1">
+                  <i data-lucide="search" class="absolute left-3.5 top-3 w-4 h-4 text-slate-400"></i>
+                  <input
+                    id="quickTrackInput"
+                    type="text"
+                    placeholder="Enter Complaint ID (e.g., JNS-2026-000001)"
+                    class="gov-input pl-10 text-xs py-2.5 font-mono"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  class="gov-btn-primary text-xs py-2.5 px-6 whitespace-nowrap active:scale-[0.98] transition-transform"
+                >
+                  Check Status
+                </button>
+              </div>
+              <div class="mt-2.5 flex items-center gap-1.5 flex-wrap text-[11px] text-slate-500">
+                <span class="font-medium text-slate-600">Sample Tracking IDs:</span>
+                <button type="button" onclick="fillHomeTrack('RLY-2026-000009')" class="px-2 py-0.5 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-mono font-bold transition-colors">RLY-2026-000009</button>
+                <button type="button" onclick="fillHomeTrack('ELE-2026-000005')" class="px-2 py-0.5 rounded bg-purple-100 hover:bg-purple-200 text-purple-800 font-mono font-bold transition-colors">ELE-2026-000005</button>
+                <button type="button" onclick="fillHomeTrack('WTR-2026-000002')" class="px-2 py-0.5 rounded bg-sky-100 hover:bg-sky-200 text-sky-800 font-mono font-bold transition-colors">WTR-2026-000002</button>
+                <button type="button" onclick="fillHomeTrack('RDS-2026-000004')" class="px-2 py-0.5 rounded bg-red-100 hover:bg-red-200 text-red-800 font-mono font-bold transition-colors">RDS-2026-000004</button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+        <!-- 4 Core Service Commitments Strip -->
+        <div class="mt-8 pt-6 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-slate-800">
+          <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+            <div class="flex items-center gap-2 text-[#0b2545]">
+              <i data-lucide="shield-check" class="w-5 h-5 text-[#0b2545]"></i>
+              <h3 class="font-bold text-xs uppercase tracking-wider">DIRECT ROUTING</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed pt-1">
+              Complaints go straight to the local officer in charge without middlemen.
+            </p>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+            <div class="flex items-center gap-2 text-[#0b2545]">
+              <i data-lucide="clock-4" class="w-5 h-5 text-[#e86100]"></i>
+              <h3 class="font-bold text-xs uppercase tracking-wider">FIXED TIME LIMITS</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed pt-1">
+              Clear deadlines (24 to 72 hours) for inspection and repair.
+            </p>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+            <div class="flex items-center gap-2 text-[#0b2545]">
+              <i data-lucide="camera" class="w-5 h-5 text-[#138808]"></i>
+              <h3 class="font-bold text-xs uppercase tracking-wider">PHOTO PROOF REQUIRED</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed pt-1">
+              Field teams must upload before-and-after photos of completed work.
+            </p>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+            <div class="flex items-center gap-2 text-[#0b2545]">
+              <i data-lucide="check-circle" class="w-5 h-5 text-blue-700"></i>
+              <h3 class="font-bold text-xs uppercase tracking-wider">YOU CONFIRM THE FIX</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed pt-1">
+              No complaint can be closed until you review and approve the result.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+  </div>
+
+  <!-- 3. Emergency & Grievance Helplines Strip (Matching screenshot 2) -->
+  <section class="space-y-3">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i data-lucide="phone-call" class="w-4 h-4 text-[#e86100]"></i>
+        <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+          24×7 Emergency & Grievance Helplines
+        </h2>
+      </div>
+      <span class="text-[11px] text-slate-500">Toll-free across India</span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- Railway -->
+      <div class="gov-card p-3.5 flex items-center justify-between gap-3 border-l-4 border-l-[#0b2545]">
+        <div class="space-y-0.5">
+          <p class="text-xs font-bold text-slate-900">Railway Helpline</p>
+          <p class="text-[11px] text-slate-500 leading-tight">Trains, coaches, stations</p>
+          <p class="text-sm font-black text-[#0b2545] font-mono pt-1">139</p>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 shrink-0">
+          <i data-lucide="train" class="w-4 h-4 text-[#0b2545]"></i>
+        </div>
+      </div>
+
+      <!-- Cyber Fraud -->
+      <div class="gov-card p-3.5 flex items-center justify-between gap-3 border-l-4 border-l-[#0b2545]">
+        <div class="space-y-0.5">
+          <p class="text-xs font-bold text-slate-900">Cyber Fraud Helpline</p>
+          <p class="text-[11px] text-slate-500 leading-tight">Online fraud & cyber safety</p>
+          <p class="text-sm font-black text-[#0b2545] font-mono pt-1">1930</p>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 shrink-0">
+          <i data-lucide="shield" class="w-4 h-4 text-[#0b2545]"></i>
+        </div>
+      </div>
+
+      <!-- Consumer Helpline -->
+      <div class="gov-card p-3.5 flex items-center justify-between gap-3 border-l-4 border-l-[#0b2545]">
+        <div class="space-y-0.5">
+          <p class="text-xs font-bold text-slate-900">Consumer Helpline</p>
+          <p class="text-[11px] text-slate-500 leading-tight">Products, bills & consumer rights</p>
+          <p class="text-sm font-black text-[#0b2545] font-mono pt-1">1800-11-4000</p>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 shrink-0">
+          <i data-lucide="phone" class="w-4 h-4 text-[#0b2545]"></i>
+        </div>
+      </div>
+
+      <!-- National Emergency -->
+      <div class="gov-card p-3.5 flex items-center justify-between gap-3 border-l-4 border-l-[#0b2545]">
+        <div class="space-y-0.5">
+          <p class="text-xs font-bold text-slate-900">National Emergency</p>
+          <p class="text-[11px] text-slate-500 leading-tight">Police, fire, ambulance emergency</p>
+          <p class="text-sm font-black text-[#0b2545] font-mono pt-1">112</p>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 shrink-0">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-[#0b2545]"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. How It Works (Matching screenshot 2) -->
+  <section class="space-y-3">
+    <div>
+      <div class="flex items-center gap-1.5 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-1">
+        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+        <span>Easy Process</span>
+      </div>
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-1">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+          How It Works
+        </h2>
+        <p class="text-xs text-slate-500">
+          A simple 4-step process from reporting a problem to getting it fixed.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Step 01 -->
+      <div class="gov-card p-5 space-y-2 border-t-2 border-t-[#0b2545]">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-8 h-8 rounded bg-slate-100 text-[#0b2545] flex items-center justify-center">
+            <i data-lucide="camera" class="w-4 h-4"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-400 font-mono">Step 01</span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900">1. Report the Problem</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Describe what happened. Add photos, an audio note, or your location.
+        </p>
+      </div>
+
+      <!-- Step 02 -->
+      <div class="gov-card p-5 space-y-2 border-t-2 border-t-[#0b2545]">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-8 h-8 rounded bg-slate-100 text-[#0b2545] flex items-center justify-center">
+            <i data-lucide="layers" class="w-4 h-4"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-400 font-mono">Step 02</span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900">2. Sent to the Right Office</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          We route your complaint straight to the responsible local office.
+        </p>
+      </div>
+
+      <!-- Step 03 -->
+      <div class="gov-card p-5 space-y-2 border-t-2 border-t-[#0b2545]">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-8 h-8 rounded bg-slate-100 text-[#0b2545] flex items-center justify-center">
+            <i data-lucide="building-2" class="w-4 h-4"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-400 font-mono">Step 03</span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900">3. Field Team Fixes It</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          The field crew carries out the repair and uploads photos as proof.
+        </p>
+      </div>
+
+      <!-- Step 04 -->
+      <div class="gov-card p-5 space-y-2 border-t-2 border-t-[#0b2545]">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-8 h-8 rounded bg-slate-100 text-[#0b2545] flex items-center justify-center">
+            <i data-lucide="check-check" class="w-4 h-4"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-400 font-mono">Step 04</span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900">4. You Check & Sign Off</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          You inspect the proof photos. If satisfied, close it. If not, reopen it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Departments You Can Complain To (Matching screenshot 3) -->
+  <section class="space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2 text-[#0b2545] text-xs font-bold uppercase tracking-wider mb-1">
+          <i data-lucide="building-2" class="w-4 h-4 text-[#0b2545]"></i>
+          <span>Government Services</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+          Departments You Can Complain To
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Select a department below to file a specific complaint.
+        </p>
+      </div>
+
+      <a
+        href="/report"
+        class="gov-btn-saffron text-xs py-2 px-3.5 shrink-0 self-start sm:self-auto font-medium flex items-center gap-1.5"
+      >
+        <span>File a Complaint</span>
+        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      
+      <!-- 1. Railways -->
+      <div class="gov-card p-5 hover:border-slate-400 transition-colors flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 rounded bg-slate-100 text-slate-800 flex items-center justify-center border border-slate-200">
+              <i data-lucide="train" class="w-5 h-5 text-[#0b2545]"></i>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-[#0b2545] border border-blue-200 font-mono">
+              Railways
+            </span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1.5 leading-snug">
+            Indian Railways
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-4">
+            Cleanliness, coach issues, stations, tracks, and ticketing.
+          </p>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <div class="space-y-0.5">
+            <span class="text-[10px] text-slate-500 block">Resolution Time:</span>
+            <span class="font-semibold text-slate-800 text-[11px]">24–48 Hours</span>
+          </div>
+          <a
+            href="/report?dept=railway"
+            class="gov-btn-secondary text-xs py-1.5 px-3 text-[#0b2545] font-semibold flex items-center gap-1"
+          >
+            <span>File Complaint</span>
+            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 2. Municipal -->
+      <div class="gov-card p-5 hover:border-slate-400 transition-colors flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 rounded bg-slate-100 text-slate-800 flex items-center justify-center border border-slate-200">
+              <i data-lucide="building-2" class="w-5 h-5 text-[#0b2545]"></i>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-[#0b2545] border border-blue-200 font-mono">
+              Municipal
+            </span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1.5 leading-snug">
+            Municipal Corporation
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-4">
+            Garbage collection, street cleaning, open drains, and parks.
+          </p>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <div class="space-y-0.5">
+            <span class="text-[10px] text-slate-500 block">Resolution Time:</span>
+            <span class="font-semibold text-slate-800 text-[11px]">24–72 Hours</span>
+          </div>
+          <a
+            href="/report?dept=municipality"
+            class="gov-btn-secondary text-xs py-1.5 px-3 text-[#0b2545] font-semibold flex items-center gap-1"
+          >
+            <span>File Complaint</span>
+            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 3. Water & Sewer -->
+      <div class="gov-card p-5 hover:border-slate-400 transition-colors flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 rounded bg-slate-100 text-slate-800 flex items-center justify-center border border-slate-200">
+              <i data-lucide="droplets" class="w-5 h-5 text-[#0b2545]"></i>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-[#0b2545] border border-blue-200 font-mono">
+              Water & Sewer
+            </span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1.5 leading-snug">
+            Water Supply & Drainage
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-4">
+            Broken water pipes, contaminated water, and sewer blockage.
+          </p>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <div class="space-y-0.5">
+            <span class="text-[10px] text-slate-500 block">Resolution Time:</span>
+            <span class="font-semibold text-slate-800 text-[11px]">12–36 Hours</span>
+          </div>
+          <a
+            href="/report?dept=water_supply"
+            class="gov-btn-secondary text-xs py-1.5 px-3 text-[#0b2545] font-semibold flex items-center gap-1"
+          >
+            <span>File Complaint</span>
+            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 4. Roads / PWD -->
+      <div class="gov-card p-5 hover:border-slate-400 transition-colors flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 rounded bg-slate-100 text-slate-800 flex items-center justify-center border border-slate-200">
+              <i data-lucide="milestone" class="w-5 h-5 text-[#0b2545]"></i>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-[#0b2545] border border-blue-200 font-mono">
+              Roads / PWD
+            </span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1.5 leading-snug">
+            Roads & Bridges (PWD)
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-4">
+            Potholes, broken footpaths, road cave-ins, and street damage.
+          </p>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <div class="space-y-0.5">
+            <span class="text-[10px] text-slate-500 block">Resolution Time:</span>
+            <span class="font-semibold text-slate-800 text-[11px]">24–48 Hours</span>
+          </div>
+          <a
+            href="/report?dept=roads_infra"
+            class="gov-btn-secondary text-xs py-1.5 px-3 text-[#0b2545] font-semibold flex items-center gap-1"
+          >
+            <span>File Complaint</span>
+            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 5. Electricity -->
+      <div class="gov-card p-5 hover:border-slate-400 transition-colors flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 rounded bg-slate-100 text-slate-800 flex items-center justify-center border border-slate-200">
+              <i data-lucide="zap" class="w-5 h-5 text-[#0b2545]"></i>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-[#0b2545] border border-blue-200 font-mono">
+              Electricity
+            </span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1.5 leading-snug">
+            Electricity & Power
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-4">
+            Power cuts, dangerous fallen wires, transformer faults, streetlights.
+          </p>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <div class="space-y-0.5">
+            <span class="text-[10px] text-slate-500 block">Resolution Time:</span>
+            <span class="font-semibold text-slate-800 text-[11px]">4–24 Hours</span>
+          </div>
+          <a
+            href="/report?dept=electricity"
+            class="gov-btn-secondary text-xs py-1.5 px-3 text-[#0b2545] font-semibold flex items-center gap-1"
+          >
+            <span>File Complaint</span>
+            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 6. Public Health -->
+      <div class="gov-card p-5 hover:border-slate-400 transition-colors flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-9 h-9 rounded bg-slate-100 text-slate-800 flex items-center justify-center border border-slate-200">
+              <i data-lucide="heart-pulse" class="w-5 h-5 text-[#0b2545]"></i>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-[#0b2545] border border-blue-200 font-mono">
+              Public Health
+            </span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1.5 leading-snug">
+            Public Health & Sanitation
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-4">
+            Mosquito breeding, hospital hygiene, bio-waste, food safety.
+          </p>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <div class="space-y-0.5">
+            <span class="text-[10px] text-slate-500 block">Resolution Time:</span>
+            <span class="font-semibold text-slate-800 text-[11px]">12–48 Hours</span>
+          </div>
+          <a
+            href="/report?dept=health_sanitation"
+            class="gov-btn-secondary text-xs py-1.5 px-3 text-[#0b2545] font-semibold flex items-center gap-1"
+          >
+            <span>File Complaint</span>
+            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 6. Citizen Guarantee (Matching screenshot 4) -->
+  <section class="bg-[#0b2545] text-white rounded-lg p-6 sm:p-8 border border-slate-700 shadow-md">
+    <div class="max-w-3xl space-y-4">
+      
+      <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-semibold">
+        <i data-lucide="file-check" class="w-4 h-4 text-amber-400"></i>
+        <span>Citizen Guarantee</span>
+      </div>
+
+      <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight">
+        No Complaint is Closed Without Your Sign-Off
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+        Government officers cannot close a ticket on their own. You inspect the before/after photos and confirm the issue is fixed.
+      </p>
+
+      <div class="flex flex-wrap gap-3 pt-2">
+        <a
+          href="/report"
+          class="gov-btn-saffron text-xs py-2.5 px-5 font-semibold"
+        >
+          File a Complaint
+        </a>
+        <a
+          href="/help"
+          class="gov-btn-secondary bg-white/10 text-white border-white/30 hover:bg-white/20 text-xs py-2.5 px-4"
+        >
+          How JanSahayata Protects You
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function fillHomeTrack(id) {
+  const input = document.getElementById('quickTrackInput');
+  if (input) {
+    input.value = id;
+    input.focus();
+  }
+}
+
+function handleQuickTrack(e) {
+  e.preventDefault();
+  const id = document.getElementById('quickTrackInput').value.trim();
+  if (!id) {
+    toast.error('Please enter your Complaint Tracking ID (e.g. JNS-2026-000001)');
+    return;
+  }
+  window.location.href = `/complaint/${id}`;
+}
+</script>
+{% endblock %}

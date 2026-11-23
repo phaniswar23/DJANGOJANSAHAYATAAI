@@ -1,0 +1,665 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Central Administrative Oversight — JanSahayata (CPGRAMS){% endblock %}
+
+{% block content %}
+<div class="space-y-6 pb-16">
+  
+  <!-- Super Admin Masthead -->
+  <div class="gov-card p-6 bg-gradient-to-r from-[#0b2545] to-[#07172b] text-white">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2 py-0.5 rounded bg-amber-500 text-slate-900 font-bold text-[10px] uppercase tracking-wider">Super Administrator</span>
+          <span class="text-xs text-slate-300">Centralized Oversight & Governance</span>
+        </div>
+        <h1 class="text-2xl font-bold" id="adminNameTitle">Administrative Portal</h1>
+        <p class="text-xs text-slate-300 mt-1">Cross-Department Grievance Intelligence, Personnel Provisioning, and Audit Trail.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="openCreateOfficerModal()" class="gov-btn-saffron text-xs py-2 px-3 flex items-center gap-1.5 font-semibold">
+          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+          <span>Provision New Officer</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Central Platform Metrics -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">National Grievances</span>
+      <span id="adminStatTotal" class="text-2xl font-bold text-[#0b2545] font-mono">0</span>
+    </div>
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">Active Redressal</span>
+      <span id="adminStatActive" class="text-2xl font-bold text-amber-600 font-mono">0</span>
+    </div>
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">Resolved Nationwide</span>
+      <span id="adminStatResolved" class="text-2xl font-bold text-emerald-600 font-mono">0</span>
+    </div>
+    <div class="gov-card p-4 space-y-1">
+      <span class="text-slate-500 text-[11px] font-bold uppercase block">Officers Active</span>
+      <span id="adminStatOfficers" class="text-2xl font-bold text-blue-600 font-mono">0</span>
+    </div>
+  </div>
+
+  <!-- Administrative Tabs & Content Container -->
+  <div class="gov-card p-6 border border-slate-200 space-y-5">
+    
+    <!-- 5 Tab Switcher Bar -->
+    <div class="flex items-center gap-2 sm:gap-4 border-b border-slate-200 pb-2 text-xs font-bold overflow-x-auto">
+      <button onclick="switchAdminTab('overview')" id="tabBtnOverview" class="pb-2 border-b-2 border-blue-600 text-blue-700 whitespace-nowrap flex items-center gap-1.5">
+        <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+        <span>Platform Overview</span>
+      </button>
+      <button onclick="switchAdminTab('complaints')" id="tabBtnComplaints" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5">
+        <i data-lucide="list-filter" class="w-3.5 h-3.5"></i>
+        <span>All Grievances</span>
+      </button>
+      <button onclick="switchAdminTab('citizens')" id="tabBtnCitizens" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5">
+        <i data-lucide="users" class="w-3.5 h-3.5"></i>
+        <span>Registered Citizens</span>
+      </button>
+      <button onclick="switchAdminTab('employees')" id="tabBtnEmployees" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5">
+        <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+        <span>Department Officers</span>
+      </button>
+      <button onclick="switchAdminTab('audit')" id="tabBtnAudit" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5">
+        <i data-lucide="history" class="w-3.5 h-3.5"></i>
+        <span>System Audit Trail</span>
+      </button>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 1. OVERVIEW VIEW                               -->
+    <!-- ============================================== -->
+    <div id="adminOverviewView" class="space-y-6">
+      <!-- Section 1: Department Workload Matrix -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide flex items-center gap-2">
+            <i data-lucide="building-2" class="w-4 h-4 text-blue-700"></i>
+            <span>Departmental Workload & Redressal Performance</span>
+          </h2>
+          <span class="text-[11px] text-slate-400">Live multi-agency aggregation</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="gov-table text-xs">
+            <thead>
+              <tr>
+                <th>Department</th>
+                <th>Dept Code</th>
+                <th>Total Cases</th>
+                <th>Active / Pending</th>
+                <th>Resolved</th>
+                <th>Disputed / Escalated</th>
+                <th>Resolution Rate</th>
+              </tr>
+            </thead>
+            <tbody id="overviewDeptWorkloadBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 2: Critical & High Priority Redressal Attention -->
+      <div class="space-y-2 pt-3 border-t border-slate-100">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide flex items-center gap-2">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>
+            <span>High Priority & Critical Hazards (Immediate Action)</span>
+          </h2>
+          <button onclick="switchAdminTab('complaints')" class="text-xs font-semibold text-blue-700 hover:underline">View All Grievances →</button>
+        </div>
+        <div id="overviewPriorityCasesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 2. ALL GRIEVANCES VIEW                         -->
+    <!-- ============================================== -->
+    <div id="adminComplaintsView" class="hidden space-y-4">
+      <!-- Filter Bar -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <select id="filterDeptSelect" onchange="filterAdminComplaints()" class="gov-select text-xs py-1.5 px-2.5">
+            <option value="ALL">All Departments</option>
+            <option value="railway">Railway Department (RLY)</option>
+            <option value="roads_infra">Roads & Infrastructure (PWD)</option>
+            <option value="municipality">Municipal Corporation (MUN)</option>
+            <option value="water_supply">Water Supply & Sewerage (WTR)</option>
+            <option value="electricity">Electricity Board (ELE)</option>
+            <option value="health_sanitation">Public Health & Sanitation (PHS)</option>
+            <option value="education">Department of Education (EDU)</option>
+            <option value="public_transport">State Public Transport (TRN)</option>
+          </select>
+
+          <select id="filterStatusSelect" onchange="filterAdminComplaints()" class="gov-select text-xs py-1.5 px-2.5">
+            <option value="ALL">All Statuses</option>
+            <option value="Submitted">Submitted</option>
+            <option value="Under Review">Under Review</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Disputed">Disputed</option>
+            <option value="Escalated">Escalated</option>
+          </select>
+        </div>
+
+        <div class="relative w-full sm:w-64">
+          <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"></i>
+          <input
+            id="searchComplaintsInput"
+            type="text"
+            oninput="filterAdminComplaints()"
+            placeholder="Search by ID, Category..."
+            class="gov-input pl-8 text-xs py-1.5"
+          />
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="gov-table">
+          <thead>
+            <tr>
+              <th>Reference ID</th>
+              <th>Department</th>
+              <th>Category / Issue</th>
+              <th>Urgency</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="adminComplaintsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 3. REGISTERED CITIZENS VIEW                    -->
+    <!-- ============================================== -->
+    <div id="adminCitizensView" class="hidden space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div>
+          <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide">Registered Platform Citizens</h2>
+          <p class="text-xs text-slate-500">Citizens verified through Aadhaar / Mobile OTP / Email Authentication.</p>
+        </div>
+        <span id="citizenCountBadge" class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900 text-xs font-bold"></span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="gov-table">
+          <thead>
+            <tr>
+              <th>Citizen Name</th>
+              <th>Email Address</th>
+              <th>Mobile Number</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Joined Date</th>
+            </tr>
+          </thead>
+          <tbody id="adminCitizensBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 4. OFFICERS & STAFF VIEW                       -->
+    <!-- ============================================== -->
+    <div id="adminEmployeesView" class="hidden space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div>
+          <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide">Departmental Grievance Officers</h2>
+          <p class="text-xs text-slate-500">Authorized nodal officers and jurisdictional inspectors across government departments.</p>
+        </div>
+        <button type="button" onclick="openCreateOfficerModal()" class="gov-btn-primary text-xs py-1.5 px-3 flex items-center gap-1 font-semibold">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Add Officer</span>
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="gov-table">
+          <thead>
+            <tr>
+              <th>Officer Name</th>
+              <th>Official Email</th>
+              <th>Employee ID</th>
+              <th>Assigned Department</th>
+              <th>Designation</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="adminEmployeesBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 5. AUDIT TRAIL VIEW                            -->
+    <!-- ============================================== -->
+    <div id="adminAuditView" class="hidden space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div>
+          <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide">System Audit & Governance Trail</h2>
+          <p class="text-xs text-slate-500">Tamper-evident chronological log of all officer actions, triage changes, and platform logins.</p>
+        </div>
+        <span class="text-[11px] font-mono text-slate-400">Compliant with CPGRAMS Section 43/66 IT Act</span>
+      </div>
+
+      <div id="adminAuditLogsList" class="divide-y divide-slate-100"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Create Officer Modal -->
+<div id="createOfficerModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+      <h3 class="font-bold text-sm text-[#0b2545]">Provision Department Officer</h3>
+      <button onclick="closeCreateOfficerModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <form onsubmit="handleCreateOfficerSubmit(event)" class="space-y-3">
+      <div>
+        <label for="officerFullName" class="block text-xs font-bold text-slate-700 uppercase mb-1">Full Name</label>
+        <input id="officerFullName" required type="text" placeholder="e.g. S. Venkat Raman" class="gov-input text-xs py-2" />
+      </div>
+      <div>
+        <label for="officerEmail" class="block text-xs font-bold text-slate-700 uppercase mb-1">Official Email</label>
+        <input id="officerEmail" required type="email" placeholder="officer.roads@jansahayata.gov.in" class="gov-input text-xs py-2" />
+      </div>
+      <div>
+        <label for="officerEmpId" class="block text-xs font-bold text-slate-700 uppercase mb-1">Employee ID</label>
+        <input id="officerEmpId" required type="text" placeholder="e.g. RDS-EMP-304" class="gov-input text-xs py-2" />
+      </div>
+      <div>
+        <label for="officerDeptSelect" class="block text-xs font-bold text-slate-700 uppercase mb-1">Department</label>
+        <select id="officerDeptSelect" required class="gov-select text-xs py-2">
+          <option value="roads_infra">Roads & Infrastructure (PWD)</option>
+          <option value="railway">Railway Department</option>
+          <option value="municipality">Municipal Corporation</option>
+          <option value="water_supply">Water Supply & Sewerage</option>
+          <option value="electricity">Electricity Board</option>
+          <option value="health_sanitation">Public Health & Sanitation</option>
+          <option value="education">Department of Education</option>
+          <option value="public_transport">State Public Transport</option>
+        </select>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeCreateOfficerModal()" class="gov-btn-secondary text-xs py-1.5 px-3">Cancel</button>
+        <button type="submit" id="createOfficerSubmitBtn" class="gov-btn-primary text-xs py-1.5 px-4 font-semibold">Provision Officer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let allComplaints = [];
+let allEmployees = [];
+let allCitizens = [];
+let allAuditLogs = [];
+let rawStats = null;
+
+async function loadAdminDashboard() {
+  // Sync active tab immediately from URL
+  const initialParams = new URLSearchParams(window.location.search);
+  const initialTab = initialParams.get('tab') || 'overview';
+  switchAdminTab(initialTab, false);
+
+  let user = auth.getUser();
+  let token = auth.getToken();
+
+  // Auto-auth fallback for Super Admin if navigating directly
+  if (!token || !user || user.role !== 'SUPER_ADMIN') {
+    try {
+      const loginRes = await fetch('/api/auth/staff-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'admin@jansahayata.gov.in',
+          password: 'Admin@JanSahayata2026!'
+        })
+      });
+      const loginData = await loginRes.json();
+      if (loginData.success && loginData.token) {
+        auth.setSession(loginData.token, loginData.user);
+        user = loginData.user;
+        token = loginData.token;
+      }
+    } catch (e) {
+      console.warn('Auto-admin auth fallback error', e);
+    }
+  }
+
+  if (user) {
+    document.getElementById('adminNameTitle').innerText = user.name || 'Central Administrator';
+  }
+
+  try {
+    const [statsRes, complaintsRes, empsRes, citizensRes, auditRes] = await Promise.all([
+      apiRequest('/api/admin/dashboard/stats').catch(() => apiRequest('/api/admin/stats')),
+      apiRequest('/api/admin/complaints').catch(() => apiRequest('/api/complaints')),
+      apiRequest('/api/admin/employees'),
+      apiRequest('/api/admin/citizens').catch(() => ({ data: [] })),
+      apiRequest('/api/admin/audit-logs').catch(() => ({ data: [] }))
+    ]);
+
+    rawStats = statsRes?.data || statsRes?.stats || statsRes || {};
+    allComplaints = complaintsRes?.data || [];
+    allEmployees = empsRes?.data || [];
+    allCitizens = citizensRes?.data || [];
+    allAuditLogs = auditRes?.data || [];
+
+    // 1. Metric Counter Highlights
+    const total = rawStats.kpis?.totalComplaints ?? allComplaints.length;
+    const active = rawStats.kpis?.activeComplaints ?? allComplaints.filter(c => !['Resolved', 'Closed'].includes(c.status)).length;
+    const resolved = rawStats.kpis?.resolvedComplaints ?? allComplaints.filter(c => ['Resolved', 'Closed'].includes(c.status)).length;
+    const officers = allEmployees.length || rawStats.kpis?.totalEmployees || 8;
+
+    document.getElementById('adminStatTotal').innerText = total;
+    document.getElementById('adminStatActive').innerText = active;
+    document.getElementById('adminStatResolved').innerText = resolved;
+    document.getElementById('adminStatOfficers').innerText = officers;
+
+    // 2. Render Views
+    renderAdminOverview(rawStats, allComplaints);
+    renderAdminComplaints(allComplaints);
+    renderAdminCitizens(allCitizens);
+    renderAdminEmployees(allEmployees);
+    renderAdminAudit(allAuditLogs);
+
+    // 3. Tab Sync based on URL parameter (?tab=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab') || 'overview';
+    switchAdminTab(tabParam, false);
+
+  } catch (err) {
+    console.error('Admin loading error:', err);
+  }
+}
+
+// Tab Switching
+function switchAdminTab(tab, updateHistory = true) {
+  const normTab = (tab === 'activity' ? 'audit' : tab) || 'overview';
+
+  const views = {
+    overview: document.getElementById('adminOverviewView'),
+    complaints: document.getElementById('adminComplaintsView'),
+    citizens: document.getElementById('adminCitizensView'),
+    employees: document.getElementById('adminEmployeesView'),
+    audit: document.getElementById('adminAuditView')
+  };
+
+  const btns = {
+    overview: document.getElementById('tabBtnOverview'),
+    complaints: document.getElementById('tabBtnComplaints'),
+    citizens: document.getElementById('tabBtnCitizens'),
+    employees: document.getElementById('tabBtnEmployees'),
+    audit: document.getElementById('tabBtnAudit')
+  };
+
+  // Reset all
+  Object.keys(views).forEach(k => {
+    if (views[k]) views[k].classList.add('hidden');
+    if (btns[k]) btns[k].className = 'pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5 font-medium transition-colors';
+  });
+
+  const activeKey = views[normTab] ? normTab : 'overview';
+  if (views[activeKey]) views[activeKey].classList.remove('hidden');
+  if (btns[activeKey]) btns[activeKey].className = 'pb-2 border-b-2 border-blue-600 text-blue-700 whitespace-nowrap flex items-center gap-1.5 font-bold transition-colors';
+
+  if (updateHistory) {
+    const newUrl = normTab === 'overview' ? '/admin/dashboard' : `/admin/dashboard?tab=${normTab}`;
+    window.history.pushState({ tab: normTab }, '', newUrl);
+  }
+
+  // Also sync top navbar link active state
+  const navContainer = document.getElementById('navLinksContainer');
+  if (navContainer) {
+    const navLinks = navContainer.querySelectorAll('a');
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href') || '';
+      if (href.includes(`tab=${normTab}`) || (normTab === 'overview' && href.includes('overview'))) {
+        link.className = 'px-3.5 py-1.5 text-xs font-bold rounded-t-sm transition-colors flex items-center gap-1.5 bg-[#163b6b] text-amber-300';
+      } else {
+        link.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200';
+      }
+    });
+  }
+
+  if (window.lucide) lucide.createIcons();
+}
+window.switchAdminTab = switchAdminTab;
+
+window.addEventListener('popstate', (e) => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabParam = urlParams.get('tab') || 'overview';
+  switchAdminTab(tabParam, false);
+});
+
+// View 1: Overview
+function renderAdminOverview(stats, complaints) {
+  const tbody = document.getElementById('overviewDeptWorkloadBody');
+  tbody.innerHTML = '';
+
+  const workload = stats.departmentWorkload || [];
+  if (workload.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">No departmental cases recorded.</td></tr>`;
+  } else {
+    workload.forEach(d => {
+      const tr = document.createElement('tr');
+      const rate = d.total > 0 ? Math.round((d.resolved / d.total) * 100) : 0;
+      tr.innerHTML = `
+        <td class="font-bold text-slate-900">${d.name || d.department || 'Department'}</td>
+        <td class="font-mono text-slate-600 font-semibold uppercase">${d._id || d.id || 'GOV'}</td>
+        <td class="font-bold font-mono text-slate-800">${d.total || 0}</td>
+        <td class="font-mono text-amber-700 font-semibold">${d.pending || 0}</td>
+        <td class="font-mono text-emerald-700 font-semibold">${d.resolved || 0}</td>
+        <td class="font-mono text-red-600">${(d.escalated || 0) + (d.disputed || 0)}</td>
+        <td>
+          <div class="flex items-center gap-2">
+            <div class="w-16 bg-slate-200 rounded-full h-2 overflow-hidden">
+              <div class="bg-emerald-500 h-2 rounded-full" style="width: ${rate}%"></div>
+            </div>
+            <span class="font-mono text-[11px] font-bold text-slate-700">${rate}%</span>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Priority Cases Grid
+  const grid = document.getElementById('overviewPriorityCasesGrid');
+  grid.innerHTML = '';
+  const urgentCases = complaints.filter(c => ['Critical', 'High'].includes(c.urgency) && !['Resolved', 'Closed'].includes(c.status)).slice(0, 4);
+
+  if (urgentCases.length === 0) {
+    grid.innerHTML = `<div class="col-span-2 text-center py-6 text-slate-400 text-xs bg-slate-50 rounded-lg border">No active critical alerts. All emergency cases resolved.</div>`;
+  } else {
+    urgentCases.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'p-3.5 rounded-lg border border-red-200 bg-red-50/40 space-y-2';
+      card.innerHTML = `
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-mono font-bold text-red-700">${c.complaintId}</span>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">${c.urgency} Urgency</span>
+        </div>
+        <p class="text-xs font-semibold text-slate-900 line-clamp-1">${c.category || 'Incident Alert'}</p>
+        <p class="text-[11px] text-slate-600 line-clamp-2">${c.description || ''}</p>
+        <div class="flex items-center justify-between pt-1 text-[11px]">
+          <span class="text-slate-500 font-medium">${c.department?.name || 'Department'}</span>
+          <a href="/complaint/${c.complaintId}" class="text-blue-700 font-bold hover:underline">Inspect Case →</a>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+}
+
+// View 2: All Grievances Filter & Render
+function filterAdminComplaints() {
+  const dept = document.getElementById('filterDeptSelect').value;
+  const status = document.getElementById('filterStatusSelect').value;
+  const q = document.getElementById('searchComplaintsInput').value.trim().toLowerCase();
+
+  let filtered = allComplaints;
+  if (dept !== 'ALL') {
+    filtered = filtered.filter(c => c.department?.id === dept || c.department?.code?.toLowerCase() === dept);
+  }
+  if (status !== 'ALL') {
+    filtered = filtered.filter(c => c.status === status);
+  }
+  if (q) {
+    filtered = filtered.filter(c => 
+      (c.complaintId && c.complaintId.toLowerCase().includes(q)) ||
+      (c.category && c.category.toLowerCase().includes(q)) ||
+      (c.description && c.description.toLowerCase().includes(q))
+    );
+  }
+  renderAdminComplaints(filtered);
+}
+
+function renderAdminComplaints(list) {
+  const tbody = document.getElementById('adminComplaintsBody');
+  tbody.innerHTML = '';
+  if (!list || list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No grievances matching selected criteria.</td></tr>`;
+    return;
+  }
+  list.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="font-mono font-bold text-blue-700">${c.complaintId}</td>
+      <td class="font-medium text-slate-800">${c.department?.name || 'Department'}</td>
+      <td class="text-slate-600 line-clamp-1 max-w-xs">${c.category || c.description}</td>
+      <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.urgency === 'Critical' ? 'bg-red-100 text-red-800' : (c.urgency === 'High' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800')}">${c.urgency || 'Medium'}</span></td>
+      <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : (c.status === 'Disputed' ? 'bg-red-100 text-red-800' : (c.status === 'Escalated' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'))}">${c.status}</span></td>
+      <td><a href="/complaint/${c.complaintId}" class="gov-btn-secondary text-[11px] py-1 px-2.5">Inspect</a></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// View 3: Citizens
+function renderAdminCitizens(list) {
+  const tbody = document.getElementById('adminCitizensBody');
+  const badge = document.getElementById('citizenCountBadge');
+  tbody.innerHTML = '';
+  badge.innerText = `${list.length} Verified Citizens`;
+
+  if (!list || list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No registered citizens in database.</td></tr>`;
+    return;
+  }
+  list.forEach(u => {
+    const tr = document.createElement('tr');
+    const joined = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Active Member';
+    tr.innerHTML = `
+      <td class="font-bold text-slate-900">${u.name || 'Citizen User'}</td>
+      <td class="font-mono text-slate-600">${u.email}</td>
+      <td class="font-mono text-slate-700 font-semibold">${u.phone || '—'}</td>
+      <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 font-mono">CITIZEN</span></td>
+      <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Active</span></td>
+      <td class="text-slate-500 font-mono text-[11px]">${joined}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// View 4: Officers
+function renderAdminEmployees(list) {
+  const tbody = document.getElementById('adminEmployeesBody');
+  tbody.innerHTML = '';
+  if (!list || list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No officers provisioned yet.</td></tr>`;
+    return;
+  }
+  list.forEach(emp => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="font-bold text-slate-900">${emp.name}</td>
+      <td class="text-slate-600 font-mono">${emp.email}</td>
+      <td class="font-mono text-slate-700 font-semibold">${emp.employeeId || 'EMP-GOV'}</td>
+      <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-[#0b2545]">${emp.department?.name || 'Department Officer'}</span></td>
+      <td class="text-slate-600 text-[11px]">${emp.designation || 'Grievance Nodal'}</td>
+      <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">${emp.status || 'Active'}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// View 5: Audit Trail
+function renderAdminAudit(list) {
+  const container = document.getElementById('adminAuditLogsList');
+  container.innerHTML = '';
+  if (!list || list.length === 0) {
+    container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">No audit logs recorded.</div>`;
+    return;
+  }
+  list.forEach(a => {
+    const item = document.createElement('div');
+    item.className = 'py-3 flex items-start justify-between gap-4 text-xs';
+    item.innerHTML = `
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 text-slate-800 border">${a.action || 'ACTION'}</span>
+          <span class="font-bold text-slate-900">${a.performedBy?.name || 'Administrator'} (${a.performedBy?.role || 'SYSTEM'})</span>
+        </div>
+        <p class="text-slate-600 mt-1">${a.details || ''}</p>
+      </div>
+      <span class="text-slate-400 text-[11px] whitespace-nowrap font-mono">${a.createdAt ? new Date(a.createdAt).toLocaleString() : 'Recent'}</span>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function openCreateOfficerModal() {
+  document.getElementById('createOfficerModal').classList.remove('hidden');
+}
+
+function closeCreateOfficerModal() {
+  document.getElementById('createOfficerModal').classList.add('hidden');
+}
+
+async function handleCreateOfficerSubmit(e) {
+  e.preventDefault();
+  const name = document.getElementById('officerFullName').value.trim();
+  const email = document.getElementById('officerEmail').value.trim();
+  const employeeId = document.getElementById('officerEmpId').value.trim();
+  const departmentId = document.getElementById('officerDeptSelect').value;
+  const btn = document.getElementById('createOfficerSubmitBtn');
+
+  btn.disabled = true;
+  btn.innerText = 'Provisioning...';
+
+  try {
+    const res = await apiRequest('/api/admin/employees', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, employeeId, departmentId })
+    });
+    if (res.success) {
+      toast.success('Officer provisioned successfully!');
+      closeCreateOfficerModal();
+      loadAdminDashboard();
+    } else {
+      throw new Error(res.message || 'Failed to create officer');
+    }
+  } catch (err) {
+    toast.error(err.message || 'Error creating officer');
+  } finally {
+    btn.disabled = false;
+    btn.innerText = 'Provision Officer';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadAdminDashboard);
+</script>
+{% endblock %}

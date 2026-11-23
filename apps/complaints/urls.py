@@ -3,6 +3,8 @@ from apps.complaints import views
 
 urlpatterns = [
     path('', views.create_complaint, name='complaint_create'),
+    path('citizen', views.get_complaints_by_citizen, {'citizen_id': 'current'}, name='complaint_by_citizen_default'),
+    path('citizen/', views.get_complaints_by_citizen, {'citizen_id': 'current'}, name='complaint_by_citizen_default_slash'),
     path('citizen/<str:citizen_id>', views.get_complaints_by_citizen, name='complaint_by_citizen'),
     path('<str:id>', views.get_complaint_by_id, name='complaint_get_by_id'),
     path('<str:id>/verify-resolution', views.verify_resolution, name='complaint_verify_resolution'),
