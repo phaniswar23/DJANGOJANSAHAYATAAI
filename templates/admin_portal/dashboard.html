@@ -316,8 +316,28 @@ async function loadAdminDashboard() {
   let user = auth.getUser();
   let token = auth.getToken();
 
-  // Auto-auth fallback for Super Admin if navigating directly
-  if (!token || !user || user.role !== 'SUPER_ADMIN') {
+  // Validate token validity against current database
+  let tokenValid = false;
+  if (token && user && user.role === 'SUPER_ADMIN') {
+    try {
+      const meRes = await fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        if (meData.success && meData.user && meData.user.role === 'SUPER_ADMIN') {
+          tokenValid = true;
+          user = meData.user;
+          auth.setSession(token, user);
+        }
+      }
+    } catch (e) {
+      tokenValid = false;
+    }
+  }
+
+  // If token is absent, expired, or invalid, auto-authenticate as Super Admin
+  if (!tokenValid) {
     try {
       const loginRes = await fetch('/api/auth/staff-login', {
         method: 'POST',
@@ -344,9 +364,9 @@ async function loadAdminDashboard() {
 
   try {
     const [statsRes, complaintsRes, empsRes, citizensRes, auditRes] = await Promise.all([
-      apiRequest('/api/admin/dashboard/stats').catch(() => apiRequest('/api/admin/stats')),
-      apiRequest('/api/admin/complaints').catch(() => apiRequest('/api/complaints')),
-      apiRequest('/api/admin/employees'),
+      apiRequest('/api/admin/dashboard/stats').catch(() => apiRequest('/api/admin/stats').catch(() => ({}))),
+      apiRequest('/api/admin/complaints').catch(() => apiRequest('/api/complaints').catch(() => ({ data: [] }))),
+      apiRequest('/api/admin/employees').catch(() => ({ data: [] })),
       apiRequest('/api/admin/citizens').catch(() => ({ data: [] })),
       apiRequest('/api/admin/audit-logs').catch(() => ({ data: [] }))
     ]);

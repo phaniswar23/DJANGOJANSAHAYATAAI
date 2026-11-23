@@ -6,6 +6,28 @@
 {% block content %}
 <div class="space-y-6 pb-16">
   
+  <!-- Presentation Demo Citizen Selector Bar -->
+  <div class="p-3.5 rounded-lg border border-blue-200 bg-blue-50/70 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs shadow-sm">
+    <div class="flex items-center gap-2">
+      <span class="px-2 py-0.5 rounded bg-blue-700 text-white font-bold text-[10px] uppercase tracking-wider">Demo Profile Switcher</span>
+      <span class="text-blue-950 font-semibold">Switch active citizen profile for project evaluation:</span>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" onclick="demoSwitchCitizen('citizen@gmail.com')" class="px-3 py-1.5 bg-white hover:bg-blue-100 text-[#0b2545] border border-slate-300 rounded text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5">
+        <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-700"></i>
+        <span>Ravi Teja Sharma (Water & Garbage)</span>
+      </button>
+      <button type="button" onclick="demoSwitchCitizen('citizen.pooja@gmail.com')" class="px-3 py-1.5 bg-white hover:bg-emerald-50 text-slate-800 border border-slate-300 rounded text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5">
+        <i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+        <span>Pooja Verma (Electricity Hazard)</span>
+      </button>
+      <button type="button" onclick="demoSwitchCitizen('citizen.amit@gmail.com')" class="px-3 py-1.5 bg-white hover:bg-amber-50 text-slate-800 border border-slate-300 rounded text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5">
+        <i data-lucide="user-check" class="w-3.5 h-3.5 text-amber-600"></i>
+        <span>Amit Kumar (PWD Road Dispute)</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Citizen Welcome Masthead -->
   <div class="gov-card p-6 bg-gradient-to-r from-[#0b2545] to-[#163b6b] text-white">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
