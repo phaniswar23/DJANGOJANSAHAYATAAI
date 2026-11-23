@@ -487,14 +487,24 @@ function renderComplaint(c) {
     ? c.progressUpdates
     : [{ status: 'Submitted', message: 'Grievance submitted by citizen.', timestamp: c.createdAt, officer: { name: 'Automated Redressal Ingestion' } }];
 
-  updates.forEach(u => {
+  updates.forEach((u, idx) => {
+    const isLast = idx === updates.length - 1;
+    const dotColor = (u.status === 'Resolved') ? '#10b981' : ((u.status === 'Disputed') ? '#ef4444' : ((u.status === 'Escalated') ? '#8b5cf6' : '#2563eb'));
     const item = document.createElement('div');
-    item.className = 'relative pl-7 pb-6 border-l-2 border-blue-500 last:border-l-0 last:pb-1';
+    item.className = 'flex items-start gap-3.5 ' + (isLast ? 'pb-1' : 'pb-5') + ' relative group';
     item.innerHTML = `
-      <div class="absolute -left-[9px] top-0.5 w-4 h-4 rounded-full border-2 border-white shadow-xs" style="background-color: #2563eb;"></div>
-      <div class="space-y-1">
+      <!-- Left Column: Indicator Node & Connecting Stem -->
+      <div class="flex flex-col items-center self-stretch shrink-0 relative pt-0.5" style="width: 20px;">
+        <!-- Bullet Dot -->
+        <div class="w-4 h-4 rounded-full border-2 border-white shadow-xs shrink-0 z-10" style="background-color: ${dotColor};"></div>
+        <!-- Connecting Vertical Stem -->
+        ${!isLast ? '<div class="w-0.5 bg-blue-200 flex-1 my-1" style="min-height: 32px;"></div>' : ''}
+      </div>
+
+      <!-- Right Column: Content -->
+      <div class="flex-1 space-y-1.5 min-w-0">
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase shadow-2xs" style="${statusStyles[u.status] || 'background-color: #3b82f6; color: #ffffff;'}">${u.status}</span>
+          <span class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider shadow-2xs" style="${statusStyles[u.status] || 'background-color: #3b82f6; color: #ffffff;'}">${u.status}</span>
           <span class="text-[11px] text-slate-400 font-mono">${new Date(u.timestamp).toLocaleString()}</span>
         </div>
         <p class="text-xs text-slate-700 font-medium leading-relaxed">${u.message}</p>
