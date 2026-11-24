@@ -86,16 +86,12 @@
       <p class="text-[11px] text-slate-400">Minimum 15 characters. Plain language: English, Hindi, or regional text accepted.</p>
     </div>
 
-    <!-- 2. Voice Note with OpenAI Whisper -->
+    <!-- 2. Voice Note Speech-to-Text Input -->
     <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-3">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2 text-xs font-bold text-slate-700 uppercase tracking-wide">
           <i data-lucide="mic" class="w-4 h-4 text-red-600"></i>
-          <span>VOICE NOTE (SPEECH-TO-TEXT INPUT WITH OPENAI WHISPER)</span>
-        </div>
-        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>OpenAI Whisper (Local Neural Engine)</span>
+          <span>VOICE NOTE (SPEECH-TO-TEXT INPUT)</span>
         </div>
       </div>
 
@@ -112,7 +108,7 @@
           <span id="voiceStatusText">Record Voice Complaint <span class="uppercase tracking-wider text-[11px] underline">CLICK TO SPEAK</span></span>
         </div>
         <p class="text-[11px] text-slate-500" id="voiceSubtext">
-          Speak in English, Hindi, or regional languages • OpenAI Whisper transcribes & converts into a structured problem statement.
+          Speak in English, Hindi, or regional languages • Automatic speech-to-text transcribes & converts into a structured problem statement.
         </p>
         <div id="voiceWaveAnimation" class="hidden items-center justify-center gap-1 pt-1">
           <span class="w-1.5 h-4 bg-red-500 rounded-full animate-bounce"></span>
@@ -126,7 +122,7 @@
       <!-- Checkbox -->
       <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-600 pt-1">
         <input type="checkbox" id="autoConvertVoice" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-        <span>Auto-convert voice recording to structured problem statement (Whisper Base Model Active)</span>
+        <span>Auto-convert voice recording to structured problem statement</span>
       </label>
     </div>
 
@@ -744,7 +740,7 @@ function startVoiceRecording() {
 
   card.className = 'cursor-pointer border-2 border-red-500 bg-red-100/60 transition-all rounded-lg p-4 text-center space-y-1.5 select-none animate-pulse';
   text.innerHTML = `Listening & Transcribing... <span class="uppercase tracking-wider text-[11px] underline">CLICK TO STOP</span>`;
-  subtext.innerText = 'Whisper Neural Model is streaming audio... Speak clearly.';
+  subtext.innerText = 'Listening & transcribing your voice... Speak clearly.';
   wave.classList.remove('hidden');
   wave.classList.add('flex');
 
@@ -795,7 +791,7 @@ function fallbackWhisperSimulation() {
         handleDescriptionInput(sample);
       }
       stopVoiceRecording();
-      toast.success('Whisper neural speech transcribed successfully!');
+      toast.success('Speech transcribed successfully!');
     }
   }, 2200);
 }
@@ -813,7 +809,7 @@ function stopVoiceRecording() {
 
   card.className = 'cursor-pointer border-2 border-dashed border-red-200 hover:border-red-400 bg-red-50/40 hover:bg-red-50/80 transition-all rounded-lg p-4 text-center space-y-1.5 select-none';
   text.innerHTML = `Record Voice Complaint <span class="uppercase tracking-wider text-[11px] underline">CLICK TO SPEAK</span>`;
-  subtext.innerText = 'Speak in English, Hindi, or regional languages • OpenAI Whisper transcribes & converts into a structured problem statement.';
+  subtext.innerText = 'Speak in English, Hindi, or regional languages • Automatic speech-to-text transcribes & converts into a structured problem statement.';
   wave.classList.add('hidden');
   wave.classList.remove('flex');
 }

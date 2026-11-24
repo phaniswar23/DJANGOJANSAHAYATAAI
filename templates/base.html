@@ -135,6 +135,19 @@
     #google_translate_element {
       display: none !important;
     }
+
+    /* Floating Scroll to Top Button with Indian Tricolor slow animation fill */
+    @keyframes tricolorSlowPulse {
+      0%, 100% {
+        box-shadow: 0 4px 18px rgba(255, 103, 31, 0.4), 0 0 10px rgba(4, 106, 56, 0.35);
+      }
+      50% {
+        box-shadow: 0 6px 26px rgba(255, 103, 31, 0.65), 0 0 16px rgba(4, 106, 56, 0.55);
+      }
+    }
+    .tricolor-glow-btn {
+      animation: tricolorSlowPulse 3s ease-in-out infinite;
+    }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
@@ -388,9 +401,8 @@
         </div>
       </div>
 
-      <div class="pt-6 mt-6 border-t border-slate-800 text-center text-slate-500 text-[11px] flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="pt-6 mt-6 border-t border-slate-800 text-center text-slate-500 text-[11px] flex flex-col sm:flex-row items-center justify-center">
         <p>© 2026 Government of India • Department of Administrative Reforms & Public Grievances. All rights reserved.</p>
-        <p class="font-mono text-slate-400">JanSahayata v2.0 • 100% Pure Django Full-Stack Edition</p>
       </div>
     </div>
   </footer>
@@ -779,6 +791,96 @@
       </form>
     </div>
   </div>
+
+  <!-- Floating Scroll-to-Top Button with Indian Tricolor Slow Animation Fill -->
+  <div
+    id="scrollToTopBtn"
+    onclick="handleScrollToTop()"
+    class="fixed bottom-6 right-6 z-[999] opacity-0 pointer-events-none transition-all duration-300 transform translate-y-6 hover:scale-110 cursor-pointer select-none group"
+    title="Back to Top"
+    aria-label="Back to Top"
+  >
+    <div class="relative w-14 h-14 flex items-center justify-center">
+      <!-- SVG Tricolor Filling Progress Circle -->
+      <svg class="w-14 h-14 transform -rotate-90 pointer-events-none" viewBox="0 0 56 56">
+        <defs>
+          <linearGradient id="indianFlagScrollGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff671f" />
+            <stop offset="48%" stop-color="#ffffff" />
+            <stop offset="52%" stop-color="#ffffff" />
+            <stop offset="100%" stop-color="#046a38" />
+          </linearGradient>
+          <filter id="tricolorGlowEffect" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#ff671f" flood-opacity="0.4" />
+          </filter>
+        </defs>
+
+        <!-- Base Background Track -->
+        <circle
+          cx="28"
+          cy="28"
+          r="24"
+          stroke="rgba(15, 23, 42, 0.2)"
+          stroke-width="4"
+          fill="none"
+        />
+
+        <!-- Dynamic Filling Tricolor Ring -->
+        <circle
+          id="scrollProgressCircle"
+          cx="28"
+          cy="28"
+          r="24"
+          stroke="url(#indianFlagScrollGrad)"
+          stroke-width="4.5"
+          stroke-linecap="round"
+          fill="none"
+          stroke-dasharray="150.796"
+          stroke-dashoffset="150.796"
+          filter="url(#tricolorGlowEffect)"
+          style="transition: stroke-dashoffset 0.15s ease-out;"
+        />
+      </svg>
+
+      <!-- Inner Dark Circle with Yellow Arrow (Matches screenshot pixel-for-pixel) -->
+      <div class="absolute inset-[5px] rounded-full bg-[#07172b] border border-slate-700/80 shadow-2xl flex items-center justify-center text-amber-400 group-hover:bg-[#0b2545] transition-all duration-200">
+        <svg class="w-5 h-5 text-amber-400 transform group-hover:-translate-y-1 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      </div>
+
+      <!-- Outer Pulse Ring with Tricolor Glow -->
+      <div class="absolute inset-0 rounded-full pointer-events-none tricolor-glow-btn"></div>
+    </div>
+  </div>
+
+  <script>
+    function handleScrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.addEventListener('scroll', () => {
+      const btn = document.getElementById('scrollToTopBtn');
+      const circle = document.getElementById('scrollProgressCircle');
+      if (!btn) return;
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+      if (scrollY > 150) {
+        btn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-6');
+        btn.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+      } else {
+        btn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-6');
+        btn.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+      }
+
+      if (circle && scrollHeight > 0) {
+        const progress = Math.min(1, Math.max(0, scrollY / scrollHeight));
+        const circumference = 150.796;
+        circle.style.strokeDashoffset = (circumference * (1 - progress)).toString();
+      }
+    }, { passive: true });
+  </script>
 
   <!-- Google Translate Hidden Container and Library -->
   <div id="google_translate_element" class="notranslate" translate="no" style="display:none; visibility:hidden;"></div>
