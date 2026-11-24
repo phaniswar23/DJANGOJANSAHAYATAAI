@@ -31,6 +31,38 @@ def save_uploaded_file(uploaded_file, subfolder='images'):
     with open(file_path, 'wb+') as destination:
         for chunk in uploaded_file.chunks():
             destination.write(chunk)
+
+    # Auto-convert HEIC/HEIF images to standard JPEG for universal web browser display
+    if ext.lower() in ['.heic', '.heif']:
+        jpg_filename = f"{uuid.uuid4().hex[:12]}_{Date_suffix()}.jpg"
+        jpg_path = os.path.join(target_dir, jpg_filename)
+        converted = False
+        try:
+            import subprocess
+            res = subprocess.run(['sips', '-s', 'format', 'jpeg', file_path, '--out', jpg_path], capture_output=True, timeout=10)
+            if res.returncode == 0 and os.path.exists(jpg_path) and os.path.getsize(jpg_path) > 0:
+                converted = True
+        except Exception:
+            pass
+
+        if not converted:
+            try:
+                from PIL import Image
+                with Image.open(file_path) as im:
+                    rgb_im = im.convert('RGB')
+                    rgb_im.save(jpg_path, 'JPEG')
+                if os.path.exists(jpg_path) and os.path.getsize(jpg_path) > 0:
+                    converted = True
+            except Exception:
+                pass
+
+        if converted:
+            try:
+                os.remove(file_path)
+            except Exception:
+                pass
+            return f"/uploads/{subfolder}/{jpg_filename}"
+
     return f"/uploads/{subfolder}/{filename}"
 
 def Date_suffix():
@@ -151,7 +183,10 @@ def create_complaint(request):
                 'videos': videos,
                 'audio': audio
             },
-            'evidence': [{'url': img, 'type': 'image', 'caption': 'Citizen Upload'} for img in images],
+            'images': images,
+            'videos': videos,
+            'documents': [{'url': img, 'type': 'image'} for img in images] + [{'url': vid, 'type': 'video'} for vid in videos],
+            'evidence': [{'url': img, 'type': 'image', 'caption': 'Citizen Photo Evidence'} for img in images] + [{'url': vid, 'type': 'video', 'caption': 'Citizen Video Evidence'} for vid in videos],
             'aiAnalysis': {
                 'detectedObjects': detected_objects,
                 'confidence': 0.94,
@@ -196,7 +231,7 @@ def create_complaint(request):
                         formal_statement,
                         citizen_name=citizen_name,
                         urgency=urgency,
-                        location=location_context
+                        location=address
                     )
                 except Exception as e:
                     print(f"[Email Notification Warning] Failed to dispatch email: {e}")

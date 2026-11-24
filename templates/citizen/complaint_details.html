@@ -160,17 +160,34 @@
         </div>
 
         <!-- Citizen Attached Evidence -->
-        <div class="gov-card p-5 space-y-3 border border-slate-200">
-          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center justify-between">
-            <span class="flex items-center gap-1.5">
-              <i data-lucide="camera" class="w-3.5 h-3.5 text-blue-700"></i>
-              <span>Attached Evidence</span>
-            </span>
-            <span class="text-slate-400 font-normal text-[11px]" id="evidenceCount"></span>
-          </h3>
+        <div class="gov-card p-5 space-y-4 border border-slate-200">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="paperclip" class="w-4 h-4 text-blue-700"></i>
+              <span>Attached Evidence (Photos & Video)</span>
+            </h3>
+            <span class="text-slate-500 font-semibold text-[11px]" id="evidenceCount"></span>
+          </div>
 
-          <div id="evidenceImagesGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
-          <div id="noEvidenceNotice" class="hidden text-xs text-slate-400 bg-slate-50 p-4 rounded-lg text-center">No photographic attachments provided.</div>
+          <!-- Incident Video Section -->
+          <div id="evidenceVideoContainer" class="hidden space-y-2">
+            <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wide flex items-center gap-1">
+              <i data-lucide="video" class="w-3.5 h-3.5 text-blue-600"></i>
+              <span>Attached Incident Video Recording</span>
+            </span>
+            <div id="evidenceVideoList" class="space-y-3"></div>
+          </div>
+
+          <!-- Photographic Evidence Grid -->
+          <div id="evidenceImagesContainer" class="space-y-2">
+            <span id="evidenceImagesLabel" class="hidden text-[11px] font-bold text-slate-700 uppercase tracking-wide flex items-center gap-1">
+              <i data-lucide="camera" class="w-3.5 h-3.5 text-blue-600"></i>
+              <span>Photographic Evidence</span>
+            </span>
+            <div id="evidenceImagesGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+          </div>
+
+          <div id="noEvidenceNotice" class="hidden text-xs text-slate-400 bg-slate-50 p-4 rounded-lg text-center">No photographic or video attachments provided.</div>
         </div>
 
         <!-- Official Department Resolution Evidence (if present) -->
@@ -438,26 +455,103 @@ function renderComplaint(c) {
     document.getElementById('rawInputSection').classList.add('hidden');
   }
 
-  // Attached Evidence Images
-  const citizenImgs = c.attachments?.images || c.images || [];
+  // Attached Evidence (Photos & Video)
+  let citizenImgs = [...(c.attachments?.images || c.images || [])];
+  let citizenVideos = [...(c.attachments?.videos || c.videos || [])];
+
+  // Also check generic evidence array if images/videos empty
+  if (citizenImgs.length === 0 && citizenVideos.length === 0 && Array.isArray(c.evidence)) {
+    c.evidence.forEach(item => {
+      const u = typeof item === 'string' ? item : item?.url;
+      const t = item?.type || '';
+      if (!u) return;
+      if (t === 'video' || /\.(mp4|webm|mov|avi|mkv)$/i.test(u)) {
+        if (!citizenVideos.includes(u)) citizenVideos.push(u);
+      } else {
+        if (!citizenImgs.includes(u)) citizenImgs.push(u);
+      }
+    });
+  }
+
+  // Also check c.documents
+  if (Array.isArray(c.documents)) {
+    c.documents.forEach(doc => {
+      const u = typeof doc === 'string' ? doc : doc?.url;
+      if (!u) return;
+      if (/\.(mp4|webm|mov|avi|mkv)$/i.test(u)) {
+        if (!citizenVideos.includes(u)) citizenVideos.push(u);
+      } else if (/\.(jpg|jpeg|png|webp|gif|heic|heif)$/i.test(u)) {
+        if (!citizenImgs.includes(u)) citizenImgs.push(u);
+      }
+    });
+  }
+
   const evGrid = document.getElementById('evidenceImagesGrid');
+  const evImgLabel = document.getElementById('evidenceImagesLabel');
+  const evVidContainer = document.getElementById('evidenceVideoContainer');
+  const evVidList = document.getElementById('evidenceVideoList');
   const noEvNotice = document.getElementById('noEvidenceNotice');
   const evCount = document.getElementById('evidenceCount');
-  evGrid.innerHTML = '';
-  evCount.innerText = `${citizenImgs.length} attachment(s)`;
 
-  if (citizenImgs.length > 0) {
-    noEvNotice.classList.add('hidden');
-    citizenImgs.forEach(imgUrl => {
-      const a = document.createElement('a');
-      a.href = imgUrl;
-      a.target = '_blank';
-      a.className = 'h-24 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 block group hover:shadow-md transition-shadow';
-      a.innerHTML = `<img src="${imgUrl}" alt="Evidence" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />`;
-      evGrid.appendChild(a);
-    });
-  } else {
+  evGrid.innerHTML = '';
+  evVidList.innerHTML = '';
+  const totalEvidence = citizenImgs.length + citizenVideos.length;
+  evCount.innerText = `${totalEvidence} attachment(s)`;
+
+  if (totalEvidence === 0) {
     noEvNotice.classList.remove('hidden');
+    evVidContainer.classList.add('hidden');
+    if (evImgLabel) evImgLabel.classList.add('hidden');
+  } else {
+    noEvNotice.classList.add('hidden');
+
+    // 1. Render Videos
+    if (citizenVideos.length > 0) {
+      evVidContainer.classList.remove('hidden');
+      citizenVideos.forEach(vidUrl => {
+        const wrap = document.createElement('div');
+        wrap.className = 'rounded-xl overflow-hidden border border-slate-300 bg-slate-900 p-2.5 space-y-2';
+        wrap.innerHTML = `
+          <video controls preload="metadata" class="w-full max-h-72 rounded-lg bg-black">
+            <source src="${vidUrl}" type="video/mp4">
+            <source src="${vidUrl}" type="video/webm">
+            <source src="${vidUrl}" type="video/quicktime">
+            Your browser does not support HTML5 video streaming.
+          </video>
+          <div class="flex items-center justify-between text-xs text-slate-300 px-1 pt-1">
+            <span class="truncate font-mono text-[11px]">${vidUrl.split('/').pop()}</span>
+            <a href="${vidUrl}" target="_blank" download class="text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 font-semibold text-xs shrink-0">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              <span>Open / Download Video</span>
+            </a>
+          </div>
+        `;
+        evVidList.appendChild(wrap);
+      });
+    } else {
+      evVidContainer.classList.add('hidden');
+    }
+
+    // 2. Render Images
+    if (citizenImgs.length > 0) {
+      if (evImgLabel) evImgLabel.classList.remove('hidden');
+      citizenImgs.forEach(rawImgUrl => {
+        const jpgUrl = rawImgUrl.replace(/\.heic$/i, '.jpg');
+        const a = document.createElement('a');
+        a.href = jpgUrl;
+        a.target = '_blank';
+        a.className = 'relative h-28 sm:h-32 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 block group hover:shadow-md transition-all cursor-pointer';
+        a.innerHTML = `
+          <img src="${jpgUrl}" alt="Evidence Photo" class="w-full h-full object-cover group-hover:scale-105 transition-transform" onerror="if(this.src!=='${rawImgUrl}') this.src='${rawImgUrl}'; else this.parentElement.innerHTML='<div class=\\'w-full h-full flex flex-col items-center justify-center p-2 text-center text-slate-500 bg-slate-50\\'><i data-lucide=\\'image\\' class=\\'w-6 h-6 text-slate-400 mb-1\\'></i><span class=\\'text-[10px] font-bold truncate max-w-full\\'>${rawImgUrl.split('/').pop()}</span><span class=\\'text-[9px] text-blue-600 underline mt-0.5\\'>Click to view</span></div>';" />
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none">
+            <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-black/75 text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm">Click to Expand</span>
+          </div>
+        `;
+        evGrid.appendChild(a);
+      });
+    } else {
+      if (evImgLabel) evImgLabel.classList.add('hidden');
+    }
   }
 
   // Department Work Completion Proof

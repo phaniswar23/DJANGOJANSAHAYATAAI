@@ -645,6 +645,141 @@
     }
   </script>
 
+  <!-- ============================================== -->
+  <!-- Change Password Modal (Global)                  -->
+  <!-- ============================================== -->
+  <div id="changePasswordModal" class="hidden fixed inset-0 z-[120] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+            <i data-lucide="key" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-[#0b2545]">Change Account Password</h3>
+            <p class="text-[11px] text-slate-500">Update your security credentials</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleChangePasswordSubmit(event)" novalidate class="space-y-3.5">
+        <div>
+          <label for="changePassCurrent" class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+            Current Password <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="changePassCurrent"
+            type="password"
+            required
+            placeholder="Enter your current password"
+            class="gov-input text-xs py-2.5"
+          />
+        </div>
+
+        <div>
+          <label for="changePassNew" class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+            New Password <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="changePassNew"
+            type="password"
+            required
+            placeholder="Min 6 characters"
+            class="gov-input text-xs py-2.5"
+          />
+          <p class="text-[10px] text-slate-400 mt-1">Must be at least 6 characters long.</p>
+        </div>
+
+        <div>
+          <label for="changePassConfirm" class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+            Confirm New Password <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="changePassConfirm"
+            type="password"
+            required
+            placeholder="Re-type new password"
+            class="gov-input text-xs py-2.5"
+          />
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeChangePasswordModal()" class="gov-btn-secondary py-2 px-4 text-xs font-semibold">
+            Cancel
+          </button>
+          <button type="submit" id="changePassSubmitBtn" class="gov-btn-primary py-2 px-5 text-xs font-bold flex items-center gap-1.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>Update Password</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- Change Email Modal (Global - Citizen & Officer) -->
+  <!-- ============================================== -->
+  <div id="changeEmailModal" class="hidden fixed inset-0 z-[120] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
+            <i data-lucide="mail" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-[#0b2545]">Update Email Address</h3>
+            <p class="text-[11px] text-slate-500">Official correspondence & status tracking</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeChangeEmailModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleChangeEmailSubmit(event)" novalidate class="space-y-3.5">
+        <div>
+          <label for="changeEmailNew" class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+            New Email Address <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="changeEmailNew"
+            type="email"
+            required
+            placeholder="e.g. name@gmail.com"
+            class="gov-input text-xs py-2.5"
+          />
+          <p class="text-[10px] text-slate-400 mt-1">Grievance updates will be sent to this email address.</p>
+        </div>
+
+        <div>
+          <label for="changeEmailPassword" class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+            Current Password for Verification <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="changeEmailPassword"
+            type="password"
+            required
+            placeholder="Enter current account password"
+            class="gov-input text-xs py-2.5"
+          />
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeChangeEmailModal()" class="gov-btn-secondary py-2 px-4 text-xs font-semibold">
+            Cancel
+          </button>
+          <button type="submit" id="changeEmailSubmitBtn" class="gov-btn-primary py-2 px-5 text-xs font-bold flex items-center gap-1.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>Confirm New Email</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Google Translate Hidden Container and Library -->
   <div id="google_translate_element" class="notranslate" translate="no" style="display:none; visibility:hidden;"></div>
   <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>

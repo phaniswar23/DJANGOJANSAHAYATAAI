@@ -26,8 +26,8 @@
     </div>
   </div>
 
-  <!-- Central Platform Metrics -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+  <!-- Central Platform Metrics (Visible ONLY on Overview tab) -->
+  <div id="adminStatsContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
     <div class="gov-card p-4 space-y-1">
       <span class="text-slate-500 text-[11px] font-bold uppercase block">National Grievances</span>
       <span id="adminStatTotal" class="text-2xl font-bold text-[#0b2545] font-mono">0</span>
@@ -46,32 +46,8 @@
     </div>
   </div>
 
-  <!-- Administrative Tabs & Content Container -->
+  <!-- Administrative Content Container -->
   <div class="gov-card p-6 border border-slate-200 space-y-5">
-    
-    <!-- 5 Tab Switcher Bar -->
-    <div class="flex items-center gap-2 sm:gap-4 border-b border-slate-200 pb-2 text-xs font-bold overflow-x-auto">
-      <button onclick="switchAdminTab('overview')" id="tabBtnOverview" class="pb-2 border-b-2 border-blue-600 text-blue-700 whitespace-nowrap flex items-center gap-1.5">
-        <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
-        <span>Platform Overview</span>
-      </button>
-      <button onclick="switchAdminTab('complaints')" id="tabBtnComplaints" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5">
-        <i data-lucide="list-filter" class="w-3.5 h-3.5"></i>
-        <span>All Grievances</span>
-      </button>
-      <button onclick="switchAdminTab('citizens')" id="tabBtnCitizens" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5">
-        <i data-lucide="users" class="w-3.5 h-3.5"></i>
-        <span>Registered Citizens</span>
-      </button>
-      <button onclick="switchAdminTab('employees')" id="tabBtnEmployees" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5">
-        <i data-lucide="shield" class="w-3.5 h-3.5"></i>
-        <span>Department Officers</span>
-      </button>
-      <button onclick="switchAdminTab('audit')" id="tabBtnAudit" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5">
-        <i data-lucide="history" class="w-3.5 h-3.5"></i>
-        <span>System Audit Trail</span>
-      </button>
-    </div>
 
     <!-- ============================================== -->
     <!-- 1. OVERVIEW VIEW                               -->
@@ -434,6 +410,16 @@ function switchAdminTab(tab, updateHistory = true) {
   const activeKey = views[normTab] ? normTab : 'overview';
   if (views[activeKey]) views[activeKey].classList.remove('hidden');
   if (btns[activeKey]) btns[activeKey].className = 'pb-2 border-b-2 border-blue-600 text-blue-700 whitespace-nowrap flex items-center gap-1.5 font-bold transition-colors';
+
+  // Complete stats metrics cards display ONLY on the Overview tab
+  const statsContainer = document.getElementById('adminStatsContainer');
+  if (statsContainer) {
+    if (activeKey === 'overview') {
+      statsContainer.classList.remove('hidden');
+    } else {
+      statsContainer.classList.add('hidden');
+    }
+  }
 
   if (updateHistory) {
     const newUrl = normTab === 'overview' ? '/admin/dashboard' : `/admin/dashboard?tab=${normTab}`;

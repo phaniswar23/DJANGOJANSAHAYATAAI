@@ -206,15 +206,163 @@ def send_password_changed_confirmation(email, name="User"):
     return send_email(email, subject, html)
 
 def send_citizen_welcome_email(name, email):
-    subject = "Welcome to JanSahayata — Citizen Grievance Portal"
-    html = f"""
-    <div style="font-family: Arial, sans-serif; padding: 20px;">
-      <h2>Welcome to JanSahayata AI</h2>
-      <p>Dear {name},</p>
-      <p>Your citizen account has been successfully created with email: <strong>{email}</strong>.</p>
-      <p>You can now submit civic & railway grievances with multi-modal AI assistance and track real-time resolution stages.</p>
-    </div>
-    """
+    client_base = os.getenv('CLIENT_URL', 'http://127.0.0.1:8000').rstrip('/')
+    portal_url = f"{client_base}/citizen/dashboard"
+    report_url = f"{client_base}/report"
+    timestamp_display = datetime.now().strftime('%d %b %Y, %I:%M %p')
+    c_name = name or "Citizen"
+
+    subject = "Welcome to JanSahayata — Official Citizen Redressal Portal"
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to JanSahayata</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f1f5f9; padding: 24px 0;">
+    <tr>
+      <td align="center">
+        <!-- Main Container -->
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 620px; background-color: #ffffff; border-radius: 8px; border: 1px solid #cbd5e1; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+          
+          <!-- Tri-color National Ribbon -->
+          <tr>
+            <td style="height: 5px; background: linear-gradient(90deg, #ff9933 0%, #ffffff 50%, #138808 100%);"></td>
+          </tr>
+
+          <!-- Official Masthead Header -->
+          <tr>
+            <td style="background-color: #0b2545; padding: 24px 30px; text-align: left;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td>
+                    <div style="color: #f59e0b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">
+                      GOVERNMENT OF INDIA • CPGRAMS
+                    </div>
+                    <h1 style="color: #ffffff; font-size: 20px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">
+                      JanSahayata Citizen Services Portal
+                    </h1>
+                    <div style="color: #94a3b8; font-size: 12px;">
+                      Department of Administrative Reforms & Public Grievances (DARPG)
+                    </div>
+                  </td>
+                  <td align="right" valign="top" style="width: 70px;">
+                    <div style="background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 6px 10px; text-align: center; color: #f59e0b; font-weight: 800; font-size: 10px; letter-spacing: 1px;">
+                      OFFICIAL
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Welcome Banner -->
+          <tr>
+            <td style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 18px 30px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td>
+                    <span style="display: inline-block; background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                      ✓ Account Activated & Verified
+                    </span>
+                  </td>
+                  <td align="right" style="color: #64748b; font-size: 11px; font-family: monospace;">
+                    {timestamp_display}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Content Body -->
+          <tr>
+            <td style="padding: 30px;">
+              <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 12px 0;">
+                Welcome, {c_name}!
+              </h2>
+              <p style="font-size: 14px; line-height: 1.6; color: #334155; margin: 0 0 20px 0;">
+                Your official citizen profile on the <strong>JanSahayata Public Grievance Redressal Portal</strong> has been created and verified. You now have direct, intermediary-free access to report civic and public service problems straight to designated departmental engineers.
+              </p>
+
+              <!-- Account Details Card -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0;">
+                    <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Registered Citizen Email</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #0f172a; font-family: monospace;">{email}</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 16px 20px;">
+                    <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Authorized Portal Privileges</div>
+                    <div style="font-size: 13px; color: #334155;">
+                      • Multi-Modal Complaint Ingestion (Voice, Photos, Videos & GPS Location)<br>
+                      • Real-Time Stage-by-Stage Grievance Tracking (7 Official Milestones)<br>
+                      • Mandatory Photo Proof Inspection before Any Closure<br>
+                      • Statutory Citizen Protection SLA with 48h Escalation Guarantee
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Call to Action Buttons -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 24px;">
+                <tr>
+                  <td align="center">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="border-radius: 6px; background-color: #0b2545; padding-right: 12px;">
+                          <a href="{portal_url}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 13px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 6px; letter-spacing: 0.5px;">
+                            Go to Citizen Workspace →
+                          </a>
+                        </td>
+                        <td style="border-radius: 6px; background-color: #e86100;">
+                          <a href="{report_url}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 13px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 6px; letter-spacing: 0.5px;">
+                            + Lodge a Grievance
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Security Information Note -->
+              <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 0 4px 4px 0; margin-bottom: 24px;">
+                <p style="margin: 0; font-size: 12px; color: #92400e; line-height: 1.5;">
+                  <strong>Security Reminder:</strong> Never share your account password or one-time verification codes with anyone. Government officers will never ask for your password.
+                </p>
+              </div>
+
+              <!-- Assistance Info -->
+              <p style="font-size: 12px; color: #64748b; line-height: 1.5; margin: 0;">
+                Need help or have questions? Contact the 24×7 National Public Grievance Helpline at <strong>1800-11-4000</strong> (Toll-Free) or reach out to support at <a href="mailto:support@jansahayata.gov.in" style="color: #0b2545; font-weight: 600;">support@jansahayata.gov.in</a>.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Official Government Footer -->
+          <tr>
+            <td style="background-color: #0f172a; padding: 24px 30px; text-align: center; color: #94a3b8; font-size: 11px; line-height: 1.6;">
+              <div style="font-weight: 700; color: #f8fafc; margin-bottom: 4px;">
+                Department of Administrative Reforms and Public Grievances
+              </div>
+              <div>Ministry of Personnel, Public Grievances and Pensions, Government of India</div>
+              <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 10px; color: #64748b;">
+                This is an official system-generated notification. Please do not reply directly to this email address.
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+"""
     return send_email(email, subject, html)
 
 def send_complaint_confirmation_email(

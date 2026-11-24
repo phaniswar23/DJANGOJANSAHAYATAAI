@@ -769,3 +769,93 @@ def get_citizen_email_change_status(request):
     pending = requests_col.find_one({'user': user['_id']}, sort=[('createdAt', -1)])
     return JsonResponse({'success': True, 'request': serialize_doc(pending)})
 
+@csrf_exempt
+@jwt_required
+def change_password(request):
+    """Direct password change for logged-in citizen, officer, or super admin with current password verification."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
+
+    data = parse_body(request)
+    current_password = data.get('currentPassword', '')
+    new_password = data.get('newPassword', '')
+    confirm_password = data.get('confirmPassword', '')
+
+    if not current_password or not new_password:
+        return JsonResponse({'success': False, 'message': 'Current password and new password are required.'}, status=400)
+
+    user = request.current_user
+    if not verify_password(current_password, user.get('passwordHash', '')):
+        return JsonResponse({'success': False, 'message': 'Incorrect current password.'}, status=400)
+
+    if len(new_password) < 6:
+        return JsonResponse({'success': False, 'message': 'New password must be at least 6 characters long.'}, status=400)
+
+    if confirm_password and new_password != confirm_password:
+        return JsonResponse({'success': False, 'message': 'New passwords do not match.'}, status=400)
+
+    users = get_users_collection()
+    users.update_one(
+        {'_id': user['_id']},
+        {'$set': {
+            'passwordHash': hash_password(new_password),
+            'mustResetPassword': False,
+            'updatedAt': datetime.now(timezone.utc)
+        }}
+    )
+    log_audit_action('PASSWORD_CHANGED', performed_by=user, target_type='User', target_id=user['_id'], details=f"{user.get('role')} updated account password")
+    return JsonResponse({'success': True, 'message': 'Account password has been successfully updated.'})
+
+@csrf_exempt
+@jwt_required
+def change_email(request):
+    """Direct email change for logged-in citizen or officer with password verification. Super Admin is restricted."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
+
+    user = request.current_user
+    if user.get('role') == 'SUPER_ADMIN':
+        return JsonResponse({'success': False, 'message': 'Super Administrator email address cannot be changed.'}, status=403)
+
+    data = parse_body(request)
+    new_email = data.get('newEmail', '').strip().lower()
+    current_password = data.get('currentPassword', '')
+
+    if not new_email or not current_password:
+        return JsonResponse({'success': False, 'message': 'New email and current password are required.'}, status=400)
+
+    if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', new_email):
+        return JsonResponse({'success': False, 'message': 'Please enter a valid email address.'}, status=400)
+
+    if not verify_password(current_password, user.get('passwordHash', '')):
+        return JsonResponse({'success': False, 'message': 'Incorrect password.'}, status=400)
+
+    if new_email == user.get('email', '').lower():
+        return JsonResponse({'success': False, 'message': 'New email must be different from your current email.'}, status=400)
+
+    users = get_users_collection()
+    existing = users.find_one({'email': new_email})
+    if existing and str(existing.get('_id')) != str(user.get('_id')):
+        return JsonResponse({'success': False, 'message': 'An account with this email address already exists.'}, status=409)
+
+    now = datetime.now(timezone.utc)
+    users.update_one(
+        {'_id': user['_id']},
+        {'$set': {
+            'email': new_email,
+            'updatedAt': now
+        }}
+    )
+    user['email'] = new_email
+    new_token = generate_jwt_token(user)
+    serialized = serialize_doc(user)
+    serialized.pop('passwordHash', None)
+
+    log_audit_action('EMAIL_CHANGED', performed_by=user, target_type='User', target_id=user['_id'], details=f"{user.get('role')} changed email to {new_email}")
+    return JsonResponse({
+        'success': True,
+        'message': 'Email address successfully updated.',
+        'user': serialized,
+        'token': new_token
+    })
+

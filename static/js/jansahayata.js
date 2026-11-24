@@ -183,15 +183,25 @@ const auth = {
                 ${user.employeeId ? `<p class="text-[10px] text-slate-400 font-mono mt-0.5">ID: ${user.employeeId}</p>` : ''}
               </div>
               <a href="${dashUrl}" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-100">
-                <i data-lucide="layout-dashboard" class="w-4 h-4 text-[#0b2545]"></i>
-                <span>${user.role === 'CITIZEN' ? 'Citizen Workspace' : 'Official Workspace'}</span>
+                <i data-lucide="layout-dashboard" class="w-4 h-4 text-black"></i>
+                <span>${user.role === 'CITIZEN' ? 'Citizen Workspace' : (user.role === 'SUPER_ADMIN' ? 'Admin Portal' : 'Official Workspace')}</span>
               </a>
               ${user.role === 'CITIZEN' ? `
                 <a href="/my-complaints" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-100">
-                  <i data-lucide="list-filter" class="w-4 h-4 text-[#0b2545]"></i>
+                  <i data-lucide="list-filter" class="w-4 h-4 text-black"></i>
                   <span>My Complaints</span>
                 </a>
               ` : ''}
+              ${(user.role === 'CITIZEN' || user.role === 'EMPLOYEE') ? `
+                <button type="button" onclick="openChangeEmailModal()" class="w-full flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-100 text-left font-medium transition-colors">
+                  <i data-lucide="mail" class="w-4 h-4 text-black"></i>
+                  <span>Change Email</span>
+                </button>
+              ` : ''}
+              <button type="button" onclick="openChangePasswordModal()" class="w-full flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-100 text-left font-medium transition-colors">
+                <i data-lucide="key" class="w-4 h-4 text-black"></i>
+                <span>Change Password</span>
+              </button>
               <div class="border-t border-slate-100 my-1"></div>
               <button type="button" onclick="auth.logout()" class="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-600 hover:bg-red-50 text-left font-medium">
                 <i data-lucide="log-out" class="w-4 h-4"></i>
@@ -215,13 +225,13 @@ const auth = {
         `;
       } else if (user?.role === 'EMPLOYEE') {
         navLinksContainer.innerHTML = `
-          <a href="/staff/dashboard" class="px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200"><span>Officer Workspace</span></a>
-          <a href="/staff/complaints" class="px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200"><span>Department Grievances</span></a>
-          <a href="/staff/complaints?status=Escalated" class="px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200"><span>Escalated Cases</span></a>
+          <a href="/staff/dashboard?tab=workspace" onclick="if(window.switchStaffTab){switchStaffTab('workspace');return false;}" class="px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200"><span>Officer Workspace</span></a>
+          <a href="/staff/dashboard?tab=department" onclick="if(window.switchStaffTab){switchStaffTab('department');return false;}" class="px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200"><span>Department Grievances</span></a>
+          <a href="/staff/dashboard?tab=escalated" onclick="if(window.switchStaffTab){switchStaffTab('escalated');return false;}" class="px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200"><span>Escalated Cases</span></a>
         `;
         if (navRightActions) {
           navRightActions.innerHTML = `
-            <a href="/staff/complaints" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3.5 py-1 rounded flex items-center gap-1.5 shadow-sm transition-colors">
+            <a href="/staff/dashboard?tab=department" onclick="if(window.switchStaffTab){switchStaffTab('department');return false;}" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3.5 py-1 rounded flex items-center gap-1.5 shadow-sm transition-colors">
               <i data-lucide="inbox" class="w-3.5 h-3.5"></i>
               <span>Grievance Queue</span>
             </a>
@@ -238,6 +248,146 @@ const auth = {
 function toggleUserDropdown() {
   const panel = document.getElementById('userDropdownPanel');
   if (panel) panel.classList.toggle('hidden');
+}
+
+// Change Password Modal Handlers
+function openChangePasswordModal() {
+  const panel = document.getElementById('userDropdownPanel');
+  if (panel) panel.classList.add('hidden');
+  const modal = document.getElementById('changePasswordModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    document.getElementById('changePassCurrent').value = '';
+    document.getElementById('changePassNew').value = '';
+    document.getElementById('changePassConfirm').value = '';
+    if (window.FormValidator) {
+      modal.querySelectorAll('.gov-input-error').forEach(el => FormValidator.clearFieldError(el));
+    }
+    const currInput = document.getElementById('changePassCurrent');
+    if (currInput) currInput.focus();
+  }
+}
+
+function closeChangePasswordModal() {
+  const modal = document.getElementById('changePasswordModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function handleChangePasswordSubmit(e) {
+  e.preventDefault();
+  const currentPass = document.getElementById('changePassCurrent').value;
+  const newPass = document.getElementById('changePassNew').value;
+  const confirmPass = document.getElementById('changePassConfirm').value;
+  const btn = document.getElementById('changePassSubmitBtn');
+
+  if (!currentPass) {
+    if (window.FormValidator) FormValidator.showFieldError(document.getElementById('changePassCurrent'), 'Enter current password');
+    return;
+  }
+  if (!newPass || newPass.length < 6) {
+    if (window.FormValidator) FormValidator.showFieldError(document.getElementById('changePassNew'), 'Min 6 characters required');
+    return;
+  }
+  if (newPass !== confirmPass) {
+    if (window.FormValidator) FormValidator.showFieldError(document.getElementById('changePassConfirm'), 'Passwords do not match');
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Updating...</span>';
+    const res = await apiRequest('/api/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({
+        currentPassword: currentPass,
+        newPassword: newPass,
+        confirmPassword: confirmPass
+      })
+    });
+    if (res && res.success) {
+      toast.success(res.message || 'Password updated successfully!');
+      closeChangePasswordModal();
+    } else {
+      throw new Error(res?.message || 'Password update failed');
+    }
+  } catch (err) {
+    toast.error(err.message || 'Incorrect password or update error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i><span>Update Password</span>`;
+    if (window.lucide) lucide.createIcons({ root: btn });
+  }
+}
+
+// Change Email Modal Handlers (Citizen & Officer)
+function openChangeEmailModal() {
+  const panel = document.getElementById('userDropdownPanel');
+  if (panel) panel.classList.add('hidden');
+  const user = auth.getUser();
+  if (user && user.role === 'SUPER_ADMIN') {
+    toast.error('Super Administrator email cannot be modified.');
+    return;
+  }
+  const modal = document.getElementById('changeEmailModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    document.getElementById('changeEmailNew').value = '';
+    document.getElementById('changeEmailPassword').value = '';
+    if (window.FormValidator) {
+      modal.querySelectorAll('.gov-input-error').forEach(el => FormValidator.clearFieldError(el));
+    }
+    const newEmailInput = document.getElementById('changeEmailNew');
+    if (newEmailInput) newEmailInput.focus();
+  }
+}
+
+function closeChangeEmailModal() {
+  const modal = document.getElementById('changeEmailModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function handleChangeEmailSubmit(e) {
+  e.preventDefault();
+  const newEmail = document.getElementById('changeEmailNew').value.trim();
+  const currentPass = document.getElementById('changeEmailPassword').value;
+  const btn = document.getElementById('changeEmailSubmitBtn');
+
+  if (!newEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+    if (window.FormValidator) FormValidator.showFieldError(document.getElementById('changeEmailNew'), 'Enter valid email address');
+    return;
+  }
+  if (!currentPass) {
+    if (window.FormValidator) FormValidator.showFieldError(document.getElementById('changeEmailPassword'), 'Enter current password');
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Updating...</span>';
+    const res = await apiRequest('/api/auth/change-email', {
+      method: 'POST',
+      body: JSON.stringify({
+        newEmail: newEmail,
+        currentPassword: currentPass
+      })
+    });
+    if (res && res.success) {
+      if (res.token && res.user) {
+        auth.setSession(res.token, res.user);
+        auth.updateHeaderUI();
+      }
+      toast.success(res.message || 'Email updated successfully!');
+      closeChangeEmailModal();
+    } else {
+      throw new Error(res?.message || 'Email update failed');
+    }
+  } catch (err) {
+    toast.error(err.message || 'Error updating email address');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i><span>Confirm New Email</span>`;
+    if (window.lucide) lucide.createIcons({ root: btn });
+  }
 }
 
 function toggleMobileMenu() {

@@ -48,14 +48,48 @@
 
   <!-- Operational Grievance Queue Table -->
   <div class="gov-card p-6 border border-slate-200 space-y-4">
+    
+    <!-- Staff Tab Switcher Bar -->
+    <div class="flex items-center gap-2 sm:gap-4 border-b border-slate-200 pb-2 text-xs font-bold overflow-x-auto">
+      <button onclick="switchStaffTab('workspace')" id="staffTabBtnWorkspace" class="pb-2 border-b-2 border-blue-600 text-blue-700 whitespace-nowrap flex items-center gap-1.5 transition-colors">
+        <i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i>
+        <span>Officer Workspace</span>
+        <span id="badgeWorkspaceCount" class="px-1.5 py-0.2 rounded-full text-[10px] bg-blue-100 text-blue-800 ml-1">0</span>
+      </button>
+      <button onclick="switchStaffTab('department')" id="staffTabBtnDepartment" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5 transition-colors font-medium">
+        <i data-lucide="building" class="w-3.5 h-3.5"></i>
+        <span>Department Grievances</span>
+        <span id="badgeDepartmentCount" class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-100 text-slate-700 ml-1">0</span>
+      </button>
+      <button onclick="switchStaffTab('escalated')" id="staffTabBtnEscalated" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5 transition-colors font-medium">
+        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-500"></i>
+        <span class="text-red-700">Escalated Cases</span>
+        <span id="badgeEscalatedCount" class="px-1.5 py-0.2 rounded-full text-[10px] bg-red-100 text-red-800 ml-1">0</span>
+      </button>
+    </div>
+
+    <!-- Active Tab Context Banner -->
+    <div id="staffTabBanner" class="p-3 rounded-lg border text-xs flex items-center justify-between flex-wrap gap-2 transition-all"></div>
+
+    <!-- Filter & Search Controls Bar -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
       <div>
-        <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide">Department Action Queue</h2>
-        <p class="text-xs text-slate-500">Grievances assigned to your departmental jurisdiction.</p>
+        <h2 class="text-sm font-bold text-[#0b2545] uppercase tracking-wide" id="staffQueueHeadline">Department Action Queue</h2>
+        <p class="text-xs text-slate-500" id="staffQueueSubtext">Grievances assigned to your departmental jurisdiction.</p>
       </div>
-      <div class="flex items-center gap-2">
-        <select id="staffStatusFilter" onchange="filterStaffQueue()" class="gov-select text-xs py-1 px-2.5 max-w-[160px]">
-          <option value="ALL">All Cases</option>
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="relative">
+          <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"></i>
+          <input
+            id="staffSearchInput"
+            type="text"
+            oninput="applyStaffFilters()"
+            placeholder="Search ID, location, citizen..."
+            class="gov-input pl-8 py-1.5 text-xs w-48 sm:w-56"
+          />
+        </div>
+        <select id="staffStatusFilter" onchange="applyStaffFilters()" class="gov-select text-xs py-1.5 px-2.5 max-w-[150px]">
+          <option value="ALL">All Statuses</option>
           <option value="Submitted">Submitted</option>
           <option value="Under Review">Under Review</option>
           <option value="In Progress">In Progress</option>
@@ -122,6 +156,7 @@
 <script>
 let staffQueue = [];
 let targetComplaintId = null;
+let currentStaffTab = 'workspace';
 
 async function loadStaffDashboard() {
   let user = auth.getUser();
@@ -171,20 +206,152 @@ async function loadStaffDashboard() {
 
     if (complaintsRes && complaintsRes.data) {
       staffQueue = complaintsRes.data;
-      renderQueue(staffQueue);
+      updateTabBadges();
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      let tabParam = urlParams.get('tab');
+      if (!tabParam && window.location.pathname.includes('/staff/complaints')) {
+        tabParam = urlParams.get('status') === 'Escalated' ? 'escalated' : 'department';
+      }
+      switchStaffTab(tabParam || 'workspace', false);
     }
   } catch (err) {
     document.getElementById('staffQueueLoading').innerText = 'Access denied. Please sign in with official government credentials.';
   }
 }
 
-function filterStaffQueue() {
-  const filter = document.getElementById('staffStatusFilter').value;
-  if (filter === 'ALL') {
-    renderQueue(staffQueue);
-  } else {
-    renderQueue(staffQueue.filter(c => c.status === filter));
+function updateTabBadges() {
+  const activeCount = staffQueue.filter(c => ['Submitted', 'Under Review', 'In Progress'].includes(c.status)).length;
+  const totalCount = staffQueue.length;
+  const escalatedCount = staffQueue.filter(c => ['Disputed', 'Escalated'].includes(c.status) || c.urgency === 'Critical').length;
+
+  document.getElementById('badgeWorkspaceCount').innerText = activeCount;
+  document.getElementById('badgeDepartmentCount').innerText = totalCount;
+  document.getElementById('badgeEscalatedCount').innerText = escalatedCount;
+}
+
+function switchStaffTab(tab, updateHistory = true) {
+  const validTabs = ['workspace', 'department', 'escalated'];
+  currentStaffTab = validTabs.includes(tab) ? tab : 'workspace';
+
+  const btnWorkspace = document.getElementById('staffTabBtnWorkspace');
+  const btnDept = document.getElementById('staffTabBtnDepartment');
+  const btnEsc = document.getElementById('staffTabBtnEscalated');
+  const banner = document.getElementById('staffTabBanner');
+  const headline = document.getElementById('staffQueueHeadline');
+  const subtext = document.getElementById('staffQueueSubtext');
+  const statusFilter = document.getElementById('staffStatusFilter');
+
+  // Reset tab button styles
+  const inactiveClass = 'pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap flex items-center gap-1.5 transition-colors font-medium';
+  if (btnWorkspace) btnWorkspace.className = inactiveClass;
+  if (btnDept) btnDept.className = inactiveClass;
+  if (btnEsc) btnEsc.className = inactiveClass;
+
+  if (currentStaffTab === 'workspace') {
+    if (btnWorkspace) btnWorkspace.className = 'pb-2 border-b-2 border-blue-600 text-blue-700 whitespace-nowrap flex items-center gap-1.5 transition-colors font-bold';
+    headline.innerText = 'Officer Active Worklist (Action Required)';
+    subtext.innerText = 'Grievances assigned to your desk pending field inspection, status updates, or rectification.';
+    banner.className = 'p-3 rounded-lg border border-blue-200 bg-blue-50/70 text-blue-900 text-xs flex items-center justify-between gap-2 shadow-2xs';
+    banner.innerHTML = `
+      <div class="flex items-center gap-2">
+        <i data-lucide="clipboard-check" class="w-4 h-4 text-blue-700 shrink-0"></i>
+        <span><strong>Officer Desk:</strong> Showing actionable complaints requiring inspection or repair state updates.</span>
+      </div>
+      <span class="text-[11px] font-semibold text-blue-800">Assigned Operational Jurisdiction</span>
+    `;
+    if (statusFilter && statusFilter.value === 'Resolved') statusFilter.value = 'ALL';
+  } else if (currentStaffTab === 'department') {
+    if (btnDept) btnDept.className = 'pb-2 border-b-2 border-blue-600 text-blue-700 whitespace-nowrap flex items-center gap-1.5 transition-colors font-bold';
+    headline.innerText = 'Department Jurisdiction Records (All Complaints)';
+    subtext.innerText = 'Complete jurisdictional records across all 7 stages including Resolved and Closed grievances.';
+    banner.className = 'p-3 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 text-xs flex items-center justify-between gap-2 shadow-2xs';
+    banner.innerHTML = `
+      <div class="flex items-center gap-2">
+        <i data-lucide="building-2" class="w-4 h-4 text-slate-600 shrink-0"></i>
+        <span><strong>Jurisdiction Registry:</strong> Full department repository with multi-field search and historical logs.</span>
+      </div>
+      <span class="text-[11px] font-semibold text-slate-500">All Grievances</span>
+    `;
+  } else if (currentStaffTab === 'escalated') {
+    if (btnEsc) btnEsc.className = 'pb-2 border-b-2 border-red-600 text-red-700 whitespace-nowrap flex items-center gap-1.5 transition-colors font-bold';
+    headline.innerText = 'Escalated & Disputed Cases (Urgent Intervention)';
+    subtext.innerText = 'Complaints marked Disputed by citizens or escalated due to statutory SLA expiration.';
+    banner.className = 'p-3 rounded-lg border border-red-200 bg-red-50 text-red-950 text-xs flex items-center justify-between gap-2 shadow-2xs';
+    banner.innerHTML = `
+      <div class="flex items-center gap-2">
+        <i data-lucide="alert-octagon" class="w-4 h-4 text-red-600 shrink-0"></i>
+        <span><strong>Priority SLA Alert:</strong> Citizens disputed work proof or statutory resolution SLA lapsed. Immediate nodal supervisor re-inspection required.</span>
+      </div>
+      <span class="px-2 py-0.5 rounded bg-red-600 text-white font-bold text-[10px] uppercase">High SLA Attention</span>
+    `;
   }
+
+  if (updateHistory) {
+    const newUrl = currentStaffTab === 'workspace' ? '/staff/dashboard' : `/staff/dashboard?tab=${currentStaffTab}`;
+    window.history.pushState({ tab: currentStaffTab }, '', newUrl);
+  }
+
+  // Also sync top navbar link active state
+  syncTopNavHighlight(currentStaffTab);
+
+  applyStaffFilters();
+  if (window.lucide) lucide.createIcons();
+}
+window.switchStaffTab = switchStaffTab;
+
+function syncTopNavHighlight(tab) {
+  const navContainer = document.getElementById('navLinksContainer');
+  if (!navContainer) return;
+  const links = navContainer.querySelectorAll('a');
+  links.forEach(link => {
+    const text = link.innerText.trim();
+    let match = false;
+    if (tab === 'workspace' && text.includes('Officer Workspace')) match = true;
+    else if (tab === 'department' && text.includes('Department Grievances')) match = true;
+    else if (tab === 'escalated' && text.includes('Escalated Cases')) match = true;
+
+    if (match) {
+      link.className = 'px-3.5 py-1.5 text-xs font-bold rounded-t-sm transition-colors flex items-center gap-1.5 bg-[#163b6b] text-amber-300';
+    } else {
+      link.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-t-sm transition-colors flex items-center gap-1.5 text-slate-100 hover:bg-[#163b6b] hover:text-amber-200';
+    }
+  });
+}
+
+function applyStaffFilters() {
+  const statusFilter = document.getElementById('staffStatusFilter').value;
+  const query = (document.getElementById('staffSearchInput')?.value || '').trim().toLowerCase();
+
+  let filtered = [...staffQueue];
+
+  // 1. Tab slice
+  if (currentStaffTab === 'workspace') {
+    filtered = filtered.filter(c => ['Submitted', 'Under Review', 'In Progress'].includes(c.status));
+  } else if (currentStaffTab === 'escalated') {
+    filtered = filtered.filter(c => ['Disputed', 'Escalated'].includes(c.status) || c.urgency === 'Critical');
+  }
+
+  // 2. Status dropdown filter
+  if (statusFilter !== 'ALL') {
+    filtered = filtered.filter(c => c.status === statusFilter);
+  }
+
+  // 3. Search query filter
+  if (query) {
+    filtered = filtered.filter(c => {
+      const cid = (c.complaintId || '').toLowerCase();
+      const desc = (c.description || '').toLowerCase();
+      const cat = (c.category || '').toLowerCase();
+      const cname = (c.citizenName || c.citizenDetails?.name || '').toLowerCase();
+      let loc = c.location;
+      if (typeof loc === 'object' && loc) loc = loc.address;
+      loc = (loc || '').toLowerCase();
+      return cid.includes(query) || desc.includes(query) || cat.includes(query) || cname.includes(query) || loc.includes(query);
+    });
+  }
+
+  renderQueue(filtered);
 }
 
 function renderQueue(list) {
@@ -194,7 +361,7 @@ function renderQueue(list) {
   tbody.innerHTML = '';
 
   if (list.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No grievances in queue matching this filter.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">No grievances found for this selection.</td></tr>`;
     return;
   }
 
@@ -206,22 +373,35 @@ function renderQueue(list) {
     }
     const locText = (typeof loc === 'object' && loc ? loc.address : loc) || 'Recorded';
 
+    let statusBadge = 'bg-blue-100 text-blue-800';
+    if (c.status === 'Resolved') statusBadge = 'bg-emerald-100 text-emerald-800';
+    else if (c.status === 'Disputed') statusBadge = 'bg-red-100 text-red-800 font-black ring-1 ring-red-300';
+    else if (c.status === 'In Progress') statusBadge = 'bg-amber-100 text-amber-800';
+    else if (c.status === 'Escalated') statusBadge = 'bg-purple-100 text-purple-800 font-bold';
+
+    let urgencyBadge = 'bg-blue-100 text-blue-800';
+    if (c.urgency === 'Critical') urgencyBadge = 'bg-red-100 text-red-800 font-bold animate-pulse';
+    else if (c.urgency === 'High') urgencyBadge = 'bg-amber-100 text-amber-800 font-semibold';
+
     tr.innerHTML = `
-      <td class="font-mono font-bold text-blue-700">${c.complaintId}</td>
-      <td>
-        <span class="font-semibold text-slate-800 block">${c.category || 'Grievance'}</span>
-        <span class="text-slate-400 text-[11px] line-clamp-1">${c.description}</span>
+      <td class="font-mono font-bold text-blue-700">
+        <a href="/complaint/${c.complaintId}" class="hover:underline">${c.complaintId}</a>
       </td>
-      <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.urgency === 'Critical' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}">${c.urgency || 'Medium'}</span></td>
-      <td class="text-slate-500 max-w-[180px] truncate">${locText}</td>
-      <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : (c.status === 'Disputed' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800')}">${c.status}</span></td>
-      <td class="text-right">
-        <button onclick="openStatusModal('${c.complaintId}')" class="gov-btn-primary text-[11px] py-1 px-2.5">Update State</button>
+      <td>
+        <span class="font-semibold text-slate-900 block">${c.category || 'Civic Issue'}</span>
+        <span class="text-slate-500 text-[11px] line-clamp-1">${c.description}</span>
+      </td>
+      <td><span class="px-2 py-0.5 rounded text-[10px] ${urgencyBadge}">${c.urgency || 'Medium'}</span></td>
+      <td class="text-slate-600 max-w-[180px] truncate text-xs">${locText}</td>
+      <td><span class="px-2 py-0.5 rounded text-[10px] ${statusBadge}">${c.status}</span></td>
+      <td class="text-right whitespace-nowrap">
+        <button onclick="openStatusModal('${c.complaintId}')" class="gov-btn-primary text-[11px] py-1 px-2.5 font-semibold">Update State</button>
         <a href="/complaint/${c.complaintId}" class="gov-btn-secondary text-[11px] py-1 px-2.5 ml-1">Inspect</a>
       </td>
     `;
     tbody.appendChild(tr);
   });
+  if (window.lucide) lucide.createIcons();
 }
 
 function openStatusModal(complaintId) {

@@ -170,14 +170,19 @@
           </label>
 
           <!-- Video Preview -->
-          <div id="videoPreviewContainer" class="hidden text-left p-2 rounded bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
-            <div class="flex items-center gap-2 truncate">
-              <i data-lucide="file-video" class="w-4 h-4 text-blue-600 shrink-0"></i>
-              <span id="videoFileName" class="truncate font-semibold text-slate-700"></span>
+          <div id="videoPreviewContainer" class="hidden text-left p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <i data-lucide="file-video" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                <span id="videoFileName" class="truncate font-semibold text-slate-700"></span>
+              </div>
+              <button type="button" onclick="removeVideo()" class="text-red-500 hover:text-red-700 p-1 flex items-center gap-1 font-semibold text-[11px]">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                <span>Remove</span>
+              </button>
             </div>
-            <button type="button" onclick="removeVideo()" class="text-red-500 hover:text-red-700 p-1">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            </button>
+            <!-- Live Playable Video Preview -->
+            <video id="videoPreviewPlayer" controls class="w-full max-h-48 rounded-lg bg-black hidden"></video>
           </div>
         </div>
       </div>
@@ -408,6 +413,16 @@
         <span class="text-slate-400 text-[10px] uppercase font-bold block">Incident Location:</span>
         <span id="reviewLocation" class="font-bold text-slate-900"></span>
       </div>
+
+      <!-- Step 3 Attached Evidence Preview -->
+      <div id="step3EvidenceSection" class="hidden pt-3 border-t border-blue-200/60 space-y-2">
+        <span class="text-slate-500 text-[10px] uppercase font-bold block">Attached Evidence Visual Verification:</span>
+        <div id="step3PhotosList" class="flex flex-wrap gap-2"></div>
+        <div id="step3VideoInfo" class="hidden p-2 rounded-lg bg-blue-50/80 border border-blue-200 text-xs flex items-center gap-2">
+          <i data-lucide="video" class="w-4 h-4 text-blue-700 shrink-0"></i>
+          <span id="step3VideoName" class="font-semibold text-slate-800 truncate"></span>
+        </div>
+      </div>
     </div>
 
     <!-- Review Checkbox -->
@@ -548,6 +563,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <script>
 // Department & Categories Mapping
 const CATEGORIES_MAP = {
@@ -803,14 +819,26 @@ function stopVoiceRecording() {
 }
 
 // Photo & Video Attachments
-function handlePhotoUpload(input) {
+async function handlePhotoUpload(input) {
   if (!input.files || !input.files.length) return;
   const files = Array.from(input.files);
-  files.forEach(f => {
-    if (uploadedPhotos.length < 5) {
-      uploadedPhotos.push(f);
+  for (const f of files) {
+    if (uploadedPhotos.length >= 5) break;
+    // Client-side auto-convert HEIC/HEIF to JPEG if heic2any is available
+    if ((f.name.toLowerCase().endsWith('.heic') || f.name.toLowerCase().endsWith('.heif') || f.type === 'image/heic') && window.heic2any) {
+      try {
+        const convertedBlob = await heic2any({ blob: f, toType: 'image/jpeg', quality: 0.85 });
+        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+        const newName = f.name.replace(/\.heic$/i, '.jpg').replace(/\.heif$/i, '.jpg');
+        const convertedFile = new File([blob], newName, { type: 'image/jpeg' });
+        uploadedPhotos.push(convertedFile);
+        continue;
+      } catch (e) {
+        console.warn('heic2any fallback to original file:', e);
+      }
     }
-  });
+    uploadedPhotos.push(f);
+  }
   renderPhotoPreviews();
 }
 
@@ -819,35 +847,65 @@ function renderPhotoPreviews() {
   container.innerHTML = '';
   uploadedPhotos.forEach((f, idx) => {
     const item = document.createElement('div');
-    item.className = 'relative w-16 h-16 rounded-lg border border-slate-300 overflow-hidden group bg-slate-100';
+    item.className = 'relative w-16 h-16 rounded-lg border border-slate-300 overflow-hidden group bg-slate-100 flex items-center justify-center';
+    
     const img = document.createElement('img');
     img.className = 'w-full h-full object-cover';
     img.src = URL.createObjectURL(f);
-    item.appendChild(img);
-
-    const delBtn = document.createElement('button');
-    delBtn.type = 'button';
-    delBtn.className = 'absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] shadow-sm';
-    delBtn.innerHTML = '×';
-    delBtn.onclick = () => {
-      uploadedPhotos.splice(idx, 1);
-      renderPhotoPreviews();
+    img.onerror = () => {
+      item.innerHTML = `
+        <div class="w-full h-full flex flex-col items-center justify-center bg-blue-50 text-blue-800 p-1 text-center select-none">
+          <i data-lucide="camera" class="w-4 h-4 text-blue-600 mb-0.5"></i>
+          <span class="text-[8px] font-bold truncate max-w-[56px] leading-tight">${f.name}</span>
+        </div>
+      `;
+      appendDelBtn(item, idx);
+      if (window.lucide) lucide.createIcons({ root: item });
     };
-    item.appendChild(delBtn);
+    item.appendChild(img);
+    appendDelBtn(item, idx);
     container.appendChild(item);
   });
+  if (window.lucide) lucide.createIcons();
+}
+
+function appendDelBtn(item, idx) {
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.className = 'absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] shadow-sm z-10';
+  delBtn.innerHTML = '×';
+  delBtn.onclick = (e) => {
+    e.stopPropagation();
+    uploadedPhotos.splice(idx, 1);
+    renderPhotoPreviews();
+  };
+  item.appendChild(delBtn);
 }
 
 function handleVideoUpload(input) {
   if (!input.files || !input.files[0]) return;
   uploadedVideo = input.files[0];
-  document.getElementById('videoFileName').innerText = uploadedVideo.name;
+  const sizeMb = (uploadedVideo.size / (1024 * 1024)).toFixed(1);
+  document.getElementById('videoFileName').innerText = `${uploadedVideo.name} (${sizeMb} MB)`;
+  const vidPlayer = document.getElementById('videoPreviewPlayer');
+  if (vidPlayer) {
+    vidPlayer.src = URL.createObjectURL(uploadedVideo);
+    vidPlayer.classList.remove('hidden');
+  }
   document.getElementById('videoPreviewContainer').classList.remove('hidden');
+  if (window.lucide) lucide.createIcons();
 }
 
 function removeVideo() {
   uploadedVideo = null;
-  document.getElementById('videoFileInput').value = '';
+  const input = document.getElementById('videoFileInput');
+  if (input) input.value = '';
+  const vidPlayer = document.getElementById('videoPreviewPlayer');
+  if (vidPlayer) {
+    vidPlayer.pause();
+    vidPlayer.src = '';
+    vidPlayer.classList.add('hidden');
+  }
   document.getElementById('videoPreviewContainer').classList.add('hidden');
 }
 
@@ -926,6 +984,36 @@ function compileReviewStatement() {
   document.getElementById('reviewCategory').innerText = category;
   document.getElementById('reviewLocation').innerText = address;
   document.getElementById('reviewEvidenceCount').innerText = `${uploadedPhotos.length} photo(s)${uploadedVideo ? ', 1 video' : ''}`;
+
+  // Step 3 Evidence Visual Verification
+  const step3EvBox = document.getElementById('step3EvidenceSection');
+  const step3Photos = document.getElementById('step3PhotosList');
+  const step3VidInfo = document.getElementById('step3VideoInfo');
+  
+  if (uploadedPhotos.length > 0 || uploadedVideo) {
+    step3EvBox.classList.remove('hidden');
+    step3Photos.innerHTML = '';
+    uploadedPhotos.forEach(p => {
+      const thumb = document.createElement('div');
+      thumb.className = 'w-14 h-14 rounded-lg border border-slate-300 overflow-hidden bg-slate-100 flex items-center justify-center';
+      const img = document.createElement('img');
+      img.className = 'w-full h-full object-cover';
+      img.src = URL.createObjectURL(p);
+      img.onerror = () => {
+        thumb.innerHTML = `<span class="text-[8px] font-bold text-slate-600 px-1 text-center truncate">${p.name}</span>`;
+      };
+      thumb.appendChild(img);
+      step3Photos.appendChild(thumb);
+    });
+    if (uploadedVideo) {
+      step3VidInfo.classList.remove('hidden');
+      document.getElementById('step3VideoName').innerText = `${uploadedVideo.name} (Attached Incident Video)`;
+    } else {
+      step3VidInfo.classList.add('hidden');
+    }
+  } else {
+    step3EvBox.classList.add('hidden');
+  }
 
   const uBadge = document.getElementById('reviewUrgencyBadge');
   uBadge.innerText = urgency;
