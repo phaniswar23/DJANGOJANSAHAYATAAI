@@ -95,6 +95,46 @@
       flex-shrink: 0;
       color: #ef4444;
     }
+
+    /* Google Translate Styling: Suppress 'Powered by Google', Tooltips, and Top Banner */
+    .goog-te-banner-frame.skiptranslate,
+    .goog-te-banner-frame,
+    iframe.goog-te-banner-frame,
+    .goog-te-balloon-frame {
+      display: none !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      width: 0 !important;
+      opacity: 0 !important;
+    }
+    body {
+      top: 0px !important;
+      position: static !important;
+    }
+    .goog-logo-link,
+    .goog-te-gadget span,
+    .goog-te-gadget-simple .goog-te-menu-value span:nth-child(3),
+    .goog-te-gadget-simple .goog-te-menu-value span:nth-child(5) {
+      display: none !important;
+      visibility: hidden !important;
+    }
+    .goog-te-gadget {
+      color: transparent !important;
+      font-size: 0px !important;
+    }
+    #goog-gt-tt,
+    .goog-tooltip,
+    .goog-tooltip:hover {
+      display: none !important;
+      visibility: hidden !important;
+    }
+    .goog-text-highlight {
+      background-color: transparent !important;
+      box-shadow: none !important;
+    }
+    #google_translate_element {
+      display: none !important;
+    }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
@@ -142,11 +182,18 @@
               <span id="currentLangLabel">English</span>
               <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
             </button>
-            <div id="langDropdown" class="hidden absolute right-0 mt-1 w-36 bg-white text-slate-800 rounded-md shadow-lg border border-slate-200 py-1 z-50 text-xs">
+            <div id="langDropdown" class="hidden absolute right-0 mt-1 w-44 max-h-64 overflow-y-auto bg-white text-slate-800 rounded-md shadow-xl border border-slate-200 py-1 z-50 text-xs">
               <button type="button" onclick="setLanguage('en', 'English')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between font-semibold"><span>English</span><span class="text-[10px] text-slate-400">EN</span></button>
-              <button type="button" onclick="setLanguage('hi', 'हिंदी (Hindi)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>हिंदी</span><span class="text-[10px] text-slate-400">HI</span></button>
-              <button type="button" onclick="setLanguage('te', 'తెలుగు (Telugu)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>తెలుగు</span><span class="text-[10px] text-slate-400">TE</span></button>
-              <button type="button" onclick="setLanguage('ta', 'தமிழ் (Tamil)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>தமிழ்</span><span class="text-[10px] text-slate-400">TA</span></button>
+              <button type="button" onclick="setLanguage('hi', 'हिंदी (Hindi)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>हिंदी (Hindi)</span><span class="text-[10px] text-slate-400">HI</span></button>
+              <button type="button" onclick="setLanguage('te', 'తెలుగు (Telugu)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>తెలుగు (Telugu)</span><span class="text-[10px] text-slate-400">TE</span></button>
+              <button type="button" onclick="setLanguage('ta', 'தமிழ் (Tamil)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>தமிழ் (Tamil)</span><span class="text-[10px] text-slate-400">TA</span></button>
+              <button type="button" onclick="setLanguage('bn', 'বাংলা (Bengali)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>বাংলা (Bengali)</span><span class="text-[10px] text-slate-400">BN</span></button>
+              <button type="button" onclick="setLanguage('mr', 'मराठी (Marathi)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>मराठी (Marathi)</span><span class="text-[10px] text-slate-400">MR</span></button>
+              <button type="button" onclick="setLanguage('gu', 'ગુજરાતી (Gujarati)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>ગુજરાતી (Gujarati)</span><span class="text-[10px] text-slate-400">GU</span></button>
+              <button type="button" onclick="setLanguage('kn', 'ಕನ್ನಡ (Kannada)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>ಕನ್ನಡ (Kannada)</span><span class="text-[10px] text-slate-400">KN</span></button>
+              <button type="button" onclick="setLanguage('ml', 'മലയാളം (Malayalam)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>മലയാളം (Malayalam)</span><span class="text-[10px] text-slate-400">ML</span></button>
+              <button type="button" onclick="setLanguage('pa', 'ਪੰਜਾਬੀ (Punjabi)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>ਪੰਜਾਬੀ (Punjabi)</span><span class="text-[10px] text-slate-400">PA</span></button>
+              <button type="button" onclick="setLanguage('ur', 'اردو (Urdu)')" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 flex items-center justify-between"><span>اردو (Urdu)</span><span class="text-[10px] text-slate-400">UR</span></button>
             </div>
           </div>
 
@@ -530,8 +577,77 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       if (window.FormValidator) FormValidator.init();
+      
+      const savedLabel = localStorage.getItem('jansahayata_lang_label');
+      if (savedLabel) {
+        const labelEl = document.getElementById('currentLangLabel');
+        if (labelEl) labelEl.innerText = savedLabel;
+      }
+
+      // Observer to ensure body offset is never pushed down and Google UI frames stay hidden
+      const bodyObserver = new MutationObserver(() => {
+        if (document.body.style.top && document.body.style.top !== '0px') {
+          document.body.style.top = '0px';
+        }
+        const banner = document.querySelector('.goog-te-banner-frame');
+        if (banner) banner.style.display = 'none';
+        const tt = document.getElementById('goog-gt-tt');
+        if (tt) tt.style.display = 'none';
+      });
+      bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['style'] });
     });
+
+    // Built-in Google Translation Engine Handler
+    function googleTranslateElementInit() {
+      if (window.google && window.google.translate) {
+        new google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: 'en,hi,te,ta,bn,mr,gu,kn,ml,pa,ur',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false
+        }, 'google_translate_element');
+      }
+    }
+
+    function setLanguage(code, label) {
+      const labelEl = document.getElementById('currentLangLabel');
+      if (labelEl) labelEl.innerText = label;
+      localStorage.setItem('jansahayata_lang', code);
+      localStorage.setItem('jansahayata_lang_label', label);
+      
+      const dropdown = document.getElementById('langDropdown');
+      if (dropdown) dropdown.classList.add('hidden');
+
+      const hostname = window.location.hostname;
+      const parts = hostname.split('.');
+      const rootDomain = parts.length > 1 ? '.' + parts.slice(-2).join('.') : hostname;
+
+      if (code === 'en') {
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${hostname}; path=/;`;
+        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${rootDomain}; path=/;`;
+      } else {
+        const cookieVal = `/en/${code}`;
+        document.cookie = `googtrans=${cookieVal}; path=/;`;
+        document.cookie = `googtrans=${cookieVal}; domain=${hostname}; path=/;`;
+        document.cookie = `googtrans=${cookieVal}; domain=${rootDomain}; path=/;`;
+      }
+
+      const teCombo = document.querySelector('.goog-te-combo');
+      if (teCombo) {
+        teCombo.value = code;
+        teCombo.dispatchEvent(new Event('change'));
+      } else {
+        window.location.reload();
+      }
+
+      if (window.toast) toast.info(`Language set to ${label}`);
+    }
   </script>
+
+  <!-- Google Translate Hidden Container and Library -->
+  <div id="google_translate_element" style="display:none; visibility:hidden;"></div>
+  <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>

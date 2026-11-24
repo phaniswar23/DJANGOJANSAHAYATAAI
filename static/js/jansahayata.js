@@ -250,11 +250,50 @@ function toggleLangMenu() {
   if (dropdown) dropdown.classList.toggle('hidden');
 }
 
+function googleTranslateElementInit() {
+  if (window.google && window.google.translate) {
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      includedLanguages: 'en,hi,te,ta,bn,mr,gu,kn,ml,pa,ur',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+      autoDisplay: false
+    }, 'google_translate_element');
+  }
+}
+
 function setLanguage(code, label) {
-  document.getElementById('currentLangLabel').innerText = label;
+  const labelEl = document.getElementById('currentLangLabel');
+  if (labelEl) labelEl.innerText = label;
   localStorage.setItem('jansahayata_lang', code);
-  toggleLangMenu();
-  toast.info(`Language switched to ${label}`);
+  localStorage.setItem('jansahayata_lang_label', label);
+  
+  const dropdown = document.getElementById('langDropdown');
+  if (dropdown) dropdown.classList.add('hidden');
+
+  const hostname = window.location.hostname;
+  const parts = hostname.split('.');
+  const rootDomain = parts.length > 1 ? '.' + parts.slice(-2).join('.') : hostname;
+
+  if (code === 'en') {
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${hostname}; path=/;`;
+    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${rootDomain}; path=/;`;
+  } else {
+    const cookieVal = `/en/${code}`;
+    document.cookie = `googtrans=${cookieVal}; path=/;`;
+    document.cookie = `googtrans=${cookieVal}; domain=${hostname}; path=/;`;
+    document.cookie = `googtrans=${cookieVal}; domain=${rootDomain}; path=/;`;
+  }
+
+  const teCombo = document.querySelector('.goog-te-combo');
+  if (teCombo) {
+    teCombo.value = code;
+    teCombo.dispatchEvent(new Event('change'));
+  } else {
+    window.location.reload();
+  }
+
+  if (window.toast) toast.info(`Language set to ${label}`);
 }
 
 function handleFontSize(size) {
@@ -578,5 +617,10 @@ window.FormValidator = FormValidator;
 document.addEventListener('DOMContentLoaded', () => {
   auth.updateHeaderUI();
   FormValidator.init();
+  const savedLabel = localStorage.getItem('jansahayata_lang_label');
+  if (savedLabel) {
+    const labelEl = document.getElementById('currentLangLabel');
+    if (labelEl) labelEl.innerText = savedLabel;
+  }
   if (window.lucide) lucide.createIcons();
 });
