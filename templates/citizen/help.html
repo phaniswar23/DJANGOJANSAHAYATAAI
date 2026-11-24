@@ -38,51 +38,7 @@
           </div>
         </div>
       </div>
-
-      <!-- Live Search Bar -->
-      <div class="max-w-3xl pt-2">
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
-            <i data-lucide="search" class="w-5 h-5 text-slate-500"></i>
-          </div>
-          <input
-            type="text"
-            id="helpSearchInput"
-            oninput="handleHelpSearch(this.value)"
-            style="background: #ffffff; color: #0f172a; border: 2px solid #cbd5e1;"
-            class="w-full pl-11 pr-24 py-3.5 rounded-xl text-xs sm:text-sm font-medium shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-900"
-          />
-          <button
-            type="button"
-            id="helpSearchClearBtn"
-            onclick="clearHelpSearch()"
-            class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs font-bold text-slate-500 hover:text-slate-800"
-          >
-            Clear
-          </button>
-        </div>
-
-        <!-- Search Suggestions Chips -->
-        <div class="flex flex-wrap items-center gap-1.5 mt-3 text-[11px]">
-          <span class="font-medium" style="color: #64748b;">Popular topics:</span>
-          <button type="button" onclick="setHelpSearch('File a Complaint')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">How to File</button>
-          <button type="button" onclick="setHelpSearch('Timelines')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">Service Deadlines (SLAs)</button>
-          <button type="button" onclick="setHelpSearch('Dispute')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">Reopen & Dispute</button>
-          <button type="button" onclick="setHelpSearch('Evidence')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">Photos & Videos</button>
-          <button type="button" onclick="setHelpSearch('Track')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">Track Status</button>
-          <button type="button" onclick="setHelpSearch('Voice')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">Voice Note</button>
-        </div>
-      </div>
     </div>
-  </div>
-
-  <!-- Search Filter Notice -->
-  <div id="searchNoticeBar" class="hidden p-3 rounded-xl flex items-center justify-between text-xs" style="background: #fef3c7; border: 1px solid #fde68a; color: #92400e;">
-    <div class="flex items-center gap-2">
-      <i data-lucide="filter" class="w-4 h-4 text-amber-700"></i>
-      <span>Showing search results for: <strong id="activeSearchQuery"></strong></span>
-    </div>
-    <button type="button" onclick="clearHelpSearch()" class="font-bold underline text-amber-900 hover:text-amber-950">Show all sections</button>
   </div>
 
   <!-- 2. Interactive Navigation Filter Tabs -->
@@ -840,68 +796,6 @@
           section.classList.add('hidden');
         }
       });
-    }
-  }
-
-  function handleHelpSearch(query) {
-    const q = (query || '').trim().toLowerCase();
-    const clearBtn = document.getElementById('helpSearchClearBtn');
-    const noticeBar = document.getElementById('searchNoticeBar');
-    const queryDisplay = document.getElementById('activeSearchQuery');
-
-    if (clearBtn) {
-      clearBtn.classList.toggle('hidden', q.length === 0);
-    }
-
-    if (!q) {
-      if (noticeBar) noticeBar.classList.add('hidden');
-      switchHelpTab('all');
-      document.querySelectorAll('.department-card').forEach(c => c.classList.remove('hidden'));
-      document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('hidden'));
-      return;
-    }
-
-    if (noticeBar) noticeBar.classList.remove('hidden');
-    if (queryDisplay) queryDisplay.innerText = `"${q}"`;
-
-    // Make sure all sections are visible for search
-    document.querySelectorAll('.help-section').forEach(s => s.classList.remove('hidden'));
-
-    // Filter Department Cards
-    document.querySelectorAll('.department-card').forEach(card => {
-      const text = card.innerText.toLowerCase();
-      card.classList.toggle('hidden', !text.includes(q));
-    });
-
-    // Filter FAQs
-    document.querySelectorAll('.faq-item').forEach((faq, idx) => {
-      const text = faq.innerText.toLowerCase();
-      const match = text.includes(q);
-      faq.classList.toggle('hidden', !match);
-      if (match) {
-        // Auto-expand matched FAQ for instant preview
-        const content = document.getElementById(`faq-${idx + 1}-content`);
-        const icon = document.getElementById(`faq-${idx + 1}-icon`);
-        if (content) content.classList.remove('hidden');
-        if (icon) icon.classList.add('rotate-180');
-      }
-    });
-  }
-
-  function setHelpSearch(text) {
-    const input = document.getElementById('helpSearchInput');
-    if (input) {
-      input.value = text;
-      handleHelpSearch(text);
-      input.focus();
-    }
-  }
-
-  function clearHelpSearch() {
-    const input = document.getElementById('helpSearchInput');
-    if (input) {
-      input.value = '';
-      handleHelpSearch('');
     }
   }
 
