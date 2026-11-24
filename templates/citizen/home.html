@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}JanSahayata (जनसहायता) — Central Public Grievance Redressal Portal{% endblock %}
+{% block title %}JanSahayata (जनसहायता) — Citizen Problem Reporting Portal{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -58,7 +58,7 @@
             OFFICIAL PORTAL
           </span>
           <span class="text-[11px] sm:text-xs text-slate-200 font-medium truncate">
-            Government of India • Citizen Redressal Service
+            Government of India • Citizen Support Service
           </span>
         </div>
         <div class="text-[10px] sm:text-[11px] text-amber-300 font-medium shrink-0">
@@ -81,7 +81,7 @@
                 GOVERNMENT OF INDIA CITIZEN PORTAL
               </span>
               <h1 class="text-2xl sm:text-4xl font-extrabold text-[#0b2545] tracking-tight leading-tight">
-                Public Grievance Redressal Portal
+                Citizen Problem Reporting Portal
               </h1>
               <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 Report problems in your area directly to government departments. Track your complaint step-by-step and verify the fix before it gets closed.
@@ -124,13 +124,14 @@
                 </span>
                 <span class="text-[10px] text-slate-400 font-mono">Format: JNS-2026-XXXXXX</span>
               </div>
-              <form onsubmit="handleQuickTrack(event)">
+              <form id="quickTrackForm" onsubmit="handleQuickTrack(event)" novalidate class="space-y-1.5">
                 <div class="flex items-center gap-2">
                   <div class="relative flex-1">
                     <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
                     <input
                       id="quickTrackInput"
                       type="text"
+                      required
                       placeholder="Enter Complaint ID (e.g., JNS-2026-000001)"
                       class="gov-input pl-9 text-xs py-2 bg-white font-mono"
                     />
@@ -141,6 +142,14 @@
                   >
                     Check Status
                   </button>
+                </div>
+                <div id="quickTrackError" class="hidden flex items-center gap-1.5 text-[11px] font-semibold text-red-600 mt-1">
+                  <svg class="w-3.5 h-3.5 text-red-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <span id="quickTrackErrorText">Enter complaint ID</span>
                 </div>
               </form>
             </div>
@@ -615,18 +624,64 @@
 <script>
 function fillHomeTrack(id) {
   const input = document.getElementById('quickTrackInput');
-  if (input) input.value = id;
+  if (input) {
+    input.value = id;
+    input.classList.remove('gov-input-error', 'field-shake');
+    const errBox = document.getElementById('quickTrackError');
+    if (errBox) errBox.classList.add('hidden');
+    if (window.FormValidator) FormValidator.clearFieldError(input);
+  }
   window.location.href = `/complaint/${id}`;
 }
 
 function handleQuickTrack(e) {
-  e.preventDefault();
-  const id = document.getElementById('quickTrackInput').value.trim();
-  if (!id) {
-    toast.error('Please enter your Complaint Tracking ID (e.g. JNS-2026-000001)');
-    return;
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
   }
+  const input = document.getElementById('quickTrackInput');
+  const errBox = document.getElementById('quickTrackError');
+  const errText = document.getElementById('quickTrackErrorText');
+  const id = input ? input.value.trim() : '';
+
+  if (!id) {
+    if (input) {
+      input.classList.add('gov-input-error');
+      input.classList.remove('field-shake');
+      void input.offsetWidth;
+      input.classList.add('field-shake');
+      input.focus();
+    }
+    if (errBox) {
+      if (errText) errText.innerText = 'Enter complaint ID';
+      errBox.classList.remove('hidden');
+    }
+    if (window.FormValidator) {
+      FormValidator.showFieldError(input, 'Enter complaint ID');
+    }
+    return false;
+  }
+
+  if (input) input.classList.remove('gov-input-error', 'field-shake');
+  if (errBox) errBox.classList.add('hidden');
+  if (window.FormValidator) FormValidator.clearFieldError(input);
+
   window.location.href = `/complaint/${id}`;
+  return false;
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('quickTrackInput');
+  if (input) {
+    const clearQuickErr = () => {
+      input.classList.remove('gov-input-error', 'field-shake');
+      const errBox = document.getElementById('quickTrackError');
+      if (errBox) errBox.classList.add('hidden');
+      if (window.FormValidator) FormValidator.clearFieldError(input);
+    };
+    input.addEventListener('input', clearQuickErr);
+    input.addEventListener('change', clearQuickErr);
+  }
+});
 </script>
 {% endblock %}

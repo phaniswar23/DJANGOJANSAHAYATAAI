@@ -32,7 +32,7 @@
       </div>
 
       <!-- Login Form -->
-      <form id="staffLoginForm" class="space-y-4" onsubmit="handleStaffLogin(event)">
+      <form id="staffLoginForm" class="space-y-4" onsubmit="handleStaffLogin(event)" novalidate>
         <div>
           <label for="identifier" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
             Official Email or Employee ID
@@ -215,6 +215,10 @@ function fillStaffCredentials(email, password, roleName) {
   if (emailInput && passwordInput) {
     emailInput.value = email;
     passwordInput.value = password;
+    if (window.FormValidator) {
+      FormValidator.clearFieldError(emailInput);
+      FormValidator.clearFieldError(passwordInput);
+    }
     toast.success(`Loaded ${roleName} test credentials`);
   }
 }
@@ -234,13 +238,31 @@ function togglePasswordVisibility(inputId, btn) {
 
 async function handleStaffLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('identifier').value.trim();
-  const password = document.getElementById('staffPassword').value;
+  const emailInput = document.getElementById('identifier');
+  const passwordInput = document.getElementById('staffPassword');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const password = passwordInput ? passwordInput.value : '';
   const btn = document.getElementById('staffSubmitBtn');
   const errBox = document.getElementById('staffLoginError');
   const errMsg = document.getElementById('staffLoginErrorMsg');
 
   errBox.classList.add('hidden');
+
+  let hasError = false;
+  if (!email) {
+    if (window.FormValidator) FormValidator.showFieldError(emailInput, 'Enter official email or ID');
+    hasError = true;
+  }
+  if (!password) {
+    if (window.FormValidator) FormValidator.showFieldError(passwordInput, 'Enter password');
+    hasError = true;
+  }
+  if (hasError) {
+    if (!email && emailInput) emailInput.focus();
+    else if (!password && passwordInput) passwordInput.focus();
+    return;
+  }
+
   btn.disabled = true;
   btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Validating Official Role...</span>`;
   if (window.lucide) lucide.createIcons({ root: btn });

@@ -663,21 +663,35 @@ function goToStep(step) {
 }
 
 function validateAndGoToStep2() {
-  const desc = document.getElementById('problemDescription').value.trim();
-  if (desc.length < 15) {
-    showError('Please provide at least 15 characters in the problem description before continuing.');
+  const descInput = document.getElementById('problemDescription');
+  const desc = descInput ? descInput.value.trim() : '';
+  if (!desc) {
+    if (window.FormValidator) FormValidator.showFieldError(descInput, 'Enter problem description');
+    showError('Please describe the problem before continuing.');
+    if (descInput) descInput.focus();
     return;
   }
+  if (desc.length < 15) {
+    if (window.FormValidator) FormValidator.showFieldError(descInput, 'Min 15 characters required');
+    showError('Please provide at least 15 characters in the problem description before continuing.');
+    if (descInput) descInput.focus();
+    return;
+  }
+  if (window.FormValidator) FormValidator.clearFieldError(descInput);
   hideError();
   goToStep(2);
 }
 
 function validateAndGoToStep3() {
-  const address = document.getElementById('step2AddressInput').value.trim();
+  const addrInput = document.getElementById('step2AddressInput');
+  const address = addrInput ? addrInput.value.trim() : '';
   if (!address) {
+    if (window.FormValidator) FormValidator.showFieldError(addrInput, 'Enter location or address');
     showError('Incident Location / Station / Street Address is required.');
+    if (addrInput) addrInput.focus();
     return;
   }
+  if (window.FormValidator) FormValidator.clearFieldError(addrInput);
   hideError();
   compileReviewStatement();
   goToStep(3);
@@ -1087,11 +1101,19 @@ function copyTrackingId() {
 }
 
 async function sendTrackingPassEmail() {
-  const email = document.getElementById('successEmailInput').value.trim();
+  const emailInput = document.getElementById('successEmailInput');
+  const email = emailInput ? emailInput.value.trim() : '';
   if (!email) {
-    toast.error('Please enter an email address.');
+    if (window.FormValidator) FormValidator.showFieldError(emailInput, 'Enter email address');
+    if (emailInput) emailInput.focus();
     return;
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (window.FormValidator) FormValidator.showFieldError(emailInput, 'Enter valid email address');
+    if (emailInput) emailInput.focus();
+    return;
+  }
+  if (window.FormValidator) FormValidator.clearFieldError(emailInput);
   const btn = document.getElementById('sendEmailBtn');
   btn.disabled = true;
   btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Sending...</span>`;

@@ -316,8 +316,267 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Unified Form & Input Field Validator for Clean Inline UI/UX
+const FormValidator = {
+  getShortErrorMessage(input) {
+    if (input.dataset && input.dataset.error) {
+      return input.dataset.error;
+    }
+
+    const id = (input.id || '').toLowerCase();
+    const type = (input.type || '').toLowerCase();
+    const tagName = input.tagName.toLowerCase();
+    const placeholder = (input.getAttribute('placeholder') || '').trim();
+
+    // 1. Select elements
+    if (tagName === 'select') {
+      if (id.includes('dept')) return 'Select department';
+      if (id.includes('cat')) return 'Select category';
+      if (id.includes('urgency') || id.includes('priority')) return 'Select urgency';
+      if (id.includes('status')) return 'Select target status';
+      return 'Select an option';
+    }
+
+    // 2. Specific field IDs
+    if (id === 'email' || id === 'regemail' || id === 'officeremail' || id === 'successemailinput') {
+      return 'Enter email address';
+    }
+    if (id === 'identifier') {
+      return 'Enter official email or ID';
+    }
+    if (id === 'recoveryidentifier') {
+      return 'Enter email, ID, or phone';
+    }
+    if (id === 'password' || id === 'staffpassword' || id === 'regpassword') {
+      return 'Enter password';
+    }
+    if (id === 'regconfirmpassword') {
+      return 'Confirm password';
+    }
+    if (id === 'forgotnewpass') {
+      return 'Enter new password';
+    }
+    if (id === 'forgototp' || id === 'regotp' || id.includes('otp')) {
+      return 'Enter 6-digit OTP code';
+    }
+    if (id === 'regname' || id === 'officerfullname' || id === 'step2citizenname') {
+      return 'Enter full name';
+    }
+    if (id === 'regphone' || id === 'step2citizenphone') {
+      return 'Enter mobile number';
+    }
+    if (id === 'officerempid') {
+      return 'Enter employee ID';
+    }
+    if (id === 'trackinput' || id === 'quicktrackinput') {
+      return 'Enter complaint ID';
+    }
+    if (id === 'problemdescription') {
+      return 'Enter problem description';
+    }
+    if (id === 'step2addressinput') {
+      return 'Enter location or address';
+    }
+    if (id === 'disputereason') {
+      return 'Enter reason for dispute';
+    }
+    if (id === 'updateactionnote') {
+      return 'Enter action remarks';
+    }
+
+    // 3. Fallback by type
+    if (type === 'email') return 'Enter email address';
+    if (type === 'password') return 'Enter password';
+    if (type === 'tel') return 'Enter mobile number';
+
+    // 4. Intelligent placeholder extraction
+    if (placeholder) {
+      if (placeholder.includes('@')) return 'Enter email address';
+      if (placeholder.includes('••••')) return 'Enter password';
+      if (placeholder.includes('000000') || placeholder.includes('0 0 0')) return 'Enter 6-digit OTP code';
+      if (placeholder.toLowerCase().includes('jns-') || placeholder.toLowerCase().includes('rly-')) {
+        return 'Enter complaint ID';
+      }
+      let clean = placeholder.replace(/^e\.g\.?,?\s*/i, '')
+                             .replace(/^enter\s+(your\s+)?/i, '')
+                             .replace(/\(.*?\)/g, '')
+                             .split(/[,;•/]/)[0]
+                             .trim();
+      if (clean && clean.length > 0 && clean.length <= 25) {
+        return `Enter ${clean.toLowerCase()}`;
+      }
+    }
+
+    // 5. Label derivation
+    if (input.id) {
+      const label = document.querySelector(`label[for="${input.id}"]`);
+      if (label) {
+        let txt = label.innerText.replace(/[*:\(\)]/g, '').trim().split(/[\n\r,/]/)[0].trim();
+        if (txt && txt.length <= 25) {
+          return `Enter ${txt.toLowerCase()}`;
+        }
+      }
+    }
+
+    return 'Field required';
+  },
+
+  getFieldAnchor(input) {
+    if (!input) return null;
+    // Single-row flex container (e.g. input + button inside home quick-track or email send)
+    const flexRow = input.closest('.flex');
+    if (flexRow && flexRow.querySelector('button[type="submit"], button.gov-btn-primary, button.gov-btn-secondary')) {
+      return flexRow;
+    }
+    // Relative wrapper (icon + input)
+    const rel = input.closest('.relative');
+    if (rel && rel.parentElement) {
+      return rel;
+    }
+    // Centered wrapper (e.g. OTP code input)
+    const centeredWrap = input.closest('.flex.justify-center');
+    if (centeredWrap) {
+      return centeredWrap;
+    }
+    return input;
+  },
+
+  showFieldError(input, customMsg) {
+    if (!input) return;
+    const msg = customMsg || this.getShortErrorMessage(input);
+    const anchor = this.getFieldAnchor(input);
+    if (!anchor || !anchor.parentNode) return;
+
+    input.classList.add('gov-input-error');
+    input.classList.remove('field-shake');
+    void input.offsetWidth;
+    input.classList.add('field-shake');
+
+    let errEl = null;
+    if (anchor.nextElementSibling && anchor.nextElementSibling.classList.contains('field-error-msg')) {
+      errEl = anchor.nextElementSibling;
+    } else if (input.id) {
+      errEl = document.querySelector(`.field-error-msg[data-error-for="${input.id}"]`);
+    }
+
+    if (!errEl) {
+      errEl = document.createElement('div');
+      errEl.className = 'field-error-msg';
+      if (input.id) errEl.setAttribute('data-error-for', input.id);
+      anchor.parentNode.insertBefore(errEl, anchor.nextSibling);
+    }
+
+    errEl.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>${msg}</span>
+    `;
+
+    if (!input._hasErrorListeners) {
+      input._hasErrorListeners = true;
+      const clearFn = () => this.clearFieldError(input);
+      input.addEventListener('input', clearFn);
+      input.addEventListener('change', clearFn);
+    }
+  },
+
+  clearFieldError(input) {
+    if (!input) return;
+    input.classList.remove('gov-input-error', 'field-shake');
+    const anchor = this.getFieldAnchor(input);
+    if (anchor && anchor.nextElementSibling && anchor.nextElementSibling.classList.contains('field-error-msg')) {
+      anchor.nextElementSibling.remove();
+    }
+    if (input.id) {
+      const orphaned = document.querySelectorAll(`.field-error-msg[data-error-for="${input.id}"]`);
+      orphaned.forEach(el => el.remove());
+    }
+  },
+
+  validateContainer(container) {
+    if (!container) return true;
+    const selector = 'input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]), textarea, select';
+    const inputs = Array.from(container.querySelectorAll(selector));
+    let firstInvalid = null;
+    let isValid = true;
+
+    inputs.forEach(input => {
+      const isHidden = input.type === 'hidden' || input.closest('.hidden') !== null;
+      if (input.disabled || isHidden) return;
+
+      const val = input.value ? input.value.trim() : '';
+      const isRequired = input.hasAttribute('required') || input.required;
+
+      let fieldError = null;
+
+      if (isRequired && !val) {
+        fieldError = this.getShortErrorMessage(input);
+      } else if (val) {
+        if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+          fieldError = 'Enter valid email address';
+        } else if (input.id === 'regPassword' && (val.length < 8 || !/\d/.test(val))) {
+          fieldError = 'Min 8 chars with number';
+        } else if (input.id === 'regConfirmPassword') {
+          const pass = document.getElementById('regPassword');
+          if (pass && pass.value !== val) {
+            fieldError = 'Passwords do not match';
+          }
+        } else if (input.id === 'forgotNewPass' && (val.length < 8 || !/\d/.test(val))) {
+          fieldError = 'Min 8 chars with number';
+        } else if (input.id === 'problemDescription' && val.length < 15) {
+          fieldError = 'Min 15 characters required';
+        } else if ((input.id === 'regPhone' || input.type === 'tel') && val.length > 0 && val.replace(/\D/g, '').length < 10) {
+          fieldError = 'Enter valid 10-digit mobile';
+        }
+      }
+
+      if (fieldError) {
+        isValid = false;
+        this.showFieldError(input, fieldError);
+        if (!firstInvalid) firstInvalid = input;
+      } else {
+        this.clearFieldError(input);
+      }
+    });
+
+    if (firstInvalid) {
+      firstInvalid.focus();
+      firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return isValid;
+  },
+
+  init() {
+    // Disable default browser tooltips on all forms
+    document.querySelectorAll('form').forEach(form => {
+      form.noValidate = true;
+    });
+
+    // Capture submit events before inline handlers
+    document.addEventListener('submit', (e) => {
+      const form = e.target;
+      if (!form || form.tagName !== 'FORM') return;
+
+      form.noValidate = true;
+      const isValid = this.validateContainer(form);
+      if (!isValid) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return false;
+      }
+    }, true);
+  }
+};
+
+window.FormValidator = FormValidator;
+
 // Initial boot
 document.addEventListener('DOMContentLoaded', () => {
   auth.updateHeaderUI();
+  FormValidator.init();
   if (window.lucide) lucide.createIcons();
 });

@@ -51,7 +51,7 @@
       </div>
 
       <!-- STEP 1: Registration Form -->
-      <form id="step1Form" class="space-y-3.5" onsubmit="handleSendRegisterOtp(event)">
+      <form id="step1Form" class="space-y-3.5" onsubmit="handleSendRegisterOtp(event)" novalidate>
         <div>
           <label for="regName" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
             Full Name <span class="text-red-500">*</span>
@@ -164,7 +164,7 @@
       </form>
 
       <!-- STEP 2: OTP Verification Form (Hidden Initially) -->
-      <form id="step2Form" class="hidden space-y-4" onsubmit="handleVerifyRegisterOtp(event)">
+      <form id="step2Form" class="hidden space-y-4" onsubmit="handleVerifyRegisterOtp(event)" novalidate>
         <div class="text-center space-y-1 bg-blue-50/50 p-3 rounded-lg border border-blue-100">
           <p class="text-xs text-slate-600">Enter the 6-digit confirmation code dispatched to:</p>
           <p id="targetEmailLabel" class="text-xs font-mono font-bold text-[#0b2545]"></p>
@@ -270,13 +270,51 @@ async function handleSendRegisterOtp(e) {
   const password = document.getElementById('regPassword').value;
   const confirmPassword = document.getElementById('regConfirmPassword').value;
 
+  const nameInput = document.getElementById('regName');
+  const emailInput = document.getElementById('regEmail');
+  const passInput = document.getElementById('regPassword');
+  const confirmInput = document.getElementById('regConfirmPassword');
+
+  let hasError = false;
+  if (!name) {
+    if (window.FormValidator) FormValidator.showFieldError(nameInput, 'Enter full name');
+    hasError = true;
+  }
+  if (!email) {
+    if (window.FormValidator) FormValidator.showFieldError(emailInput, 'Enter email address');
+    hasError = true;
+  }
+  if (!password) {
+    if (window.FormValidator) FormValidator.showFieldError(passInput, 'Enter password');
+    hasError = true;
+  }
+  if (!confirmPassword) {
+    if (window.FormValidator) FormValidator.showFieldError(confirmInput, 'Confirm password');
+    hasError = true;
+  }
+  if (hasError) {
+    if (!name && nameInput) nameInput.focus();
+    else if (!email && emailInput) emailInput.focus();
+    else if (!password && passInput) passInput.focus();
+    else if (confirmInput) confirmInput.focus();
+    return;
+  }
+
   if (password.length < 8 || !/\d/.test(password)) {
+    if (window.FormValidator) FormValidator.showFieldError(passInput, 'Min 8 chars with a number');
     showRegisterError('Password must be at least 8 characters long with at least one number.');
+    if (passInput) passInput.focus();
     return;
   }
   if (password !== confirmPassword) {
+    if (window.FormValidator) FormValidator.showFieldError(confirmInput, 'Passwords do not match');
     showRegisterError('Passwords do not match.');
+    if (confirmInput) confirmInput.focus();
     return;
+  }
+  if (window.FormValidator) {
+    FormValidator.clearFieldError(passInput);
+    FormValidator.clearFieldError(confirmInput);
   }
 
   regState.name = name;
