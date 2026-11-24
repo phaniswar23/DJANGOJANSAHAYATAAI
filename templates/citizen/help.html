@@ -7,34 +7,34 @@
 <div class="max-w-6xl w-full mx-auto space-y-8 pb-16">
 
   <!-- 1. Tricolor Top Ribbon & Header Hero -->
-  <div class="relative overflow-hidden rounded-2xl shadow-xl border border-slate-700/60" style="background: linear-gradient(135deg, #071b33 0%, #0b2545 55%, #133e75 100%); color: #ffffff;">
+  <div class="relative overflow-hidden rounded-2xl shadow-sm" style="background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 4px 20px -2px rgba(11, 37, 69, 0.08);">
     <!-- Top Tricolor Accent Line -->
-    <div style="height: 5px; width: 100%; background: linear-gradient(90deg, #ff671f 0%, #ffffff 50%, #046a38 100%);"></div>
+    <div style="height: 5px; width: 100%; background: linear-gradient(90deg, #ff671f 0%, #cbd5e1 50%, #046a38 100%);"></div>
     
     <div class="p-6 sm:p-10 relative z-10 space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="space-y-2">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-amber-300 text-[11px] font-bold uppercase tracking-wider" style="background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.35);">
-            <i data-lucide="help-circle" class="w-3.5 h-3.5 text-amber-400"></i>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a;">
+            <i data-lucide="help-circle" class="w-3.5 h-3.5 text-amber-700"></i>
             <span>Citizen Help & User Guide</span>
           </div>
-          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight" style="color: #0b2545;">
             How Can We Help You Today?
           </h1>
-          <p class="text-xs sm:text-sm text-slate-200 max-w-2xl leading-relaxed">
+          <p class="text-xs sm:text-sm max-w-2xl leading-relaxed" style="color: #475569;">
             Find simple step-by-step instructions, official department resolution timelines (SLAs), grievance tracking tips, and your guaranteed citizen rights.
           </p>
         </div>
 
         <!-- Quick 24x7 Helpline Card -->
-        <div class="shrink-0 p-4 rounded-xl flex items-center gap-3" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px);">
-          <div class="w-10 h-10 rounded-lg bg-amber-400 text-slate-900 flex items-center justify-center font-bold shrink-0">
-            <i data-lucide="phone-call" class="w-5 h-5 text-slate-950"></i>
+        <div class="shrink-0 p-4 rounded-xl flex items-center gap-3 shadow-xs" style="background: #f8fafc; border: 1px solid #cbd5e1;">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center font-bold shrink-0" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a;">
+            <i data-lucide="phone-call" class="w-5 h-5 text-amber-700"></i>
           </div>
           <div>
-            <div class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">24×7 Citizen Helpline</div>
-            <a href="tel:1800114000" class="text-sm font-bold text-white hover:text-amber-300 font-mono transition-colors block">1800-11-4000</a>
-            <div class="text-[10px] text-emerald-300 font-medium">Toll Free • All Indian Languages</div>
+            <div class="text-[10px] uppercase font-bold tracking-wider" style="color: #64748b;">24×7 Citizen Helpline</div>
+            <a href="tel:1800114000" class="text-sm font-bold font-mono transition-colors block hover:text-amber-700" style="color: #0b2545;">1800-11-4000</a>
+            <div class="text-[10px] font-semibold" style="color: #047857;">Toll Free • All Indian Languages</div>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@
             oninput="handleHelpSearch(this.value)"
             placeholder="Search help topics (e.g., 'pothole', 'electricity shock', 'reopen dispute', 'evidence', 'timelines')..."
             style="background: #ffffff; color: #0f172a; border: 2px solid #cbd5e1;"
-            class="w-full pl-11 pr-24 py-3.5 rounded-xl text-xs sm:text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400"
+            class="w-full pl-11 pr-24 py-3.5 rounded-xl text-xs sm:text-sm font-medium shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-900"
           />
           <button
             type="button"
@@ -65,13 +65,13 @@
 
         <!-- Search Suggestions Chips -->
         <div class="flex flex-wrap items-center gap-1.5 mt-3 text-[11px]">
-          <span class="text-slate-300 font-medium">Popular topics:</span>
-          <button type="button" onclick="setHelpSearch('File a Complaint')" class="px-2.5 py-0.5 rounded-full text-slate-100 hover:text-white transition-colors" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2);">How to File</button>
-          <button type="button" onclick="setHelpSearch('Timelines')" class="px-2.5 py-0.5 rounded-full text-slate-100 hover:text-white transition-colors" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2);">Service Deadlines (SLAs)</button>
-          <button type="button" onclick="setHelpSearch('Dispute')" class="px-2.5 py-0.5 rounded-full text-slate-100 hover:text-white transition-colors" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2);">Reopen & Dispute</button>
-          <button type="button" onclick="setHelpSearch('Evidence')" class="px-2.5 py-0.5 rounded-full text-slate-100 hover:text-white transition-colors" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2);">Photos & Videos</button>
-          <button type="button" onclick="setHelpSearch('Track')" class="px-2.5 py-0.5 rounded-full text-slate-100 hover:text-white transition-colors" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2);">Track Status</button>
-          <button type="button" onclick="setHelpSearch('Voice')" class="px-2.5 py-0.5 rounded-full text-slate-100 hover:text-white transition-colors" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2);">Voice Note</button>
+          <span class="font-medium" style="color: #64748b;">Popular topics:</span>
+          <button type="button" onclick="setHelpSearch('File a Complaint')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">How to File</button>
+          <button type="button" onclick="setHelpSearch('Timelines')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">Service Deadlines (SLAs)</button>
+          <button type="button" onclick="setHelpSearch('Dispute')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">Reopen & Dispute</button>
+          <button type="button" onclick="setHelpSearch('Evidence')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">Photos & Videos</button>
+          <button type="button" onclick="setHelpSearch('Track')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">Track Status</button>
+          <button type="button" onclick="setHelpSearch('Voice')" class="px-2.5 py-0.5 rounded-full transition-colors hover:bg-slate-200" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">Voice Note</button>
         </div>
       </div>
     </div>
@@ -152,7 +152,7 @@
           <i data-lucide="git-merge" class="w-5 h-5 text-blue-600"></i>
           <span>How Your Complaint Gets Resolved</span>
         </h2>
-        <p class="text-xs text-slate-500 mt-0.5">JanSahayata AI routes your issue directly to local field officers without middlemen.</p>
+        <p class="text-xs text-slate-500 mt-0.5">JanSahayata routes your issue directly to local field officers without middlemen.</p>
       </div>
       <a href="/report" class="text-xs font-bold text-blue-700 hover:underline flex items-center gap-1">
         <span>File a Complaint</span>
@@ -176,8 +176,8 @@
           </div>
         </div>
         <div class="pt-3 mt-3 border-t border-slate-100 text-[11px] text-blue-700 font-semibold flex items-center gap-1">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-          <span>AI Triage Auto-Categorizes</span>
+          <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+          <span>Evidence & Location Attached</span>
         </div>
       </div>
 
@@ -487,54 +487,54 @@
 
   <!-- 5. SECTION: Citizen Protection Rights -->
   <section id="section-rights" class="help-section space-y-4">
-    <div class="p-6 sm:p-8 rounded-2xl shadow-lg space-y-6" style="background: linear-gradient(135deg, #071b33 0%, #0b2545 60%, #163b6b 100%); color: #ffffff; border: 1px solid #334155;">
+    <div class="p-6 sm:p-8 rounded-2xl shadow-sm space-y-6" style="background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 4px 16px -2px rgba(11, 37, 69, 0.06);">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold shrink-0" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">
-          <i data-lucide="badge-check" class="w-6 h-6"></i>
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold shrink-0" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a;">
+          <i data-lucide="badge-check" class="w-6 h-6 text-amber-700"></i>
         </div>
         <div>
-          <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">Citizen Legal Rights</span>
-          <h2 class="text-xl font-bold text-white">Your Guaranteed Rights as a Citizen</h2>
+          <span class="text-[11px] font-bold uppercase tracking-wider block" style="color: #92400e;">Citizen Legal Rights</span>
+          <h2 class="text-xl font-bold" style="color: #0b2545;">Your Guaranteed Rights as a Citizen</h2>
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-        <div class="p-4 rounded-xl space-y-2" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);">
-          <div class="flex items-center gap-2 text-amber-300 font-bold">
+        <div class="p-4 rounded-xl space-y-2 shadow-xs" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+          <div class="flex items-center gap-2 font-bold" style="color: #0284c7;">
             <i data-lucide="camera" class="w-4 h-4"></i>
-            <span>Right to Photo Proof</span>
+            <span style="color: #0b2545;">Right to Photo Proof</span>
           </div>
-          <p class="text-slate-200 leading-relaxed">
+          <p class="leading-relaxed" style="color: #475569;">
             No officer or department can mark your issue "Resolved" without uploading genuine photographic proof of the finished work.
           </p>
         </div>
 
-        <div class="p-4 rounded-xl space-y-2" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);">
-          <div class="flex items-center gap-2 text-amber-300 font-bold">
+        <div class="p-4 rounded-xl space-y-2 shadow-xs" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+          <div class="flex items-center gap-2 font-bold" style="color: #dc2626;">
             <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-            <span>Right to Dispute</span>
+            <span style="color: #0b2545;">Right to Dispute</span>
           </div>
-          <p class="text-slate-200 leading-relaxed">
+          <p class="leading-relaxed" style="color: #475569;">
             If an issue is marked resolved falsely, you have the statutory right to 1-click dispute. It immediately triggers an executive inquiry.
           </p>
         </div>
 
-        <div class="p-4 rounded-xl space-y-2" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);">
-          <div class="flex items-center gap-2 text-amber-300 font-bold">
+        <div class="p-4 rounded-xl space-y-2 shadow-xs" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+          <div class="flex items-center gap-2 font-bold" style="color: #d97706;">
             <i data-lucide="timer" class="w-4 h-4"></i>
-            <span>Live SLA Countdown</span>
+            <span style="color: #0b2545;">Live SLA Countdown</span>
           </div>
-          <p class="text-slate-200 leading-relaxed">
+          <p class="leading-relaxed" style="color: #475569;">
             Every complaint has an official deadline. If breached, the system automatically alerts the Department Head and Super Administrator.
           </p>
         </div>
 
-        <div class="p-4 rounded-xl space-y-2" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);">
-          <div class="flex items-center gap-2 text-amber-300 font-bold">
+        <div class="p-4 rounded-xl space-y-2 shadow-xs" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+          <div class="flex items-center gap-2 font-bold" style="color: #059669;">
             <i data-lucide="shield" class="w-4 h-4"></i>
-            <span>Zero Cost & Anti-Bribe</span>
+            <span style="color: #0b2545;">Zero Cost & Anti-Bribe</span>
           </div>
-          <p class="text-slate-200 leading-relaxed">
+          <p class="leading-relaxed" style="color: #475569;">
             100% free government redressal. Direct automated digital routing guarantees zero bribery or harassment by middlemen.
           </p>
         </div>
@@ -568,7 +568,8 @@
         <button
           type="button"
           onclick="toggleFaq('faq-1')"
-          class="w-full p-4 text-left font-bold text-slate-900 text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          class="w-full p-4 text-left font-bold text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          style="color: #0b2545;"
         >
           <span class="flex items-center gap-2.5">
             <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
@@ -576,7 +577,7 @@
           </span>
           <i data-lucide="chevron-down" id="faq-1-icon" class="w-4 h-4 text-slate-400 shrink-0 transition-transform"></i>
         </button>
-        <div id="faq-1-content" class="hidden px-4 pb-4 pt-2 text-xs text-slate-600 leading-relaxed border-t border-slate-100" style="background: #f8fafc;">
+        <div id="faq-1-content" class="hidden px-4 pb-4 pt-2 text-xs leading-relaxed border-t border-slate-100" style="background: #f8fafc; color: #475569;">
           No! You can lodge a public grievance directly as a citizen without an account. Once submitted, you immediately receive a unique Grievance Reference ID (e.g. <span class="font-mono font-bold text-slate-800">RLY-2026-000001</span>) which you can use anytime on the <a href="/track" class="text-blue-700 font-bold hover:underline">Track Status</a> page. Creating a free account lets you view all your past complaints together in one place.
         </div>
       </div>
@@ -586,7 +587,8 @@
         <button
           type="button"
           onclick="toggleFaq('faq-2')"
-          class="w-full p-4 text-left font-bold text-slate-900 text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          class="w-full p-4 text-left font-bold text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          style="color: #0b2545;"
         >
           <span class="flex items-center gap-2.5">
             <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
@@ -594,7 +596,7 @@
           </span>
           <i data-lucide="chevron-down" id="faq-2-icon" class="w-4 h-4 text-slate-400 shrink-0 transition-transform"></i>
         </button>
-        <div id="faq-2-content" class="hidden px-4 pb-4 pt-2 text-xs text-slate-600 leading-relaxed border-t border-slate-100" style="background: #f8fafc;">
+        <div id="faq-2-content" class="hidden px-4 pb-4 pt-2 text-xs leading-relaxed border-t border-slate-100" style="background: #f8fafc; color: #475569;">
           You are fully protected! Every complaint page has a red <strong class="text-rose-700">"Reopen / File Dispute"</strong> button. If you click it, the complaint status immediately changes to <strong>"Disputed / Escalated"</strong>. The system alerts the Department Head and District Nodal Officer, and a senior inspection team is assigned to verify why the fix was incomplete.
         </div>
       </div>
@@ -604,7 +606,8 @@
         <button
           type="button"
           onclick="toggleFaq('faq-3')"
-          class="w-full p-4 text-left font-bold text-slate-900 text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          class="w-full p-4 text-left font-bold text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          style="color: #0b2545;"
         >
           <span class="flex items-center gap-2.5">
             <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold flex items-center justify-center shrink-0">3</span>
@@ -612,7 +615,7 @@
           </span>
           <i data-lucide="chevron-down" id="faq-3-icon" class="w-4 h-4 text-slate-400 shrink-0 transition-transform"></i>
         </button>
-        <div id="faq-3-content" class="hidden px-4 pb-4 pt-2 text-xs text-slate-600 leading-relaxed border-t border-slate-100" style="background: #f8fafc;">
+        <div id="faq-3-content" class="hidden px-4 pb-4 pt-2 text-xs leading-relaxed border-t border-slate-100" style="background: #f8fafc; color: #475569;">
           Yes! JanSahayata supports all popular formats including Apple iPhone Live Photos (<span class="font-mono">.HEIC</span>), standard photos (<span class="font-mono">.JPG</span>, <span class="font-mono">.PNG</span>), and videos (<span class="font-mono">.MP4</span>, <span class="font-mono">.MOV</span>). iPhone HEIC photos are automatically converted on-the-fly so that both you and the field engineers can see crystal-clear evidence with high-resolution zoom and video playback.
         </div>
       </div>
@@ -622,7 +625,8 @@
         <button
           type="button"
           onclick="toggleFaq('faq-4')"
-          class="w-full p-4 text-left font-bold text-slate-900 text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          class="w-full p-4 text-left font-bold text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          style="color: #0b2545;"
         >
           <span class="flex items-center gap-2.5">
             <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold flex items-center justify-center shrink-0">4</span>
@@ -630,7 +634,7 @@
           </span>
           <i data-lucide="chevron-down" id="faq-4-icon" class="w-4 h-4 text-slate-400 shrink-0 transition-transform"></i>
         </button>
-        <div id="faq-4-content" class="hidden px-4 pb-4 pt-2 text-xs text-slate-600 leading-relaxed border-t border-slate-100" style="background: #f8fafc;">
+        <div id="faq-4-content" class="hidden px-4 pb-4 pt-2 text-xs leading-relaxed border-t border-slate-100" style="background: #f8fafc; color: #475569;">
           On the <a href="/report" class="text-blue-700 font-bold hover:underline">File a Complaint</a> page, click the red <strong>"Record Voice Complaint"</strong> button. Speak naturally in your mother tongue — English, Hindi, Telugu, Tamil, Bengali, Marathi, etc. JanSahayata's speech system automatically transcribes your voice note into a clean problem description and detects the responsible department automatically.
         </div>
       </div>
@@ -640,7 +644,8 @@
         <button
           type="button"
           onclick="toggleFaq('faq-5')"
-          class="w-full p-4 text-left font-bold text-slate-900 text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          class="w-full p-4 text-left font-bold text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          style="color: #0b2545;"
         >
           <span class="flex items-center gap-2.5">
             <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold flex items-center justify-center shrink-0">5</span>
@@ -648,7 +653,7 @@
           </span>
           <i data-lucide="chevron-down" id="faq-5-icon" class="w-4 h-4 text-slate-400 shrink-0 transition-transform"></i>
         </button>
-        <div id="faq-5-content" class="hidden px-4 pb-4 pt-2 text-xs text-slate-600 leading-relaxed border-t border-slate-100" style="background: #f8fafc;">
+        <div id="faq-5-content" class="hidden px-4 pb-4 pt-2 text-xs leading-relaxed border-t border-slate-100" style="background: #f8fafc; color: #475569;">
           Click your name or profile avatar in the top-right corner of the navigation bar. In the dropdown menu, select <strong>"Change Email"</strong> or <strong>"Change Password"</strong>. A secure dialog box will open where you can enter your current password and your new credentials to update immediately.
         </div>
       </div>
@@ -658,7 +663,8 @@
         <button
           type="button"
           onclick="toggleFaq('faq-6')"
-          class="w-full p-4 text-left font-bold text-slate-900 text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          class="w-full p-4 text-left font-bold text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          style="color: #0b2545;"
         >
           <span class="flex items-center gap-2.5">
             <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold flex items-center justify-center shrink-0">6</span>
@@ -666,7 +672,7 @@
           </span>
           <i data-lucide="chevron-down" id="faq-6-icon" class="w-4 h-4 text-slate-400 shrink-0 transition-transform"></i>
         </button>
-        <div id="faq-6-content" class="hidden px-4 pb-4 pt-2 text-xs text-slate-600 leading-relaxed border-t border-slate-100" style="background: #f8fafc;">
+        <div id="faq-6-content" class="hidden px-4 pb-4 pt-2 text-xs leading-relaxed border-t border-slate-100" style="background: #f8fafc; color: #475569;">
           At the very top of any page in the top utility bar, click the globe icon marked <strong style="color: #0b2545;">"English"</strong>. A list of 11 Indian languages will appear (Hindi, Telugu, Tamil, Bengali, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Urdu). Selecting your language instantly translates all text on the portal without requiring page reloads.
         </div>
       </div>
@@ -676,7 +682,8 @@
         <button
           type="button"
           onclick="toggleFaq('faq-7')"
-          class="w-full p-4 text-left font-bold text-slate-900 text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          class="w-full p-4 text-left font-bold text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          style="color: #0b2545;"
         >
           <span class="flex items-center gap-2.5">
             <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold flex items-center justify-center shrink-0">7</span>
@@ -684,7 +691,7 @@
           </span>
           <i data-lucide="chevron-down" id="faq-7-icon" class="w-4 h-4 text-slate-400 shrink-0 transition-transform"></i>
         </button>
-        <div id="faq-7-content" class="hidden px-4 pb-4 pt-2 text-xs text-slate-600 leading-relaxed border-t border-slate-100" style="background: #f8fafc;">
+        <div id="faq-7-content" class="hidden px-4 pb-4 pt-2 text-xs leading-relaxed border-t border-slate-100" style="background: #f8fafc; color: #475569;">
           No! Under Government CPGRAMS compliance guidelines, all submitted grievances are logged into an immutable audit trail. Neither field officers nor department staff have delete permissions. Every status change, comment, and photo upload is stamped with the officer's Employee ID, name, and exact timestamp.
         </div>
       </div>
@@ -694,7 +701,8 @@
         <button
           type="button"
           onclick="toggleFaq('faq-8')"
-          class="w-full p-4 text-left font-bold text-slate-900 text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          class="w-full p-4 text-left font-bold text-xs sm:text-sm flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+          style="color: #0b2545;"
         >
           <span class="flex items-center gap-2.5">
             <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold flex items-center justify-center shrink-0">8</span>
@@ -702,7 +710,7 @@
           </span>
           <i data-lucide="chevron-down" id="faq-8-icon" class="w-4 h-4 text-slate-400 shrink-0 transition-transform"></i>
         </button>
-        <div id="faq-8-content" class="hidden px-4 pb-4 pt-2 text-xs text-slate-600 leading-relaxed border-t border-slate-100" style="background: #f8fafc;">
+        <div id="faq-8-content" class="hidden px-4 pb-4 pt-2 text-xs leading-relaxed border-t border-slate-100" style="background: #f8fafc; color: #475569;">
           Absolutely not. JanSahayata is an official, 100% free public service provided by the Department of Administrative Reforms & Public Grievances (DARPG), Government of India. There are never any fees for filing, tracking, or escalating complaints.
         </div>
       </div>
@@ -716,8 +724,8 @@
         <i data-lucide="life-buoy" class="w-4 h-4"></i>
         <span>Still Need Help?</span>
       </div>
-      <h3 class="text-lg font-bold text-slate-900">Reach Out to Citizen Support Directly</h3>
-      <p class="text-xs text-slate-600 max-w-xl">
+      <h3 class="text-lg font-bold" style="color: #0b2545;">Reach Out to Citizen Support Directly</h3>
+      <p class="text-xs max-w-xl" style="color: #475569;">
         Speak with a government grievance officer over phone or lodge a fresh complaint in seconds.
       </p>
     </div>
@@ -740,8 +748,8 @@
       </a>
       <a
         href="tel:1800114000"
-        class="text-slate-800 text-xs font-bold py-2.5 px-4 rounded flex items-center gap-1.5 shadow-sm transition-colors"
-        style="background: #ffffff; border: 1px solid #cbd5e1;"
+        class="text-xs font-bold py-2.5 px-4 rounded flex items-center gap-1.5 shadow-sm transition-colors"
+        style="background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1;"
       >
         <i data-lucide="phone" class="w-4 h-4 text-emerald-600"></i>
         <span>Call 1800-11-4000</span>
