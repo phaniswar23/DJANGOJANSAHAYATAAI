@@ -135,6 +135,15 @@
     #google_translate_element {
       display: none !important;
     }
+
+    /* Zero outer glow or colored halos on scroll-to-top button */
+    #scrollToTopBtn,
+    #scrollToTopBtn svg,
+    #scrollProgressCircle {
+      box-shadow: none !important;
+      filter: none !important;
+      text-shadow: none !important;
+    }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
@@ -783,13 +792,14 @@
   <div
     id="scrollToTopBtn"
     onclick="handleScrollToTop()"
+    style="box-shadow: none !important; filter: none !important; outline: none !important;"
     class="fixed bottom-6 right-6 z-[999] opacity-0 pointer-events-none transition-all duration-300 transform translate-y-6 hover:scale-105 cursor-pointer select-none group"
     title="Back to Top"
     aria-label="Back to Top"
   >
-    <div class="relative w-14 h-14 flex items-center justify-center">
+    <div class="relative w-14 h-14 flex items-center justify-center" style="box-shadow: none !important; filter: none !important;">
       <!-- SVG Tricolor Filling Progress Circle -->
-      <svg class="w-14 h-14 transform -rotate-90 pointer-events-none" viewBox="0 0 56 56">
+      <svg class="w-14 h-14 transform -rotate-90 pointer-events-none" viewBox="0 0 56 56" style="filter: none !important; box-shadow: none !important;">
         <defs>
           <linearGradient id="indianFlagScrollGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#ff671f" />
@@ -807,6 +817,7 @@
           stroke="rgba(148, 163, 184, 0.35)"
           stroke-width="4.5"
           fill="none"
+          style="filter: none !important; box-shadow: none !important;"
         />
 
         <!-- Dynamic Filling Tricolor Ring -->
@@ -821,12 +832,12 @@
           fill="none"
           stroke-dasharray="150.796"
           stroke-dashoffset="150.796"
-          style="transition: stroke-dashoffset 0.15s ease-out;"
+          style="transition: stroke-dashoffset 0.15s ease-out; filter: none !important; box-shadow: none !important;"
         />
       </svg>
 
       <!-- Inner Dark Circle with Yellow Arrow (Matches screenshot pixel-for-pixel) -->
-      <div class="absolute inset-[5px] rounded-full bg-[#07172b] border border-slate-700/80 shadow-lg flex items-center justify-center text-amber-400 group-hover:bg-[#0b2545] transition-all duration-200">
+      <div class="absolute inset-[5px] rounded-full bg-[#07172b] border border-slate-700/80 flex items-center justify-center text-amber-400 group-hover:bg-[#0b2545] transition-all duration-200" style="box-shadow: 0 4px 10px rgba(0,0,0,0.35) !important; filter: none !important;">
         <svg class="w-5 h-5 text-amber-400 transform group-hover:-translate-y-1 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
         </svg>
