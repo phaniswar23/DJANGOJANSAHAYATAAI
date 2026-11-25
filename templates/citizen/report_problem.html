@@ -253,7 +253,7 @@
       </div>
 
       <div class="relative">
-        <i data-lucide="map-pin" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+        <i data-lucide="map-pin" class="w-4 h-4 absolute left-3 top-3 text-slate-400 z-10 pointer-events-none"></i>
         <input
           id="step2AddressInput"
           type="text"
@@ -662,19 +662,28 @@ function goToStep(step) {
   window.scrollTo({ top: 100, behavior: 'smooth' });
 }
 
+function scrollToInvalidField(el) {
+  if (!el) return;
+  const target = el.closest('.space-y-1\\.5') || el.parentElement || el;
+  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => {
+    try { el.focus({ preventScroll: true }); } catch (_) { el.focus(); }
+  }, 250);
+}
+
 function validateAndGoToStep2() {
   const descInput = document.getElementById('problemDescription');
   const desc = descInput ? descInput.value.trim() : '';
   if (!desc) {
     if (window.FormValidator) FormValidator.showFieldError(descInput, 'Enter problem description');
     showError('Please describe the problem before continuing.');
-    if (descInput) descInput.focus();
+    scrollToInvalidField(descInput);
     return;
   }
   if (desc.length < 15) {
     if (window.FormValidator) FormValidator.showFieldError(descInput, 'Min 15 characters required');
     showError('Please provide at least 15 characters in the problem description before continuing.');
-    if (descInput) descInput.focus();
+    scrollToInvalidField(descInput);
     return;
   }
   if (window.FormValidator) FormValidator.clearFieldError(descInput);
@@ -688,7 +697,7 @@ function validateAndGoToStep3() {
   if (!address) {
     if (window.FormValidator) FormValidator.showFieldError(addrInput, 'Enter location or address');
     showError('Incident Location / Station / Street Address is required.');
-    if (addrInput) addrInput.focus();
+    scrollToInvalidField(addrInput);
     return;
   }
   if (window.FormValidator) FormValidator.clearFieldError(addrInput);
