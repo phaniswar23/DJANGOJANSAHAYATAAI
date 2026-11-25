@@ -38,7 +38,7 @@
             Email Address or Mobile Number
           </label>
           <div class="relative">
-            <i data-lucide="user" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+            <i data-lucide="user" class="w-4 h-4 absolute left-3 top-3 text-slate-400 z-10 pointer-events-none"></i>
             <input
               id="email"
               type="text"
@@ -46,6 +46,14 @@
               placeholder="citizen@gmail.com"
               class="gov-input pl-9 text-xs py-2.5"
             />
+          </div>
+          <!-- Simple English Helper & Error Line -->
+          <p id="emailHelp" class="text-[11px] text-slate-500 mt-1">
+            Enter your registered email address or 10-digit mobile number.
+          </p>
+          <div id="emailError" class="hidden mt-1 flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0 text-red-500"></i>
+            <span id="emailErrorText">Please enter your email address or mobile number.</span>
           </div>
         </div>
 
@@ -62,7 +70,7 @@
             </a>
           </div>
           <div class="relative">
-            <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3 text-slate-400 pointer-events-none"></i>
+            <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-3 text-slate-400 pointer-events-none z-10"></i>
             <input
               id="password"
               type="password"
@@ -73,13 +81,21 @@
             <button
               type="button"
               onclick="togglePasswordVisibility('password', this)"
-              class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:scale-90 transition-all duration-200 focus:outline-none"
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:scale-90 transition-all duration-200 focus:outline-none z-10"
               aria-label="Show password"
               title="Show password"
               tabIndex="-1"
             >
               <i data-lucide="eye" class="w-4 h-4 transition-transform duration-200 hover:scale-110 text-slate-400"></i>
             </button>
+          </div>
+          <!-- Simple English Helper & Error Line -->
+          <p id="passwordHelp" class="text-[11px] text-slate-500 mt-1">
+            Enter your account password (at least 8 characters).
+          </p>
+          <div id="passwordError" class="hidden mt-1 flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0 text-red-500"></i>
+            <span id="passwordErrorText">Password is wrong. Please enter the correct password.</span>
           </div>
         </div>
 
@@ -150,16 +166,46 @@
 
 {% block extra_scripts %}
 <script>
+function showInputError(inputId, message) {
+  const input = document.getElementById(inputId);
+  const errBox = document.getElementById(inputId + 'Error');
+  const errText = document.getElementById(inputId + 'ErrorText');
+  const help = document.getElementById(inputId + 'Help');
+  if (input) {
+    input.classList.add('gov-input-error', 'field-shake');
+  }
+  if (errText) errText.innerText = message;
+  if (errBox) {
+    errBox.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons({ root: errBox });
+  }
+  if (help) help.classList.add('hidden');
+}
+
+function clearInputError(inputId) {
+  const input = document.getElementById(inputId);
+  const errBox = document.getElementById(inputId + 'Error');
+  const help = document.getElementById(inputId + 'Help');
+  if (input) {
+    input.classList.remove('gov-input-error', 'field-shake');
+  }
+  if (errBox) errBox.classList.add('hidden');
+  if (help) help.classList.remove('hidden');
+}
+
 function fillCitizenCredentials(email, password, roleName) {
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
   if (emailInput && passwordInput) {
     emailInput.value = email;
     passwordInput.value = password;
+    clearInputError('email');
+    clearInputError('password');
     if (window.FormValidator) {
       FormValidator.clearFieldError(emailInput);
       FormValidator.clearFieldError(passwordInput);
     }
+    document.getElementById('loginError').classList.add('hidden');
     toast.success(`Loaded ${roleName} test credentials`);
   }
 }
@@ -177,6 +223,34 @@ function togglePasswordVisibility(inputId, btn) {
   if (window.lucide) lucide.createIcons({ root: btn });
 }
 
+// Attach real-time input listeners for simple English live validation
+document.addEventListener('DOMContentLoaded', () => {
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const errBox = document.getElementById('loginError');
+
+  if (emailInput) {
+    emailInput.addEventListener('input', () => {
+      clearInputError('email');
+      if (errBox) errBox.classList.add('hidden');
+    });
+  }
+
+  if (passwordInput) {
+    passwordInput.addEventListener('input', () => {
+      if (errBox) errBox.classList.add('hidden');
+      const val = passwordInput.value;
+      if (!val) {
+        clearInputError('password');
+      } else if (val.length < 8) {
+        showInputError('password', `Password must be at least 8 characters long (currently ${val.length} characters).`);
+      } else {
+        clearInputError('password');
+      }
+    });
+  }
+});
+
 async function handleCitizenLogin(e) {
   e.preventDefault();
   const emailInput = document.getElementById('email');
@@ -189,20 +263,25 @@ async function handleCitizenLogin(e) {
 
   errBox.classList.add('hidden');
 
-  let hasError = false;
+  let isValid = true;
   if (!email) {
-    if (window.FormValidator) FormValidator.showFieldError(emailInput, 'Enter email address');
-    hasError = true;
+    showInputError('email', 'Please enter your email address or mobile number.');
+    if (isValid) { emailInput.focus(); isValid = false; }
+  } else {
+    clearInputError('email');
   }
+
   if (!password) {
-    if (window.FormValidator) FormValidator.showFieldError(passwordInput, 'Enter password');
-    hasError = true;
+    showInputError('password', 'Please enter your password.');
+    if (isValid) { passwordInput.focus(); isValid = false; }
+  } else if (password.length < 8) {
+    showInputError('password', `Password must be at least 8 characters long (currently ${password.length} characters).`);
+    if (isValid) { passwordInput.focus(); isValid = false; }
+  } else {
+    clearInputError('password');
   }
-  if (hasError) {
-    if (!email && emailInput) emailInput.focus();
-    else if (!password && passwordInput) passwordInput.focus();
-    return;
-  }
+
+  if (!isValid) return;
 
   btn.disabled = true;
   btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Verifying Credentials...</span>`;
@@ -230,11 +309,22 @@ async function handleCitizenLogin(e) {
       throw new Error(data.message || 'Login failed.');
     }
   } catch (err) {
-    errMsg.innerText = err.message || 'Invalid email or password.';
-    errBox.classList.remove('hidden');
+    const rawMsg = err.message || '';
     btn.disabled = false;
     btn.innerHTML = `<span>Sign In to Citizen Account</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
     if (window.lucide) lucide.createIcons({ root: btn });
+
+    if (rawMsg.toLowerCase().includes('password') || rawMsg.toLowerCase().includes('wrong')) {
+      showInputError('password', 'Password is wrong. Please enter the correct password.');
+      passwordInput.focus();
+    } else if (rawMsg.toLowerCase().includes('not found') || rawMsg.toLowerCase().includes('account') || rawMsg.toLowerCase().includes('email') || rawMsg.toLowerCase().includes('user')) {
+      showInputError('email', 'Account not found. Please check your email/mobile or register.');
+      emailInput.focus();
+    } else {
+      errMsg.innerText = rawMsg || 'Invalid email or password.';
+      errBox.classList.remove('hidden');
+      showInputError('password', 'Password is wrong. Please enter the correct password.');
+    }
   }
 }
 </script>

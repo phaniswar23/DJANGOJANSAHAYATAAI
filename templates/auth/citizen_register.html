@@ -57,7 +57,7 @@
             Full Name <span class="text-red-500">*</span>
           </label>
           <div class="relative">
-            <i data-lucide="user" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+            <i data-lucide="user" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400 z-10 pointer-events-none"></i>
             <input
               id="regName"
               type="text"
@@ -66,6 +66,12 @@
               class="gov-input pl-9 text-xs py-2"
             />
           </div>
+          <!-- Simple English Helper & Error Line -->
+          <p id="regNameHelp" class="text-[11px] text-slate-500 mt-1">Enter your full name (minimum 3 letters).</p>
+          <div id="regNameError" class="hidden mt-1 flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0 text-red-500"></i>
+            <span id="regNameErrorText">Please enter your full name.</span>
+          </div>
         </div>
 
         <div>
@@ -73,7 +79,7 @@
             Email Address <span class="text-red-500">*</span>
           </label>
           <div class="relative">
-            <i data-lucide="mail" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+            <i data-lucide="mail" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400 z-10 pointer-events-none"></i>
             <input
               id="regEmail"
               type="email"
@@ -82,7 +88,12 @@
               class="gov-input pl-9 text-xs py-2"
             />
           </div>
-          <p class="text-[10px] text-slate-400 mt-0.5">A 6-digit confirmation code will be dispatched to this address.</p>
+          <!-- Simple English Helper & Error Line -->
+          <p id="regEmailHelp" class="text-[11px] text-slate-500 mt-1">A 6-digit confirmation code will be dispatched to this address.</p>
+          <div id="regEmailError" class="hidden mt-1 flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0 text-red-500"></i>
+            <span id="regEmailErrorText">Please enter a valid email address.</span>
+          </div>
         </div>
 
         <div>
@@ -90,7 +101,7 @@
             Mobile Number (Optional)
           </label>
           <div class="relative">
-            <i data-lucide="phone" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+            <i data-lucide="phone" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400 z-10 pointer-events-none"></i>
             <input
               id="regPhone"
               type="tel"
@@ -98,7 +109,12 @@
               class="gov-input pl-9 text-xs py-2"
             />
           </div>
-          <p class="text-[10px] text-slate-400 mt-0.5">10-digit Indian mobile number</p>
+          <!-- Simple English Helper & Error Line -->
+          <p id="regPhoneHelp" class="text-[11px] text-slate-500 mt-1">Optional. 10-digit Indian mobile number.</p>
+          <div id="regPhoneError" class="hidden mt-1 flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0 text-red-500"></i>
+            <span id="regPhoneErrorText">Please enter a valid 10-digit mobile number.</span>
+          </div>
         </div>
 
         <div>
@@ -106,7 +122,7 @@
             Create Password <span class="text-red-500">*</span>
           </label>
           <div class="relative">
-            <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400 pointer-events-none"></i>
+            <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"></i>
             <input
               id="regPassword"
               type="password"
@@ -117,13 +133,19 @@
             <button
               type="button"
               onclick="togglePasswordVisibility('regPassword', this)"
-              class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:scale-90 transition-all duration-200 focus:outline-none"
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:scale-90 transition-all duration-200 focus:outline-none z-10"
               aria-label="Show password"
               title="Show password"
               tabIndex="-1"
             >
               <i data-lucide="eye" class="w-4 h-4 transition-transform duration-200 hover:scale-110 text-slate-400"></i>
             </button>
+          </div>
+          <!-- Simple English Helper & Error Line -->
+          <p id="regPasswordHelp" class="text-[11px] text-slate-500 mt-1">Must be at least 8 characters and include at least one number.</p>
+          <div id="regPasswordError" class="hidden mt-1 flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0 text-red-500"></i>
+            <span id="regPasswordErrorText">Password must be at least 8 characters long.</span>
           </div>
         </div>
 
@@ -132,7 +154,7 @@
             Confirm Password <span class="text-red-500">*</span>
           </label>
           <div class="relative">
-            <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400 pointer-events-none"></i>
+            <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"></i>
             <input
               id="regConfirmPassword"
               type="password"
@@ -143,13 +165,19 @@
             <button
               type="button"
               onclick="togglePasswordVisibility('regConfirmPassword', this)"
-              class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:scale-90 transition-all duration-200 focus:outline-none"
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:scale-90 transition-all duration-200 focus:outline-none z-10"
               aria-label="Show password"
               title="Show password"
               tabIndex="-1"
             >
               <i data-lucide="eye" class="w-4 h-4 transition-transform duration-200 hover:scale-110 text-slate-400"></i>
             </button>
+          </div>
+          <!-- Simple English Helper & Error Line -->
+          <p id="regConfirmHelp" class="text-[11px] text-slate-500 mt-1">Re-type your password to confirm.</p>
+          <div id="regConfirmError" class="hidden mt-1 flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0 text-red-500"></i>
+            <span id="regConfirmErrorText">Passwords do not match.</span>
           </div>
         </div>
 
@@ -248,6 +276,97 @@ function togglePasswordVisibility(inputId, btn) {
   if (window.lucide) lucide.createIcons({ root: btn });
 }
 
+function showInputError(inputId, message) {
+  const input = document.getElementById(inputId);
+  const errBox = document.getElementById(inputId + 'Error');
+  const errText = document.getElementById(inputId + 'ErrorText');
+  const help = document.getElementById(inputId + 'Help');
+  if (input) {
+    input.classList.add('gov-input-error', 'field-shake');
+  }
+  if (errText) errText.innerText = message;
+  if (errBox) {
+    errBox.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons({ root: errBox });
+  }
+  if (help) help.classList.add('hidden');
+}
+
+function clearInputError(inputId) {
+  const input = document.getElementById(inputId);
+  const errBox = document.getElementById(inputId + 'Error');
+  const help = document.getElementById(inputId + 'Help');
+  if (input) {
+    input.classList.remove('gov-input-error', 'field-shake');
+  }
+  if (errBox) errBox.classList.add('hidden');
+  if (help) help.classList.remove('hidden');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const nameInput = document.getElementById('regName');
+  const emailInput = document.getElementById('regEmail');
+  const phoneInput = document.getElementById('regPhone');
+  const passInput = document.getElementById('regPassword');
+  const confirmInput = document.getElementById('regConfirmPassword');
+
+  if (nameInput) {
+    nameInput.addEventListener('input', () => {
+      if (nameInput.value.trim().length >= 3) clearInputError('regName');
+    });
+  }
+
+  if (emailInput) {
+    emailInput.addEventListener('input', () => {
+      clearInputError('regEmail');
+    });
+  }
+
+  if (phoneInput) {
+    phoneInput.addEventListener('input', () => {
+      clearInputError('regPhone');
+    });
+  }
+
+  if (passInput) {
+    passInput.addEventListener('input', () => {
+      const val = passInput.value;
+      if (!val) {
+        clearInputError('regPassword');
+      } else if (val.length < 8) {
+        showInputError('regPassword', `Password must be at least 8 characters long (currently ${val.length} characters).`);
+      } else if (!/\d/.test(val)) {
+        showInputError('regPassword', 'Please include at least one number (0-9) in your password.');
+      } else {
+        clearInputError('regPassword');
+      }
+
+      // Re-verify confirm password if already typed
+      if (confirmInput && confirmInput.value) {
+        if (confirmInput.value !== val) {
+          showInputError('regConfirmPassword', 'Passwords do not match. Please enter the same password.');
+        } else {
+          clearInputError('regConfirmPassword');
+        }
+      }
+    });
+  }
+
+  if (confirmInput) {
+    confirmInput.addEventListener('input', () => {
+      const val = confirmInput.value;
+      const pass = passInput ? passInput.value : '';
+      if (!val) {
+        clearInputError('regConfirmPassword');
+      } else if (val !== pass) {
+        showInputError('regConfirmPassword', 'Passwords do not match. Please enter the same password.');
+      } else {
+        clearInputError('regConfirmPassword');
+      }
+    });
+  }
+});
+
 function showRegisterError(msg) {
   const box = document.getElementById('registerError');
   const txt = document.getElementById('registerErrorMsg');
@@ -275,47 +394,61 @@ async function handleSendRegisterOtp(e) {
   const passInput = document.getElementById('regPassword');
   const confirmInput = document.getElementById('regConfirmPassword');
 
-  let hasError = false;
+  let isValid = true;
   if (!name) {
-    if (window.FormValidator) FormValidator.showFieldError(nameInput, 'Enter full name');
-    hasError = true;
-  }
-  if (!email) {
-    if (window.FormValidator) FormValidator.showFieldError(emailInput, 'Enter email address');
-    hasError = true;
-  }
-  if (!password) {
-    if (window.FormValidator) FormValidator.showFieldError(passInput, 'Enter password');
-    hasError = true;
-  }
-  if (!confirmPassword) {
-    if (window.FormValidator) FormValidator.showFieldError(confirmInput, 'Confirm password');
-    hasError = true;
-  }
-  if (hasError) {
-    if (!name && nameInput) nameInput.focus();
-    else if (!email && emailInput) emailInput.focus();
-    else if (!password && passInput) passInput.focus();
-    else if (confirmInput) confirmInput.focus();
-    return;
+    showInputError('regName', 'Please enter your full name.');
+    if (isValid) { nameInput.focus(); isValid = false; }
+  } else if (name.length < 3) {
+    showInputError('regName', 'Full name must have at least 3 letters.');
+    if (isValid) { nameInput.focus(); isValid = false; }
+  } else {
+    clearInputError('regName');
   }
 
-  if (password.length < 8 || !/\d/.test(password)) {
-    if (window.FormValidator) FormValidator.showFieldError(passInput, 'Min 8 chars with a number');
-    showRegisterError('Password must be at least 8 characters long with at least one number.');
-    if (passInput) passInput.focus();
-    return;
+  if (!email) {
+    showInputError('regEmail', 'Please enter your email address.');
+    if (isValid) { emailInput.focus(); isValid = false; }
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showInputError('regEmail', 'Please enter a valid email address (e.g. name@example.com).');
+    if (isValid) { emailInput.focus(); isValid = false; }
+  } else {
+    clearInputError('regEmail');
   }
-  if (password !== confirmPassword) {
-    if (window.FormValidator) FormValidator.showFieldError(confirmInput, 'Passwords do not match');
-    showRegisterError('Passwords do not match.');
-    if (confirmInput) confirmInput.focus();
-    return;
+
+  if (phone) {
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      showInputError('regPhone', 'Please enter a valid 10-digit mobile number.');
+      if (isValid) { document.getElementById('regPhone').focus(); isValid = false; }
+    } else {
+      clearInputError('regPhone');
+    }
   }
-  if (window.FormValidator) {
-    FormValidator.clearFieldError(passInput);
-    FormValidator.clearFieldError(confirmInput);
+
+  if (!password) {
+    showInputError('regPassword', 'Please create a password.');
+    if (isValid) { passInput.focus(); isValid = false; }
+  } else if (password.length < 8) {
+    showInputError('regPassword', `Password must be at least 8 characters long (currently ${password.length} characters).`);
+    if (isValid) { passInput.focus(); isValid = false; }
+  } else if (!/\d/.test(password)) {
+    showInputError('regPassword', 'Please include at least one number in your password.');
+    if (isValid) { passInput.focus(); isValid = false; }
+  } else {
+    clearInputError('regPassword');
   }
+
+  if (!confirmPassword) {
+    showInputError('regConfirmPassword', 'Please confirm your password.');
+    if (isValid) { confirmInput.focus(); isValid = false; }
+  } else if (password !== confirmPassword) {
+    showInputError('regConfirmPassword', 'Passwords do not match. Please enter the same password.');
+    if (isValid) { confirmInput.focus(); isValid = false; }
+  } else {
+    clearInputError('regConfirmPassword');
+  }
+
+  if (!isValid) return;
 
   regState.name = name;
   regState.email = email;
@@ -352,7 +485,16 @@ async function handleSendRegisterOtp(e) {
       throw new Error(data.message || 'Failed to dispatch verification code.');
     }
   } catch (err) {
-    showRegisterError(err.message || 'Registration failed. Please check details.');
+    const rawMsg = err.message || '';
+    if (rawMsg.toLowerCase().includes('already') || rawMsg.toLowerCase().includes('registered') || rawMsg.toLowerCase().includes('exists')) {
+      showInputError('regEmail', 'This email is already registered. Please sign in instead.');
+      emailInput.focus();
+    } else if (rawMsg.toLowerCase().includes('password')) {
+      showInputError('regPassword', rawMsg);
+      passInput.focus();
+    } else {
+      showRegisterError(rawMsg || 'Registration failed. Please check details.');
+    }
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<span>Send Verification Code</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;

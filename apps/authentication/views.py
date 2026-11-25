@@ -68,23 +68,26 @@ def register_citizen(request):
     confirm_password = data.get('confirmPassword', '')
 
     if not name or not email or not password:
-        return JsonResponse({'success': False, 'message': 'Name, email, and password are required.'}, status=400)
+        return JsonResponse({'success': False, 'message': 'Please enter your name, email, and password.'}, status=400)
 
     if len(name) < 3 or not re.match(r'^[a-zA-Z\s.]+$', name):
-        return JsonResponse({'success': False, 'message': 'Full name must be at least 3 characters and contain only letters and spaces.'}, status=400)
+        return JsonResponse({'success': False, 'field': 'regName', 'message': 'Full name must have at least 3 letters and contain only letters.'}, status=400)
 
     if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
-        return JsonResponse({'success': False, 'message': 'Please enter a valid email address.'}, status=400)
+        return JsonResponse({'success': False, 'field': 'regEmail', 'message': 'Please enter a valid email address.'}, status=400)
+
+    if len(password) < 8:
+        return JsonResponse({'success': False, 'field': 'regPassword', 'message': 'Password must be at least 8 characters long.'}, status=400)
+
+    if not re.search(r'\d', password):
+        return JsonResponse({'success': False, 'field': 'regPassword', 'message': 'Password must include at least one number.'}, status=400)
 
     if confirm_password and password != confirm_password:
-        return JsonResponse({'success': False, 'message': 'Passwords do not match.'}, status=400)
-
-    if len(password) < 6:
-        return JsonResponse({'success': False, 'message': 'Password must be at least 6 characters long.'}, status=400)
+        return JsonResponse({'success': False, 'field': 'regConfirmPassword', 'message': 'Passwords do not match. Please re-enter the same password.'}, status=400)
 
     users = get_users_collection()
     if users.find_one({'email': email}):
-        return JsonResponse({'success': False, 'message': 'An account with this email address already exists.'}, status=409)
+        return JsonResponse({'success': False, 'field': 'regEmail', 'message': 'This email is already registered. Please sign in instead.'}, status=409)
 
     sanitized_phone = phone
     if phone:
@@ -138,12 +141,21 @@ def register_send_otp(request):
     password = data.get('password', '')
 
     if not email:
-        return JsonResponse({'success': False, 'message': 'Email address is required.'}, status=400)
+        return JsonResponse({'success': False, 'field': 'regEmail', 'message': 'Please enter your email address.'}, status=400)
+
+    if not name or len(name) < 3:
+        return JsonResponse({'success': False, 'field': 'regName', 'message': 'Full name must have at least 3 letters.'}, status=400)
+
+    if len(password) < 8:
+        return JsonResponse({'success': False, 'field': 'regPassword', 'message': 'Password must be at least 8 characters long.'}, status=400)
+
+    if not re.search(r'\d', password):
+        return JsonResponse({'success': False, 'field': 'regPassword', 'message': 'Password must include at least one number.'}, status=400)
 
     users = get_users_collection()
     existing = users.find_one({'email': email})
     if existing and existing.get('status') == 'Active':
-        return JsonResponse({'success': False, 'message': 'An account with this email is already registered.'}, status=409)
+        return JsonResponse({'success': False, 'field': 'regEmail', 'message': 'This email is already registered. Please sign in instead.'}, status=409)
 
     otp = str(random.randint(100000, 999999))
     expires = datetime.now(timezone.utc) + timedelta(minutes=10)
@@ -249,8 +261,14 @@ def login_citizen(request):
     clean_identifier = identifier.lower()
     password = data.get('password', '')
 
-    if not identifier or not password:
-        return JsonResponse({'success': False, 'message': 'Email or mobile number, and password are required.'}, status=400)
+    if not identifier:
+        return JsonResponse({'success': False, 'field': 'email', 'message': 'Please enter your email address or mobile number.'}, status=400)
+
+    if not password:
+        return JsonResponse({'success': False, 'field': 'password', 'message': 'Please enter your password.'}, status=400)
+
+    if len(password) < 8:
+        return JsonResponse({'success': False, 'field': 'password', 'message': 'Password must be at least 8 characters long.'}, status=400)
 
     users = get_users_collection()
     if '@' in clean_identifier:
@@ -268,10 +286,10 @@ def login_citizen(request):
             ]
         })
     if not user:
-        return JsonResponse({'success': False, 'message': 'Invalid credentials. User not found.'}, status=401)
+        return JsonResponse({'success': False, 'field': 'email', 'message': 'No account found with this email or mobile. Please check or register.'}, status=401)
 
     if not verify_password(password, user.get('passwordHash', '')):
-        return JsonResponse({'success': False, 'message': 'Invalid email or password.'}, status=401)
+        return JsonResponse({'success': False, 'field': 'password', 'message': 'Password is wrong. Please enter the correct password.'}, status=401)
 
     if user.get('status') == 'Disabled':
         return JsonResponse({'success': False, 'message': 'Your account has been deactivated. Please contact support.'}, status=403)
@@ -296,20 +314,26 @@ def login_staff(request):
     email = data.get('email', '').strip().lower()
     password = data.get('password', '')
 
-    if not email or not password:
-        return JsonResponse({'success': False, 'message': 'Official email and password are required.'}, status=400)
+    if not email:
+        return JsonResponse({'success': False, 'field': 'identifier', 'message': 'Please enter your official email or employee ID.'}, status=400)
+
+    if not password:
+        return JsonResponse({'success': False, 'field': 'staffPassword', 'message': 'Please enter your password.'}, status=400)
+
+    if len(password) < 8:
+        return JsonResponse({'success': False, 'field': 'staffPassword', 'message': 'Password must be at least 8 characters long.'}, status=400)
 
     users = get_users_collection()
     user = users.find_one({'$or': [{'email': email}, {'employeeId': data.get('email', '').strip()}]})
 
     if not user:
-        return JsonResponse({'success': False, 'message': 'Government personnel record not found.'}, status=401)
+        return JsonResponse({'success': False, 'field': 'identifier', 'message': 'Official record not found. Please check your email or employee ID.'}, status=401)
 
     if user.get('role') not in ('EMPLOYEE', 'SUPER_ADMIN'):
         return JsonResponse({'success': False, 'message': 'Unauthorized. This portal is strictly for Government Personnel.'}, status=403)
 
     if not verify_password(password, user.get('passwordHash', '')):
-        return JsonResponse({'success': False, 'message': 'Invalid credentials. Access denied.'}, status=401)
+        return JsonResponse({'success': False, 'field': 'staffPassword', 'message': 'Password is wrong. Please enter the correct password.'}, status=401)
 
     if user.get('status') == 'Disabled':
         return JsonResponse({'success': False, 'message': 'Your official account is deactivated. Contact Department Administrator.'}, status=403)

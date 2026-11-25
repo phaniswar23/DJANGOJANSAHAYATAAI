@@ -7,7 +7,7 @@ const API_BASE = '/api';
 
 // Toast Notifications System
 const toast = {
-  show(message, type = 'info', duration = 3500) {
+  show(message, type = 'info', duration = 3000) {
     const container = document.getElementById('toastContainer');
     if (!container) return;
 
@@ -47,6 +47,7 @@ const toast = {
   warning(msg) { this.show(msg, 'warning'); },
   info(msg) { this.show(msg, 'info'); }
 };
+window.toast = toast;
 
 // API Fetch Helper with Automated JWT Token Injection
 async function apiRequest(endpoint, options = {}) {
@@ -614,7 +615,12 @@ const FormValidator = {
     if (!input) return null;
     // Single-row flex container (e.g. input + button inside home quick-track or email send)
     const flexRow = input.closest('.flex');
-    if (flexRow && flexRow.querySelector('button[type="submit"], button.gov-btn-primary, button.gov-btn-secondary')) {
+    if (
+      flexRow &&
+      !flexRow.querySelector('form') &&
+      flexRow.querySelectorAll('input, textarea, select').length === 1 &&
+      flexRow.querySelector('button[type="submit"], button.gov-btn-primary, button.gov-btn-secondary')
+    ) {
       return flexRow;
     }
     // Relative wrapper (icon + input)
@@ -630,39 +636,18 @@ const FormValidator = {
     return input;
   },
 
-  showFieldError(input, customMsg) {
+  showFieldError(input, customMsg, suppressToast = false) {
     if (!input) return;
     const msg = customMsg || this.getShortErrorMessage(input);
-    const anchor = this.getFieldAnchor(input);
-    if (!anchor || !anchor.parentNode) return;
 
     input.classList.add('gov-input-error');
     input.classList.remove('field-shake');
     void input.offsetWidth;
     input.classList.add('field-shake');
 
-    let errEl = null;
-    if (anchor.nextElementSibling && anchor.nextElementSibling.classList.contains('field-error-msg')) {
-      errEl = anchor.nextElementSibling;
-    } else if (input.id) {
-      errEl = document.querySelector(`.field-error-msg[data-error-for="${input.id}"]`);
+    if (!suppressToast && window.toast) {
+      toast.show(msg, 'error', 3000);
     }
-
-    if (!errEl) {
-      errEl = document.createElement('div');
-      errEl.className = 'field-error-msg';
-      if (input.id) errEl.setAttribute('data-error-for', input.id);
-      anchor.parentNode.insertBefore(errEl, anchor.nextSibling);
-    }
-
-    errEl.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <span>${msg}</span>
-    `;
 
     if (!input._hasErrorListeners) {
       input._hasErrorListeners = true;
@@ -724,7 +709,8 @@ const FormValidator = {
 
       if (fieldError) {
         isValid = false;
-        this.showFieldError(input, fieldError);
+        const isFirst = !firstInvalid;
+        this.showFieldError(input, fieldError, !isFirst);
         if (!firstInvalid) firstInvalid = input;
       } else {
         this.clearFieldError(input);

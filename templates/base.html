@@ -65,7 +65,17 @@
       40%, 80% { transform: translateX(4px); }
     }
     .field-shake {
-      animation: fieldShake 0.35s cubic-bezier(.36,.07,.19,.97) both;
+      animation: fieldShake 0.35s cubic-bezier(.36,.07,.19,.97);
+    }
+    /* Ensure prefix/suffix icons & buttons inside relative input containers stay visible above input background & shake states */
+    .relative > i.absolute,
+    .relative > svg.lucide.absolute,
+    .relative > [data-lucide].absolute {
+      z-index: 10 !important;
+      pointer-events: none;
+    }
+    .relative > button.absolute {
+      z-index: 10 !important;
     }
     @keyframes fieldErrorSlideDown {
       from {
@@ -459,7 +469,12 @@
         getFieldAnchor(input) {
           if (!input) return null;
           const flexRow = input.closest('.flex');
-          if (flexRow && flexRow.querySelector('button[type="submit"], button.gov-btn-primary, button.gov-btn-secondary')) return flexRow;
+          if (
+            flexRow &&
+            !flexRow.querySelector('form') &&
+            flexRow.querySelectorAll('input, textarea, select').length === 1 &&
+            flexRow.querySelector('button[type="submit"], button.gov-btn-primary, button.gov-btn-secondary')
+          ) return flexRow;
           const rel = input.closest('.relative');
           if (rel && rel.parentElement) return rel;
           const centeredWrap = input.closest('.flex.justify-center');
@@ -467,40 +482,18 @@
           return input;
         },
 
-        showFieldError(input, customMsg) {
+        showFieldError(input, customMsg, suppressToast = false) {
           if (!input) return;
           const msg = customMsg || this.getShortErrorMessage(input);
-          const anchor = this.getFieldAnchor(input);
-          if (!anchor || !anchor.parentNode) return;
 
           input.classList.add('gov-input-error');
           input.classList.remove('field-shake');
           void input.offsetWidth;
           input.classList.add('field-shake');
 
-          let errEl = null;
-          if (anchor.nextElementSibling && anchor.nextElementSibling.classList.contains('field-error-msg')) {
-            errEl = anchor.nextElementSibling;
-          } else if (input.id) {
-            errEl = document.querySelector(`.field-error-msg[data-error-for="${input.id}"]`);
+          if (!suppressToast && window.toast) {
+            window.toast.show(msg, 'error', 3000);
           }
-
-          if (!errEl) {
-            errEl = document.createElement('div');
-            errEl.className = 'field-error-msg';
-            if (input.id) errEl.setAttribute('data-error-for', input.id);
-            anchor.parentNode.insertBefore(errEl, anchor.nextSibling);
-          }
-
-          errEl.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-            <span>${msg}</span>
-          `;
-          errEl.classList.remove('hidden');
 
           if (!input._hasErrorListeners) {
             input._hasErrorListeners = true;
@@ -552,7 +545,8 @@
 
             if (fieldError) {
               isValid = false;
-              this.showFieldError(input, fieldError);
+              const isFirst = !firstInvalid;
+              this.showFieldError(input, fieldError, !isFirst);
               if (!firstInvalid) firstInvalid = input;
             } else {
               this.clearFieldError(input);
